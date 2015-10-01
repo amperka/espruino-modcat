@@ -5,7 +5,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'modules/@amperka',
-          src: '*.js',
+          src: ['*.js', '!*.min.js'],
           dest: 'modules/@amperka',
           ext: '.min.js'
         }]
