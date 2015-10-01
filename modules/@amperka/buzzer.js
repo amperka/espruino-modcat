@@ -4,6 +4,10 @@ var Buzzer = function(pin) {
   this._on = false;
   this._frequency = 2000;
 
+  this._beepTimeoutID = null;
+  this._beepOnTime = 0;
+  this._beepOffTime = 0;
+
   this._pin.mode('output');
 };
 
@@ -12,6 +16,7 @@ Buzzer.prototype.toggle = function() {
     return this.toggle(!this._on);
   }
 
+  this._clearBeep();
   this._on = !!arguments[0];
   this._update();
 
@@ -28,6 +33,41 @@ Buzzer.prototype.turnOff = function() {
 
 Buzzer.prototype.isOn = function() {
   return this._on;
+};
+
+Buzzer.prototype._clearBeep = function() {
+  if (this._beepTimeoutID) {
+    clearTimeout(this._beepTimeoutID);
+    this._beepTimeoutID = null;
+  }
+};
+
+Buzzer.prototype._beepOn = function() {
+  this._on = true;
+  this._update();
+  this._beepTimeoutID = setTimeout(
+    this._beepOff.bind(this),
+    this._beepOnTime * 1000);
+};
+
+Buzzer.prototype._beepOff = function() {
+  this._on = false;
+  this._update();
+
+  if (this._beepOffTime) {
+    this._beepTimeoutID = setTimeout(
+      this._beepOn.bind(this),
+      this._beepOffTime * 1000);
+  } else {
+    this._beepTimeoutID = null;
+  }
+};
+
+Buzzer.prototype.beep = function(onTime, offTime) {
+  this._clearBeep();
+  this._beepOnTime = onTime;
+  this._beepOffTime = offTime;
+  this._beepOn();
 };
 
 Buzzer.prototype.frequency = function() {
