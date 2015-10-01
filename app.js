@@ -10,7 +10,13 @@ app.get('/', function (req, res) {
 
 // The 404 Route
 app.get('*', function(req, res){
-  res.redirect('http://espruino.com/modules/' + req.originalUrl);
+  if (req.url.indexOf('amperka') > -1) {
+    console.log('Not found:', req.url)
+    res.status(404).send('Not found');
+  } else {
+    console.log('Redirect for:', req.originalUrl)
+    res.redirect('http://espruino.com/modules/' + req.originalUrl);
+  }
 });
 
 var server = app.listen(3001, function () {
