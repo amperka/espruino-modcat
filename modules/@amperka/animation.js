@@ -105,10 +105,10 @@ Animation.prototype._update = function() {
     // phase overflow
     if (trans.loop) {
       // we're in loop transition, just wrap around
-      phase -= Math.ceil(phase);
+      phase -= Math.floor(phase);
     } else if (this._qi < qlast) {
       // we have subsequent transition
-      phase -= Math.ceil(phase);
+      phase -= Math.floor(phase);
       ++qi;
       tweakIval = true;
     } else {
@@ -130,6 +130,6 @@ Animation.prototype._update = function() {
   this._target(val);
 };
 
-exports.create = function(opts) {
-  return new Animation(opts);
+exports.create = function(target, transition) {
+  return new Animation(target, transition);
 };
