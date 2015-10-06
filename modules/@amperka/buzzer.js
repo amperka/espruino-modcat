@@ -17,6 +17,8 @@ Buzzer.prototype.toggle = function() {
   }
 
   this._clearBeep();
+  this._beepOnTime = 0;
+  this._beepOffTime = 0;
   this._on = !!arguments[0];
   this._update();
 
@@ -64,10 +66,20 @@ Buzzer.prototype._beepOff = function() {
 };
 
 Buzzer.prototype.beep = function(onTime, offTime) {
-  this._clearBeep();
+  if (this._beepOnTime === onTime &&
+      this._beepOffTime === offTime) {
+    return;
+  }
+
   this._beepOnTime = onTime;
   this._beepOffTime = offTime;
-  this._beepOn();
+  this._clearBeep();
+  
+  if (this._on) {
+    this._beepOff();
+  } else {
+    this._beepOn();
+  }
 };
 
 Buzzer.prototype.frequency = function() {

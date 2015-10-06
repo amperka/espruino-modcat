@@ -17,6 +17,8 @@ Led.prototype.toggle = function() {
   }
 
   this._clearBlink();
+  this._blinkOnTime = 0;
+  this._blinkOffTime = 0;
   this._on = !!arguments[0];
   this._update();
 
@@ -64,10 +66,20 @@ Led.prototype._blinkOff = function() {
 };
 
 Led.prototype.blink = function(onTime, offTime) {
-  this._clearBlink();
+  if (this._blinkOnTime === onTime &&
+      this._blinkOffTime === offTime) {
+    return;
+  }
+
   this._blinkOnTime = onTime;
   this._blinkOffTime = offTime;
-  this._blinkOn();
+  this._clearBeep();
+  
+  if (this._on) {
+    this._blinkOff();
+  } else {
+    this._blinkOn();
+  }
 };
 
 Led.prototype.brightness = function(value) {
