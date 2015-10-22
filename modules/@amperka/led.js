@@ -73,7 +73,7 @@ Led.prototype.blink = function(onTime, offTime) {
 
   this._blinkOnTime = onTime;
   this._blinkOffTime = offTime;
-  this._clearBeep();
+  this._clearBlink();
   
   if (this._on) {
     this._blinkOff();
