@@ -31,7 +31,8 @@ var Ultrasonic = function(trigPin, echoPin) {
   this._echoPin = echoPin;
 
   this._startTime = null;
-  this._watchID = null;
+  this._riseWatchID = null;
+  this._fallWatchID = null;
   this._timeoutID = null;
 
   this._trigPin.mode('output');
@@ -41,33 +42,43 @@ var Ultrasonic = function(trigPin, echoPin) {
 Ultrasonic.prototype.ping = function(cb, units) {
   var self = this;
 
-  if (self._startTime) {
+  if (self._timeoutID) {
     cb(new Error('busy'));
     return this;
   }
 
-  setWatch(function(e) {
-    self._startTime = e.time;
-
-    self._watchID = setWatch(function(e) {
-      self._watchID = null;
+  this._riseWatchID = setWatch(function(e) {
+    self._riseWatchID = null;
+    // Roundtrip is measured between the moment
+    // when echo line is set high and the moment
+    // when it is returned to low state
+    self._startTime = e.time; 
+    self._fallWatchID = setWatch(function(e) {
+      self._fallWatchID = null;
+      clearTimeout(self._timeoutID); // cancel error handling
+      self._timeoutID = null;
       var roundtripTime = e.time - self._startTime;
       self._startTime = null;
       cb(null, convertUnits(roundtripTime, units));
     }, self._echoPin, {edge: 'falling'});
-
   }, self._echoPin, {edge: 'rising'});
 
+  // Timeout for the cases when we're not getting echo back
   self._timeoutID = setTimeout(function() {
     self._timeoutID = null;
-    if (!self._watchID) {
-      return;
+    if (self._riseWatchID) {
+      // Sensor not even rised echo line
+      clearWatch(self._riseWatchID);
+      self._riseWatchID = null;
+      cb(new Error('wrong connection'));
+    } else {
+      // Measure started, but we've got
+      // no echo within maximum roundtrip time frame
+      self._startTime = null;
+      clearWatch(self._fallWatchID);
+      self._fallWatchID = null;
+      cb(new Error('timeout'));
     }
-
-    clearWatch(self._watchID);
-    self._watchID = null;
-    self._startTime = null;
-    cb(new Error('timeout'));
   }, C.MAX_ROUNDTRIP_MS);
 
   digitalPulse(self._trigPin, 1, 0.01);
