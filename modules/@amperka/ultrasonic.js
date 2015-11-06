@@ -26,9 +26,9 @@ function convertUnits(s, units) {
 * Class Ultrasonic
 *
 */
-var Ultrasonic = function(trigPin, echoPin) {
-  this._trigPin = trigPin;
-  this._echoPin = echoPin;
+var Ultrasonic = function(pins) {
+  this._trigPin = pins.trigPin;
+  this._echoPin = pins.echoPin;
 
   this._startTime = null;
   this._riseWatchID = null;
@@ -91,6 +91,6 @@ Ultrasonic.prototype.ping = function(cb, units) {
 * module exports
 *
 */
-exports.connect = function(trigPin, echoPin) {
-  return new Ultrasonic(trigPin, echoPin);
+exports.connect = function(pins) {
+  return new Ultrasonic(pins);
 };
