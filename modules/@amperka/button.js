@@ -12,7 +12,7 @@ Button.prototype.read = function() {
 
 Button.prototype._watch = function() {
   var onChange = function(e) {
-    this.emit(e.state ? 'up' : 'down');
+    this.emit(e.state ? 'release' : 'press');
   };
 
   setWatch(onChange.bind(this), this._pin, {
