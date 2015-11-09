@@ -33,15 +33,13 @@ Receiver.prototype._onPulse = function(e) {
 
   if (dt > 0.04) {
     this._complete();
-    return;
+  } else {
+    this._currentCode = (this._currentCode << 1) | +(dt > 0.0008);
+    this._timeoutID = setTimeout(function() {
+      self._timeoutID = null;
+      self._complete();
+    }, 50);
   }
-
-  this._currentCode = (this._currentCode << 1) | +(dt > 0.0008);
-
-  this._timeoutID = setTimeout(function() {
-    self._timeoutID = null;
-    self._complete();
-  }, 50);
 };
 
 Receiver.prototype._complete = function() {
