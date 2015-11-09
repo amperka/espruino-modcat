@@ -67,6 +67,7 @@ Led.prototype._blinkOff = function() {
 
 Led.prototype.blink = function(onTime, offTime) {
   if (this._blinkOnTime === onTime &&
+      this._blinkOffTime &&
       this._blinkOffTime === offTime) {
     return;
   }

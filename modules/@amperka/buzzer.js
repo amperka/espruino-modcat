@@ -67,6 +67,7 @@ Buzzer.prototype._beepOff = function() {
 
 Buzzer.prototype.beep = function(onTime, offTime) {
   if (this._beepOnTime === onTime &&
+      this._beepOffTime &&
       this._beepOffTime === offTime) {
     return;
   }
