@@ -27,8 +27,7 @@ var defaultTransition = {
   updateInterval: 0.01
 };
 
-var Animation = function(target, transition) {
-  this._target = target;
+var Animation = function(transition) {
   var trans = extend({}, defaultTransition, transition || {});
   this._queue = [trans];
   this._qi = 0;
@@ -62,11 +61,11 @@ Animation.prototype.stop = function() {
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
-    this._target(this._queue[this._qi].from);
+    this.emit('update', this._queue[this._qi].from);
   } else {
     this._phase = 1;
     this._qi = this._queue.length - 1;
-    this._target(this._queue[this._qi].to);
+    this.emit('update', this._queue[this._qi].to);
   }
 
   this._clearInterval();
@@ -127,9 +126,9 @@ Animation.prototype._update = function() {
   }
 
   var val = lerp(this._phase, trans.from, trans.to);
-  this._target(val);
+  this.emit('update', val);
 };
 
-exports.create = function(target, transition) {
-  return new Animation(target, transition);
+exports.create = function(transition) {
+  return new Animation(transition);
 };
