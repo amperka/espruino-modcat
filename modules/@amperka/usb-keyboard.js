@@ -1,20 +1,6 @@
 /* Copyright (c) 2015 Gordon Williams, Pur3 Ltd. See the file LICENSE for copying permission. */
 /* 
 
-```
-var kb = require("USBKeyboard");
-
-setWatch(function() {
-  kb.setModifiers(kb.MODIFY.SHIFT, function() {
-    kb.type("HELLO WORLD", function() {
-      kb.setModifiers(0, function() {
-        kb.tap(kb.KEY.ENTER); 
-      });
-    });
-  });
-}, BTN, {debounce:100,repeat:true, edge:"rising"});
-```
-
 */
 E.setUSBHID({
   reportDescriptor : [
@@ -53,9 +39,9 @@ E.setUSBHID({
   ]
 });
 
-  // 1 = modifiers
-  // 2 = ?
-  // 3..8 = key codes currently down
+// 1 = modifiers
+// 2 = ?
+// 3..8 = key codes currently down
 
 
 var MODIFY = {
@@ -71,7 +57,8 @@ var MODIFY = {
   RIGHT_SHIFT : 0x20,
   RIGHT_ALT   : 0x40,
   RIGHT_GUI   : 0x80
- };
+};
+
 var KEY = {
   A           : 4 ,
   B           : 5 ,
@@ -120,7 +107,7 @@ var KEY = {
   "="         : 46,
   "["         : 47,
   "]"         : 48,
-  //"\\"        : 49,
+  //"\\"        : 49, // minification problem here
   BACKSLASH   : 49,
   NUMBER      : 50,
   ";"         : 51,
@@ -170,43 +157,9 @@ var KEY = {
   PAD_7       : 95, 
   PAD_8       : 96, 
   PAD_9       : 97, 
-  PAD_0       : 98,     
+  PAD_0       : 98, 
   PAD_PERIOD  : 99
 };
-
-exports.KEY = KEY;
-exports.MODIFY = MODIFY;
-
-var modifiers = 0;
-
-exports.setModifiers = function(m, callback) {
-  modifiers = m;
-  E.sendUSBHID([modifiers,0,0,0,0,0,0,0]);
-  if (callback) setTimeout(callback, 10);
-}
-
-exports.tap = function(key, callback) {
-  E.sendUSBHID([modifiers,0,key,0,0,0,0,0]);
-  setTimeout(function() { 
-    E.sendUSBHID([modifiers,0,0,0,0,0,0,0]); 
-    if (callback) setTimeout(callback, 10);
-  }, 10);
-}
-
-exports.type = function(txt, callback) {
-  var intr = setInterval(function() {
-    if (!txt.length) {
-      clearInterval(intr);
-      if (callback) callback();
-    } else {
-      if (txt[0] in KEY) exports.tap(KEY[txt[0]]);
-      txt = txt.substr(1);
-    }
-  }, 20);
-}
-
-var tap = exports.tap;
-var setModifiers = exports.setModifiers;
 
 var SHIFT_KEYS = {
   '~': '`',
@@ -232,13 +185,50 @@ var SHIFT_KEYS = {
   '|': 'BACKSLASH'
 };
 
-function tapWithShift(key) {
-  setModifiers(MODIFY.SHIFT, function() {
-    tap(key, function() {
-      setModifiers(0);
-    });
-  });
+exports.KEY = KEY;
+exports.MODIFY = MODIFY;
+
+exports.tap = function(key, callback) {
+  var modifiers = 0;
+
+  if (Array.isArray(key)) {
+    // We've got an array of modifiers + key itself.
+    // First combine modifiers
+    for (var i = 0; i < key.length - 1; ++i) {
+      modifiers |= key[i];
+    }
+
+    // Then extract last element as a key
+    key = key[i];
+  }
+
+  if (typeof key === 'string') key = KEY[key];
+
+  // Protect from undefined
+  key = key || 0;
+
+  E.sendUSBHID([modifiers,0,key,0,0,0,0,0]);
+  setTimeout(function() { 
+    E.sendUSBHID([0,0,0,0,0,0,0,0]); 
+    if (callback) setTimeout(callback, 10);
+  }, 10);
 }
+
+exports.type = function(txt, callback) {
+  var intr = setInterval(function() {
+    if (!txt.length) {
+      clearInterval(intr);
+      if (callback) callback();
+    } else {
+      if (txt[0] in KEY) exports.tap(KEY[txt[0]]);
+      txt = txt.substr(1);
+    }
+  }, 20);
+}
+
+var tap = exports.tap;
+var setModifiers = exports.setModifiers;
+
 
 exports.print = function(txt, callback) {
   var chr;
@@ -253,19 +243,19 @@ exports.print = function(txt, callback) {
       code = chr.charCodeAt(0);
       if (code >= 97 && code <= 122) {
         // lower case letter a-z
-        tap(KEY[chr.toUpperCase()]);
+        tap(chr.toUpperCase());
       } else if (code >= 65 && code <= 90) {
         // upper case letter A-Z
-        tapWithShift(KEY[chr]);
+        tap([MODIFY.SHIFT, chr]);
       } else if (chr in KEY) {
         tap(KEY[chr]);
       } else if (chr in SHIFT_KEYS) {
-        tapWithShift(KEY[SHIFT_KEYS[chr]]);
+        tap([MODIFY.SHIFT, SHIFT_KEYS[chr]]);
       } else {
-        tap(KEY['?']);
+        tap('?');
       }
 
       txt = txt.substr(1);
     }
-  }, 40);
+  }, 20);
 }
