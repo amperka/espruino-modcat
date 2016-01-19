@@ -1,7 +1,7 @@
 var DigitalLineSensor = function(pin) {
   this._pin = pin;
   this._pin.mode('input');
-  setWatch(DigitalLineSensor.prototype._watch(), this._pin, {repeat: true});
+  setWatch(DigitalLineSensor.prototype._watch, this._pin, {repeat: true});
 };
 
 DigitalLineSensor.prototype.read = function() {
