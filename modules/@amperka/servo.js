@@ -1,68 +1,33 @@
-
-// TODO: replace with require()
-function lerp(k, from, to) {
-  return from + k * (to - from);
-}
-
-function map(val, fromMin, fromMax, toMin, toMax, clip) {
-  var k = (val - fromMin) / (fromMax - fromMin);
-  val = lerp(k, toMin, toMax);
-  if (clip) {
-    val = E.clip(toMin, toMax);
-  }
-
-  return val;
-}
-
-var Servo = function(pin) {
+var ServoHW = function(pin, options) {
   this._pin = pin;
-  this._pulse = 1.5;
-  this._intervalID = null;
-  this._pin.mode('output');
+  
+  options !== undefined && options.freq !== undefined ? this._freq = options.freq : this._freq = 50;
+  
+  options !== undefined && options.pulseMin !== undefined ? this._pulseMin = options.pulseMin : this._pulseMin = 0.675;
+  options !== undefined && options.pulseMax !== undefined ? this._pulseMax = options.pulseMax : this._pulseMax = 2.325;
+  options !== undefined && options.valueMin !== undefined ? this._valueMin = options.valueMin : this._valueMin = 0;
+  options !== undefined && options.valueMax !== undefined ? this._valueMax = options.valueMax : this._valueMax = 180;
+
+  this._period = 1000 / this._freq;
+  this._valueStart = this._pulseMin / this._period;
+  this._valueStep = ( this._pulseMax - this._pulseMin ) / ( this._valueMax - this._valueMin ) / this._period;
+
 };
-
-Servo.prototype.C = {
-  PULSE_MIN: 0.5,
-  PULSE_MAX: 2.5,
-  ANGLE_MIN: 0,
-  ANGLE_MAX: 180
-};
-
-Servo.prototype.write = function(val, units) {
-  units = units || 'deg';
-
-  switch (units) {
-    case 'deg':
-      this._pulse = map(
-        val, this.C.ANGLE_MIN, this.C.ANGLE_MAX,
-      this.C.PULSE_MIN, this.C.PULSE_MAX);
-      break;
-
-    case 'ms':
-      this._pulse = val;
-      break;
-
+ServoHW.prototype.write = function(value, units) {
+  switch(units) {
     case 'us':
-      this._pulse = val / 1000;
+      value = E.clip(value, this._pulseMin * 1000, this._pulseMax * 1000);
+      analogWrite (this._pin, (value / 1000) / this._period, {freq: this._freq});
       break;
-  }
-
-  this._pulse = E.clip(this._pulse, this.C.PULSE_MIN, this.C.PULSE_MAX);
-  this._update();
-  return this;
+    case 'ms':
+      value = E.clip(value, this._pulseMin, this._pulseMax);
+      analogWrite (this._pin, value / this._period, {freq: this._freq});
+      break;
+    default:
+      value = E.clip(value, this._valueMin, this._valueMax);
+      analogWrite (this._pin, this._valueStart + this._valueStep * (value - this._valueMin), {freq: this._freq});
+  };
 };
-
-Servo.prototype._update = function() {
-  if (this._intervalID) {
-    return;
-  }
-
-  var self = this;
-  this._intervalID = setInterval(function() {
-    digitalPulse(self._pin, 1, self._pulse);
-  }, 20);
-};
-
-exports.connect = function(pin) {
-  return new Servo(pin);
+exports.connect = function(pin, options) {
+  return new ServoHW(pin, options);
 };
