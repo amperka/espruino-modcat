@@ -26,7 +26,7 @@ ServoHW.prototype.write = function(value, units) {
     default:
       value = E.clip(value, this._valueMin, this._valueMax);
       analogWrite (this._pin, this._valueStart + this._valueStep * (value - this._valueMin), {freq: this._freq});
-  };
+    };
 };
 exports.connect = function(pin, options) {
   return new ServoHW(pin, options);
