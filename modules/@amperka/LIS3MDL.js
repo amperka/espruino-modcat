@@ -67,7 +67,7 @@ LIS3MDL.prototype.init = function(opts) {
 };
 
 // Метод возвращает данные с магнитометра
-LIS3MDL.prototype.get = function() {
+LIS3MDL.prototype._getRaw = function() {
   var data = this.read(0x28, 6);
   var result = {
     'x': data[0] | (data[1] << 8),
@@ -87,11 +87,14 @@ LIS3MDL.prototype.get = function() {
 };
 
 // Метод возвращает данные магнитометра в гуссах
-LIS3MDL.prototype.getGauss = function() {
-  var m= this.get();
-  m.x = m.x * this.__sensitivity;
-  m.y = m.y * this.__sensitivity;
-  m.z = m.z * this.__sensitivity;
+LIS3MDL.prototype.get = function(units) {
+  var m = this._getRaw();
+  if (units !== undefined && units === 'G') {
+    m.x = m.x * this.__sensitivity;
+    m.y = m.y * this.__sensitivity;
+    m.z = m.z * this.__sensitivity;
+  }
+  
   return m;
 };
 
