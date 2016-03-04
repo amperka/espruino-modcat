@@ -4,45 +4,44 @@
 */
 E.setUSBHID({
   reportDescriptor : [
-        0x05, 0x01,          // Usage Page (Generic Desktop),
-        0x09, 0x06,          // Usage (Keyboard),
-        0xA1, 0x01,          // Collection (Application),
-        0x75, 0x01,          //   Report Size (1),
-        0x95, 0x08,          //   Report Count (8),
-        0x05, 0x07,          //   Usage Page (Key Codes),
-        0x19, 0xE0,          //   Usage Minimum (224),
-        0x29, 0xE7,          //   Usage Maximum (231),
-        0x15, 0x00,          //   Logical Minimum (0),
-        0x25, 0x01,          //   Logical Maximum (1),
-        0x81, 0x02,          //   Input (Data, Variable, Absolute), ;Modifier byte
-        0x95, 0x01,          //   Report Count (1),
-        0x75, 0x08,          //   Report Size (8),
-        0x81, 0x03,          //   Input (Constant),                 ;Reserved byte
-        0x95, 0x05,          //   Report Count (5),
-        0x75, 0x01,          //   Report Size (1),
-        0x05, 0x08,          //   Usage Page (LEDs),
-        0x19, 0x01,          //   Usage Minimum (1),
-        0x29, 0x05,          //   Usage Maximum (5),
-        0x91, 0x02,          //   Output (Data, Variable, Absolute), ;LED report
-        0x95, 0x01,          //   Report Count (1),
-        0x75, 0x03,          //   Report Size (3),
-        0x91, 0x03,          //   Output (Constant),                 ;LED report padding
-        0x95, 0x06,          //   Report Count (6),
-        0x75, 0x08,          //   Report Size (8),
-        0x15, 0x00,          //   Logical Minimum (0),
-        0x25, 0x68,          //   Logical Maximum(104),
-        0x05, 0x07,          //   Usage Page (Key Codes),
-        0x19, 0x00,          //   Usage Minimum (0),
-        0x29, 0x68,          //   Usage Maximum (104),
-        0x81, 0x00,          //   Input (Data, Array),
-        0xc0                 // End Collection
+    0x05, 0x01,          // Usage Page (Generic Desktop),
+    0x09, 0x06,          // Usage (Keyboard),
+    0xA1, 0x01,          // Collection (Application),
+    0x75, 0x01,          //   Report Size (1),
+    0x95, 0x08,          //   Report Count (8),
+    0x05, 0x07,          //   Usage Page (Key Codes),
+    0x19, 0xE0,          //   Usage Minimum (224),
+    0x29, 0xE7,          //   Usage Maximum (231),
+    0x15, 0x00,          //   Logical Minimum (0),
+    0x25, 0x01,          //   Logical Maximum (1),
+    0x81, 0x02,          //   Input (Data, Variable, Absolute), ;Modifier byte
+    0x95, 0x01,          //   Report Count (1),
+    0x75, 0x08,          //   Report Size (8),
+    0x81, 0x03,          //   Input (Constant),                 ;Reserved byte
+    0x95, 0x05,          //   Report Count (5),
+    0x75, 0x01,          //   Report Size (1),
+    0x05, 0x08,          //   Usage Page (LEDs),
+    0x19, 0x01,          //   Usage Minimum (1),
+    0x29, 0x05,          //   Usage Maximum (5),
+    0x91, 0x02,          //   Output (Data, Variable, Absolute), ;LED report
+    0x95, 0x01,          //   Report Count (1),
+    0x75, 0x03,          //   Report Size (3),
+    0x91, 0x03,          //   Output (Constant),                 ;LED report padding
+    0x95, 0x06,          //   Report Count (6),
+    0x75, 0x08,          //   Report Size (8),
+    0x15, 0x00,          //   Logical Minimum (0),
+    0x25, 0x68,          //   Logical Maximum(104),
+    0x05, 0x07,          //   Usage Page (Key Codes),
+    0x19, 0x00,          //   Usage Minimum (0),
+    0x29, 0x68,          //   Usage Maximum (104),
+    0x81, 0x00,          //   Input (Data, Array),
+    0xc0                 // End Collection
   ]
 });
 
 // 1 = modifiers
 // 2 = ?
 // 3..8 = key codes currently down
-
 
 var MODIFY = {
   CTRL        : 0x01,
@@ -100,9 +99,10 @@ var KEY = {
   "\n"        : 40, 
   ESC         : 41,
   BACKSPACE   : 42, 
+  TAB         : 43,
   "\t"        : 43,
-  " "         : 44, 
   SPACE       : 44, 
+  " "         : 44, 
   "-"         : 45,
   "="         : 46,
   "["         : 47,
@@ -185,10 +185,8 @@ var SHIFT_KEYS = {
   '|': 'BACKSLASH'
 };
 
-exports.KEY = KEY;
-exports.MODIFY = MODIFY;
 
-exports.tap = function(key, callback) {
+var tap = function(key, callback) {
   var modifiers = 0;
 
   if (Array.isArray(key)) {
@@ -214,23 +212,7 @@ exports.tap = function(key, callback) {
   }, 10);
 }
 
-exports.type = function(txt, callback) {
-  var intr = setInterval(function() {
-    if (!txt.length) {
-      clearInterval(intr);
-      if (callback) callback();
-    } else {
-      if (txt[0] in KEY) exports.tap(KEY[txt[0]]);
-      txt = txt.substr(1);
-    }
-  }, 20);
-}
-
-var tap = exports.tap;
-var setModifiers = exports.setModifiers;
-
-
-exports.print = function(txt, callback) {
+var type = function(txt, callback) {
   var chr;
   var code;
 
@@ -259,3 +241,8 @@ exports.print = function(txt, callback) {
     }
   }, 20);
 }
+
+exports.KEY = KEY;
+exports.MODIFY = MODIFY;
+exports.tap = tap;
+exports.type = type;
