@@ -24,7 +24,8 @@ var defaultTransition = {
   from: 0,
   to: 1,
   duration: 1,
-  updateInterval: 0.01
+  updateInterval: 0.01,
+  loop: false
 };
 
 var Animation = function(transition) {
