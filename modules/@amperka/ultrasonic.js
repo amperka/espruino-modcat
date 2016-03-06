@@ -52,7 +52,7 @@ Ultrasonic.prototype.ping = function(cb, units) {
     // Roundtrip is measured between the moment
     // when echo line is set high and the moment
     // when it is returned to low state
-    self._startTime = e.time; 
+    self._startTime = e.time;
     self._fallWatchID = setWatch(function(e) {
       self._fallWatchID = null;
       clearTimeout(self._timeoutID); // cancel error handling

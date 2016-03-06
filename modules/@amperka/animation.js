@@ -7,7 +7,10 @@ function lerp(k, from, to) {
 // TODO: extract to library
 var extend = function(obj) {
   var length = arguments.length;
-  if (length < 2 || obj == null) return obj;
+  if (length < 2 || obj == null) {
+    return obj;
+  }
+
   for (var index = 1; index < length; index++) {
     var source = arguments[index],
       keys = Object.keys(source),
@@ -40,7 +43,7 @@ var Animation = function(transition) {
 
 Animation.prototype.queue = function(transition) {
   var trans = extend(
-    {}, this._queue[this._queue.length - 1], transition || {})
+    {}, this._queue[this._queue.length - 1], transition || {});
   this._queue.push(trans);
   return this;
 };
@@ -71,7 +74,7 @@ Animation.prototype.stop = function() {
 
   this._clearInterval();
   return this;
-}
+};
 
 Animation.prototype._setInterval = function() {
   this._lastUpdate = getTime();

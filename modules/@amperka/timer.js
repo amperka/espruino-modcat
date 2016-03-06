@@ -6,11 +6,13 @@ var Timer = function(interval) {
 
 Timer.prototype.isRunning = function() {
   return !!this._intervalID;
-}
+};
 
 Timer.prototype.run = function() {
-  if (this.isRunning()) return;
-  var self = this;
+  if (this.isRunning()) {
+    return;
+  }
+
   this._intervalID = setInterval(
     this.emit.bind(this, 'tick'),
     this._interval * 1000);
@@ -33,7 +35,10 @@ Timer.prototype.tick = function() {
 };
 
 Timer.prototype.reset = function() {
-  if (this.isRunning()) this.stop().run();
+  if (this.isRunning()) {
+    this.stop().run();
+  }
+
   return this;
 };
 

@@ -41,7 +41,7 @@ Button.prototype._onChange = function(e) {
   }
 
   this.emit(pressed ? 'press' : 'release');
-}
+};
 
 exports.connect = function(pin, opts) {
   return new Button(pin, opts);
