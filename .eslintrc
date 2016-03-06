@@ -11,7 +11,7 @@
     "curly": 2,
     "eol-last": 2,
     "eqeqeq": [2, "smart"],
-    "id-match": [2, "^_?[a-zA-Z]+([a-zA-Z0-9]+)*$", {"properties": true}],
+    "id-match": [2, "^(_?[a-zA-Z]+([a-zA-Z0-9]+)*)|([A-Z0-9_]+)$", {"properties": true}],
     "indent": [2, 2, {"SwitchCase": 1}],
     "key-spacing": [2, {"beforeColon": false, "afterColon": true}],
     "linebreak-style": [2, "unix"],
