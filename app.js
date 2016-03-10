@@ -2,7 +2,9 @@
 var express = require('express');
 var app = express();
 
-app.use(express.static(__dirname + '/modules'));
+app.use('/modules', express.static(__dirname + '/modules'));
+app.use('/binaries', express.static(__dirname + '/binaries'));
+app.use('/json', express.static(__dirname + '/json'));
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
@@ -13,9 +15,10 @@ app.get('*', function(req, res){
   if (req.url.indexOf('amperka') > -1) {
     console.log('Not found:', req.url)
     res.status(404).send('Not found');
-  } else {
-    console.log('Redirect for:', req.originalUrl)
-    res.redirect('http://espruino.com/modules/' + req.originalUrl);
+  } else if (req.originalUrl.indexOf('/modules/') === 0) {
+    var module = req.originalUrl.substr('/modules/'.length);
+    console.log('Redirect for:', module)
+    res.redirect('http://espruino.com/modules/' + module);
   }
 });
 
