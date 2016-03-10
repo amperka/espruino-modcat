@@ -22,48 +22,43 @@ LIS3MDL.prototype.read = function (reg, count) {
 // Старт модуля
 LIS3MDL.prototype.init = function(opts) {
   // Temp compensation ON, X-axis, Y-axis in High perfomance
-  var config20 = 0b11001100;
+  var config20 = 0xcc; /* 11001100 */
 
   if (opts !== undefined && opts.frequency !== undefined) {
     if (opts.frequency === 10) {
-      config20 = 0b11010000;
-    }
-    if (opts.frequency === 20) {
-      config20 = 0b11010100;
-    }
-    if (opts.frequency === 40) {
-      config20 = 0b11011000;
-    }
-    if (opts.frequency === 80) {
-      config20 = 0b11011100;
+      config20 = 0xd0; /* 11010000 */
+    } else if (opts.frequency === 20) {
+      config20 = 0xd4; /* 11010100 */
+    } else if (opts.frequency === 40) {
+      config20 = 0xd8; /* 11011000 */
+    } else if (opts.frequency === 80) {
+      config20 = 0xdc; /* 11011100 */
     }
   }
   this.write(0x20, config20);
   // 4 Gauss
-  var config21 = 0b00000000;
+  var config21 = 0x00;
   this.__sensitivity = 1 / 6842;
 
   if (opts !== undefined && opts.sensitivity !== undefined) {
     if (opts.sensitivity === 8) {
-      config21 = 0b00100000;
+      config21 = 0x20; /* 00100000 */
       this.__sensitivity = 1 / 3421;
-    }
-    if (opts.sensitivity === 12) {
-      config21 = 0b01000000;
+    } else if (opts.sensitivity === 12) {
+      config21 = 0x40; /* 01000000 */
       this.__sensitivity = 1 / 2281;
-    }
-    if (opts.sensitivity === 16) {
-      config21 = 0b01100000;
+    } else if (opts.sensitivity === 16) {
+      config21 = 0x60; /* 01100000 */
       this.__sensitivity = 1 / 1711;
     }
   }
   this.write(0x21, config21);
 
   // Power On, Continuous-conversion mode
-  this.write(0x22, 0b00000000);
+  this.write(0x22, 0x0); 
 
   // Z-axis in High perfomance
-  this.write(0x23, 0b00001000);
+  this.write(0x23, 0x8 /* 00001000 */); 
 };
 
 // Метод возвращает данные с магнитометра

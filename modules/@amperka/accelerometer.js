@@ -25,16 +25,14 @@ LIS331DLH.prototype.read = function (reg, count) {
 // Метод включает акселерометр
 LIS331DLH.prototype.init = function (opts) {
   // Normal power, 50Hz, enable X, Y, Z;
-  var config20 = 0b00100111;
+  var config20 = 0x27; /* 00100111 */
   if (opts !== undefined && opts.frequency !== undefined) {
     if (opts.frequency === 100) {
-      config20 = config20 | 0b00001000;
-    }
-    if (opts.frequency === 400) {
-      config20 = config20 | 0b00010000;
-    }
-    if (opts.frequency === 1000) {
-      config20 = config20 | 0b00011000;
+      config20 = config20 | 0x8; /* 00001000 */
+    } else if (opts.frequency === 400) {
+      config20 = config20 | 0x10; /* 00010000 */
+    } else if (opts.frequency === 1000) {
+      config20 = config20 | 0x18; /* 00011000 */
     }
   }
   this.write(0x20, config20);
@@ -44,30 +42,27 @@ LIS331DLH.prototype.init = function (opts) {
 
   if (opts !== undefined && opts.highPassFilter !== undefined) {
     if (opts.highPassFilter === 8) {
-      config21 = 0b00010000;
-    }
-    if (opts.highPassFilter === 16) {
-      config21 = 0b00010001;
-    }
-    if (opts.highPassFilter === 32) {
-      config21 = 0b00010010;
-    }
-    if (opts.highPassFilter === 64) {
-      config21 = 0b00010011;
+      config21 = 0x10; /* 00010000 */
+    } else if (opts.highPassFilter === 16) {
+      config21 = 0x11; /* 00010001 */
+    } else if (opts.highPassFilter === 32) {
+      config21 = 0x12; /* 00010010 */
+    } else if (opts.highPassFilter === 64) {
+      config21 = 0x13; /* 00010011 */
     }
   }
   this.write(0x21, config21);
 
   // Maximum sensitivity is 2G
-  var config23 = 0b00000001;
+  var config23 = 0x1;
   this.__sensitivity = 2 / 32767;
   if (opts !== undefined && opts.maxAccel !== undefined) {
     if (opts.maxAccel === 4) {
-      config23 = 0b00010001;
+      config23 = 0x11; /* 00010001 */
       this.__sensitivity = 4 / 32767;
     }
     if (opts.maxAccel === 8) {
-      config23 = 0b00110001;
+      config23 = 0x31; /* 00110001 */
       this.__sensitivity = 8 / 32767;
     }
   }
