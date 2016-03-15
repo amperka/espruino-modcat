@@ -17,8 +17,8 @@ Motor.prototype.write = function (u) {
   var prestart = 0;
   if (( ((this._current<0 && u>0) || (this._current>0 && u<0)) || this._current === 0) && u !== 0){
     prestart = this._prestart;
+    analogWrite(this._pinPWM, 1);
   }
-  analogWrite(this._pinPWM, 1);
 
   setTimeout(function () {
     analogWrite(self._pinPWM, E.clip(Math.abs(u), 0, 1));
