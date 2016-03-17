@@ -1892,6 +1892,7 @@
   "usart": 6, 
   "package": "LQFP64", 
   "flash": 1024, 
+  "place_text_section": 16384, 
   "adc": 3, 
   "i2c": 3
  }, 
