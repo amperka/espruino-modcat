@@ -1,11 +1,23 @@
 
-var L293D = function(stepPin, directionPin, opts) {
+var Stepper = function(stepPin, directionPin, opts) {
   this._stepPin = stepPin;
   this._directionPin = directionPin;
 
-  opts && opts.delay ? this._delay = opts.delay : this._delay = 5;
-  opts && opts.enable ? this._enablePin = opts.enable : this._enablePin = undefined;
-  opts && opts.enable && opts.hold ? this._holdPower = opts.hold : this._holdPower = 0;
+  this._delay = 5;
+  this._holdPower = 0;
+  this._enablePin;
+
+  if (opts && opts.delay) {
+    this._delay = opts.delay;
+  }
+
+  if (opts && opts.enable) {
+    this._enablePin = opts.enable;
+  }
+
+  if (this._enablePin && opts.hold) {
+    this._holdPower = opts.hold;
+  }
 
   this._stepPin.mode('output');
   this._directionPin.mode('output');
@@ -18,9 +30,9 @@ var L293D = function(stepPin, directionPin, opts) {
   this._intervalId = null;
 };
 
-
-// Функция ограничивает подачу тока на двигатель до holdPower процентов
-L293D.prototype.power = function(holdPower) {
+// Функция ограничивает подачу тока на двигатель
+// до holdPower процентов
+Stepper.prototype.power = function(holdPower) {
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
@@ -35,10 +47,9 @@ L293D.prototype.power = function(holdPower) {
   }
 };
 
-
-
-// Функция осуществляет поворот вала на steps шагов, через каждые delay микросекунд.
-L293D.prototype.rotate = function(steps, callback) {
+// Функция осуществляет поворот вала на steps шагов,
+// через каждые delay микросекунд.
+Stepper.prototype.rotate = function(steps, callback) {
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
@@ -51,7 +62,7 @@ L293D.prototype.rotate = function(steps, callback) {
   if (steps < 0 && this._directionPin) {
     steps = -1 * steps;
     digitalWrite(this._directionPin, 1);
-  } else if(this._directionPin) {
+  } else if (this._directionPin) {
     digitalWrite(this._directionPin, 0);
   }
 
@@ -73,5 +84,5 @@ L293D.prototype.rotate = function(steps, callback) {
 };
 
 exports.connect = function(stepPin, directionPin, opts) {
-  return new L293D(stepPin, directionPin, opts);
+  return new Stepper(stepPin, directionPin, opts);
 };

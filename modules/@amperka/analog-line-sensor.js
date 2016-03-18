@@ -19,10 +19,18 @@ AnalogLineSensor.prototype.read = function(units) {
 
 AnalogLineSensor.prototype.calibrate = function(opts) {
   if (opts && opts.white !== undefined) {
-    opts.white === true ? this._min = analogRead(this._pin) : this._min = opts.white;
+    if (opts.white === true) {
+      this._min = analogRead(this._pin);
+    } else {
+      this._min = opts.white;
+    }
   }
   if (opts && opts.black !== undefined) {
-    opts.black === true ? this._max = analogRead(this._pin) : this._max = opts.black;
+    if (opts.black === true) {
+      this._max = analogRead(this._pin);
+    } else {
+      this._max = opts.black;
+    }
   }
 };
 

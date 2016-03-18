@@ -1,15 +1,31 @@
 var ServoHW = function(pin, options) {
   this._pin = pin;
-  options !== undefined && options.freq !== undefined ? this._freq = options.freq : this._freq = 50;
-  options !== undefined && options.pulseMin !== undefined ? this._pulseMin = options.pulseMin : this._pulseMin = 0.675;
-  options !== undefined && options.pulseMax !== undefined ? this._pulseMax = options.pulseMax : this._pulseMax = 2.325;
-  options !== undefined && options.valueMin !== undefined ? this._valueMin = options.valueMin : this._valueMin = 0;
-  options !== undefined && options.valueMax !== undefined ? this._valueMax = options.valueMax : this._valueMax = 180;
+  this._freq = 50;
+  this._pulseMin = 0.675;
+  this._pulseMax = 2.325;
+  this._valueMin = 0;
+  this._valueMax = 180;
+
+  if (options && options.freq) {
+    this._freq = options.freq;
+  }
+  if (options && options.pulseMin) {
+    this._pulseMin = options.pulseMin;
+  }
+  if (options && options.pulseMax) {
+    this._pulseMax = options.pulseMax;
+  }
+  if (options && options.valueMin) {
+    this._valueMin = options.valueMin;
+  }
+  if (options && options.valueMax) {
+    this._valueMax = options.valueMax;
+  }
 
   this._period = 1000 / this._freq;
   this._valueStart = this._pulseMin / this._period;
-  this._valueStep = (this._pulseMax - this._pulseMin) / (this._valueMax - this._valueMin) / this._period;
-
+  var pulsDiff = (this._pulseMax - this._pulseMin);
+  this._valueStep = pulsDiff / (this._valueMax - this._valueMin) / this._period;
 };
 ServoHW.prototype.write = function(value, units) {
   switch (units) {
@@ -23,7 +39,8 @@ ServoHW.prototype.write = function(value, units) {
       break;
     default:
       value = E.clip(value, this._valueMin, this._valueMax);
-      analogWrite(this._pin, this._valueStart + this._valueStep * (value - this._valueMin), {freq: this._freq});
+      var pwm = this._valueStart + this._valueStep * (value - this._valueMin);
+      analogWrite(this._pin, pwm, {freq: this._freq});
   }
 };
 exports.connect = function(pin, options) {

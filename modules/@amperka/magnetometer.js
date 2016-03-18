@@ -6,12 +6,12 @@ var LIS3MDL = function(i2c, address) {
 };
 
 // Метод записывает данные data в регистр reg
-LIS3MDL.prototype.write = function (reg, data) {
+LIS3MDL.prototype.write = function(reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // Метод производит чтение из регистра reg количестов байт count
-LIS3MDL.prototype.read = function (reg, count) {
+LIS3MDL.prototype.read = function(reg, count) {
   if (count === undefined) {
     count = 1;
   }
@@ -58,7 +58,7 @@ LIS3MDL.prototype.init = function(opts) {
   this.write(0x22, 0x0);
 
   // Z-axis in High perfomance
-  this.write(0x23, 0x8 /* 00001000 */) 
+  this.write(0x23, 0x8 /* 00001000 */);
 };
 
 // Метод возвращает данные с магнитометра
