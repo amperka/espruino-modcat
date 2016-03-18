@@ -3,22 +3,22 @@
  */
 // Инициализация класса
 var LPS331 = function(i2c, address) {
-  this.__i2c = i2c;
-  address === undefined ? this.__address = 0x5C : this.__address = address;
+  this._i2c = i2c;
+  address === undefined ? this._address = 0x5C : this._address = address;
 };
 
 // Метод записывает данные data в регистр reg
-LPS331.prototype.write = function (reg, data) {
-  this.__i2c.writeTo(this.__address, [reg, data]);
+LPS331.prototype.write = function(reg, data) {
+  this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // Метод производит чтение из регистра reg количестов байт count
-LPS331.prototype.read = function (reg, count) {
+LPS331.prototype.read = function(reg, count) {
   if (count === undefined) {
     count = 1;
   }
-  this.__i2c.writeTo(this.__address, reg | 0x80);
-  return this.__i2c.readFrom(this.__address, count);
+  this._i2c.writeTo(this._address, reg | 0x80);
+  return this._i2c.readFrom(this._address, count);
 };
 
 // Старт модуля
@@ -39,7 +39,7 @@ LPS331.prototype.getTemp = function() {
 // Температура в градусах цельсия
 LPS331.prototype.getTempC = function() {
   var temp = this.getTemp();
-  return  42.5 + temp / 480;
+  return 42.5 + temp / 480;
 };
 
 // Давление в raw
@@ -76,6 +76,6 @@ LPS331.prototype.whoAmI = function() {
 };
 
 // Экспортируем класс
-exports.connect = function (i2c, address) {
+exports.connect = function(i2c, address) {
   return new LPS331(i2c, address);
 };

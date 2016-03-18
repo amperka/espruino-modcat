@@ -1,4 +1,3 @@
-
 var Thermometer = function(pin) {
   this._pin = pin;
   this._pin.mode('analog');

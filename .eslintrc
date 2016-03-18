@@ -19,7 +19,6 @@
     "max-len": [1, 80],
     "max-nested-callbacks": [2, 3],
     "max-statements": [1, 25],
-    "new-cap": 1,
     "new-cap": 2,
     "no-extend-native": 2,
     "no-extra-semi": 2,
@@ -39,7 +38,6 @@
     "space-after-keywords": [2, "always"],
     "space-before-function-paren": [2, "never"],
     "space-in-parens": [2, "never"],
-    "space-unary-ops": 2,
     "space-unary-ops": [1, {"words": true, "nonwords": false}],
     "spaced-comment": [2, "always"],
     "yoda": [2, "never"]
@@ -81,6 +79,7 @@
     "getTime": false,
     "setInterval": false,
     "setTimeout": false,
-    "setWatch": false
+    "setWatch": false,
+    "PrimaryI2C": false
   }
 }

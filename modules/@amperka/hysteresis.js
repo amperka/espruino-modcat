@@ -1,4 +1,3 @@
-
 var C = {
   HIGH: 1,
   BETWEEN: 0,

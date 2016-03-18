@@ -1,4 +1,4 @@
-var Motor = function (opts) {
+var Motor = function(opts) {
   this._pinPWM = opts.pwm;
   this._pinPWM.mode('output');
   this._pinPhase = opts.phase;
@@ -11,7 +11,7 @@ var Motor = function (opts) {
   this._current = 0;
 };
 
-Motor.prototype.write = function (u) {
+Motor.prototype.write = function(u) {
   u < 0 ? this._pinPhase.write(1) : this._pinPhase.write(0);
   var self = this;
   var prestart = 0;
@@ -20,7 +20,7 @@ Motor.prototype.write = function (u) {
     analogWrite(this._pinPWM, 1);
   }
 
-  setTimeout(function () {
+  setTimeout(function() {
     analogWrite(self._pinPWM, E.clip(Math.abs(u), 0, 1));
   }, prestart*1000);
   this._current = u;
@@ -38,6 +38,6 @@ exports.MotorShield = {
     prestart: 0.1
   }
 };
-exports.connect = function (pin) {
+exports.connect = function(pin) {
   return new Motor(pin);
 };

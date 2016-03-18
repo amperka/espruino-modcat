@@ -1,4 +1,3 @@
-
 var Button = function(pin, opts) {
   this._pin = pin;
   this._pin.mode('input');

@@ -1,47 +1,47 @@
 
 var Relay = function(pin) {
-  this.__pin = pin;
-  this.__on = false;
+  this._pin = pin;
+  this._on = false;
 
-  this.__blinkTimeoutID = null;
+  this._blinkTimeoutID = null;
 
-  this.__pin.mode('output');
+  this._pin.mode('output');
 };
 
 // Переключает реле на противоположное значение и значение val
 Relay.prototype.toggle = function(val) {
   if (val === undefined) {
-    this.__blinkStop();
-    this.__on = !this.__on;
+    this._blinkStop();
+    this._on = !this._on;
   } else {
-    this.__on = !!val;
+    this._on = !!val;
   }
-  digitalWrite(this.__pin, this.__on);
+  digitalWrite(this._pin, this._on);
   return this;
 };
 
 // Включает реле
 Relay.prototype.turnOn = function() {
-  this.__blinkStop();
+  this._blinkStop();
   this.toggle(true);
 };
 
 // Отключает реле
 Relay.prototype.turnOff = function() {
-  this.__blinkStop();
+  this._blinkStop();
   this.toggle(false);
 };
 
 // Возвращает текущее состояние реле
 Relay.prototype.isOn = function() {
-  return this.__on;
+  return this._on;
 };
 
 // Останавливает действия по таймауту
-Relay.prototype.__blinkStop = function() {
-  if (this.__blinkTimeoutID) {
-    clearTimeout(this.__blinkTimeoutID);
-    this.__blinkTimeoutID = null;
+Relay.prototype._blinkStop = function() {
+  if (this._blinkTimeoutID) {
+    clearTimeout(this._blinkTimeoutID);
+    this._blinkTimeoutID = null;
   }
 };
 
@@ -54,10 +54,10 @@ Relay.prototype.blink = function(onTime, period) {
   if (period && period < onTime + 0.2) {
     return new Error('Period must be > onTime + 0.2s');
   }
-  this.__blinkStop();
+  this._blinkStop();
   var self = this;
   if (period) {
-    this.__blinkTimeoutID = setInterval(function(){
+    this._blinkTimeoutID = setInterval(function(){
       self.toggle(true);
       setTimeout(function(){
         self.toggle(false);

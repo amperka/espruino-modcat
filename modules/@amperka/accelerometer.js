@@ -1,29 +1,29 @@
 // Инициализация класса
-var LIS331DLH = function (i2c, address) {
-    this.__i2c = i2c;
-    address === undefined ? this.__address = 0x18 : this.__address = address;
-    this.__sensitivity =  2 / 32767;
+var LIS331DLH = function(i2c, address) {
+  this._i2c = i2c;
+  address === undefined ? this._address = 0x18 : this._address = address;
+  this._sensitivity = 2 / 32767;
 };
 
 // Значение ускорения свободного падения
 LIS331DLH.prototype.G = 9.81;
 
 // Метод записывает данные data в регистр reg
-LIS331DLH.prototype.write = function (reg, data) {
-  this.__i2c.writeTo(this.__address, [reg, data]);
+LIS331DLH.prototype.write = function(reg, data) {
+  this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // Метод производит чтение из регистра reg количестов байт count
-LIS331DLH.prototype.read = function (reg, count) {
+LIS331DLH.prototype.read = function(reg, count) {
   if (count === undefined) {
     count = 1;
   }
-  this.__i2c.writeTo(this.__address, reg | 0x80);
-  return this.__i2c.readFrom(this.__address, count);
+  this._i2c.writeTo(this._address, reg | 0x80);
+  return this._i2c.readFrom(this._address, count);
 };
 
 // Метод включает акселерометр
-LIS331DLH.prototype.init = function (opts) {
+LIS331DLH.prototype.init = function(opts) {
   // Normal power, 50Hz, enable X, Y, Z;
   var config20 = 0x27; /* 00100111 */
   if (opts !== undefined && opts.frequency !== undefined) {
@@ -55,22 +55,22 @@ LIS331DLH.prototype.init = function (opts) {
 
   // Maximum sensitivity is 2G
   var config23 = 0x1;
-  this.__sensitivity = 2 / 32767;
+  this._sensitivity = 2 / 32767;
   if (opts !== undefined && opts.maxAccel !== undefined) {
     if (opts.maxAccel === 4) {
       config23 = 0x11; /* 00010001 */
-      this.__sensitivity = 4 / 32767;
+      this._sensitivity = 4 / 32767;
     }
     if (opts.maxAccel === 8) {
       config23 = 0x31; /* 00110001 */
-      this.__sensitivity = 8 / 32767;
+      this._sensitivity = 8 / 32767;
     }
   }
   this.write(0x23, config23);
 };
 
 // Метод возвращает массив показаний акселерометра
-LIS331DLH.prototype.get = function () {
+LIS331DLH.prototype.get = function() {
   var d = this.read(0x28, 6);
   // reconstruct 16 bit data
   var a = [d[0] | (d[1] << 8), d[2] | (d[3] << 8), d[4] | (d[5] << 8)];
@@ -91,9 +91,9 @@ LIS331DLH.prototype.get = function () {
 LIS331DLH.prototype.getG = function() {
   var a = this.get();
   return {
-    'x': a[0] * this.__sensitivity,
-    'y': a[1] * this.__sensitivity,
-    'z': a[2] * this.__sensitivity
+    'x': a[0] * this._sensitivity,
+    'y': a[1] * this._sensitivity,
+    'z': a[2] * this._sensitivity
   };
 };
 
@@ -101,9 +101,9 @@ LIS331DLH.prototype.getG = function() {
 LIS331DLH.prototype.getM = function() {
   var a = this.get();
   return {
-    'x': a[0] * this.__sensitivity * this.G,
-    'y': a[1] * this.__sensitivity * this.G,
-    'z': a[2] * this.__sensitivity * this.G
+    'x': a[0] * this._sensitivity * this.G,
+    'y': a[1] * this._sensitivity * this.G,
+    'z': a[2] * this._sensitivity * this.G
   };
 };
 
@@ -113,6 +113,6 @@ LIS331DLH.prototype.whoAmI = function() {
 };
 
 // Экспортируем класс
-exports.connect = function (i2c, address) {
+exports.connect = function(i2c, address) {
   return new LIS331DLH(i2c, address);
 };

@@ -1,13 +1,13 @@
 // Инициализация класса
 var LIS3MDL = function(i2c, address) {
-  this.__i2c = i2c;
-  this.__sensitivity = 1 / 6842;
-  address === undefined ? this.__address = 0x1C : this.__address = address;
+  this._i2c = i2c;
+  this._sensitivity = 1 / 6842;
+  address === undefined ? this._address = 0x1C : this._address = address;
 };
 
 // Метод записывает данные data в регистр reg
 LIS3MDL.prototype.write = function (reg, data) {
-  this.__i2c.writeTo(this.__address, [reg, data]);
+  this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // Метод производит чтение из регистра reg количестов байт count
@@ -15,8 +15,8 @@ LIS3MDL.prototype.read = function (reg, count) {
   if (count === undefined) {
     count = 1;
   }
-  this.__i2c.writeTo(this.__address, reg | 0x80);
-  return this.__i2c.readFrom(this.__address, count);
+  this._i2c.writeTo(this._address, reg | 0x80);
+  return this._i2c.readFrom(this._address, count);
 };
 
 // Старт модуля
@@ -38,27 +38,27 @@ LIS3MDL.prototype.init = function(opts) {
   this.write(0x20, config20);
   // 4 Gauss
   var config21 = 0x00;
-  this.__sensitivity = 1 / 6842;
+  this._sensitivity = 1 / 6842;
 
   if (opts !== undefined && opts.sensitivity !== undefined) {
     if (opts.sensitivity === 8) {
       config21 = 0x20; /* 00100000 */
-      this.__sensitivity = 1 / 3421;
+      this._sensitivity = 1 / 3421;
     } else if (opts.sensitivity === 12) {
       config21 = 0x40; /* 01000000 */
-      this.__sensitivity = 1 / 2281;
+      this._sensitivity = 1 / 2281;
     } else if (opts.sensitivity === 16) {
       config21 = 0x60; /* 01100000 */
-      this.__sensitivity = 1 / 1711;
+      this._sensitivity = 1 / 1711;
     }
   }
   this.write(0x21, config21);
 
   // Power On, Continuous-conversion mode
-  this.write(0x22, 0x0); 
+  this.write(0x22, 0x0);
 
   // Z-axis in High perfomance
-  this.write(0x23, 0x8 /* 00001000 */); 
+  this.write(0x23, 0x8 /* 00001000 */) 
 };
 
 // Метод возвращает данные с магнитометра
@@ -85,11 +85,11 @@ LIS3MDL.prototype._getRaw = function() {
 LIS3MDL.prototype.get = function(units) {
   var m = this._getRaw();
   if (units !== undefined && units === 'G') {
-    m.x = m.x * this.__sensitivity;
-    m.y = m.y * this.__sensitivity;
-    m.z = m.z * this.__sensitivity;
+    m.x = m.x * this._sensitivity;
+    m.y = m.y * this._sensitivity;
+    m.z = m.z * this._sensitivity;
   }
-  
+
   return m;
 };
 
@@ -99,6 +99,6 @@ LIS3MDL.prototype.whoAmI = function() {
 };
 
 // Экспортируем класс
-exports.connect = function (i2c, address) {
+exports.connect = function(i2c, address) {
   return new LIS3MDL(i2c, address);
 };

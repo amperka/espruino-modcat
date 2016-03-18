@@ -1,14 +1,14 @@
 var Joystick = function(pX, pY, pButton) {
-  this.__pX = pX;
-  this.__pY = pY;
-  this.__pButton = pButton;
+  this._pX = pX;
+  this._pY = pY;
+  this._pButton = pButton;
 };
 
 Joystick.prototype.get = function() {
   var data = {
-    'x': analogRead(this.__pX),
-    'y': analogRead(this.__pY),
-    'button': digitalRead(this.__pButton)
+    'x': analogRead(this._pX),
+    'y': analogRead(this._pY),
+    'button': digitalRead(this._pButton)
   };
   return data;
 };
