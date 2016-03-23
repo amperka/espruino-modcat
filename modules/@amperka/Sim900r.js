@@ -1,157 +1,131 @@
 var Sim900r = function(options) {
-  this._debug = options && options.debug ? options.debug : false;
-  this._serial = options && options.serialPort ? options.serialPort : Serial3;
-  this._powerPin = options && options.powerPin ? options.powerPin : P2;
-  this._statusPin = options && options.statusPin ? options.statusPin : P3;
+  if (!options) {
+    options = {};
+  }
+  this._debug = options.debug || false;
+  this._powerPin = options.powerPin || P2;
+  this._statusPin = options.statusPin || P3;
 
-  pinMode(this._statusPin, 'input');
-  this._serial.setup(options && options.serialSpeed ? options.serialSpeed : 9600);
-
-  this._currentPhone = undefined;
-  this._currentRing = 0;
-
+  this._serial = options.port || Serial3;
+  this._serial.setup(options.serialSpeed || 9600);
 
   this._smsEvent = false;
   this._smsPhone = undefined;
   this._smsDate = undefined;
   this._smsText = undefined;
 
-  this._currentCommand = undefined;
-  this._currentCommandData = undefined;
+  this._currentCommand = null;
+  this._currentCommandData = [];
   this._currentCommandCallback = undefined;
   this._currentCommandResponse = false;
 
-
-  var buffer = '';
   var self = this;
+
   /**
-   * При поступлении данные на порт, суммируем их
-   * и разделяем по переходу на новую строку.
-   * На каждую новую строку вызываем обработчик новой
-   * строки, передавая туда параметры
+   * Настройка триггера пина статуса
    */
-  this._serial.on('data', function(data){
-    buffer += data;
-    var lines = buffer.split('\r\n');
+  pinMode(this._statusPin, 'input_pulldown');
+  setWatch(function(e) {
+    if (e.state === true) {
+      self.emit('powerOn');
+    } else {
+      self.emit('powerOff');
+    }
+  }, this._statusPin, {
+    repeat: true,
+    edge: 'both',
+    debounce: 10
+  });
+
+  /**
+   * При поступлении данные на порт, суммируем их в буффер
+   * и разделяем по переходу на новую строку, после чего
+   * обрабатываем их построчно.
+   */
+  var dataBuffer = '';
+  this._serial.on('data', function(data) {
+    dataBuffer += data;
+    var lines = dataBuffer.split('\r\n');
     for (var i = 0; i < lines.length - 1; i++) {
       if (lines[i] !== '') {
-        self._onLine(lines[i]);
+        self._onDataLine(lines[i]);
       }
     }
-    buffer = lines[lines.length];
+    dataBuffer = lines[lines.length - 1];
   });
 };
 
-/**
- * Метод, исполняющийся при получении новой строки
- */
-Sim900r.prototype._onLine = function(line) {
-  if (this._debug) {
-    print(line);
-  }
-  switch (line) {
-    // Если строка равна строке запроса команды, то дальше будут передаваться данные
+Sim900r.prototype._onDataLine = function(line) {
+  var data = line.split(': ');
+  switch (data[0]) {
+    case 'RING':
+      this.emit('ring');
+      break;
+    case '+CLIP':
+      this.emit('clip', this.parsePhone(data[1]));
+      break;
+    case 'NO CARRIER':
+      this.emit('noCarrier');
+      break;
+    case 'BUSY':
+      this.emit('busy');
+      break;
+    case '+CUSD':
+      this.emit('ussd',data[1]);
+      break;
+    case '+CMTI':
+      var index = parseInt(data[1].split(',')[1]);
+      this.emit('sms', index);
+      break;
+    case '+CPIN':
+      if (data[1] === 'READY') {
+        this.emit('simReady');
+      } else if (data[1] === 'SIM PIN') {
+        this.emit('simPin');
+      } else {
+        this.emit('simError', data[1]);
+      }
+      break;
+    case 'Call Ready':
+      this.emit('simNetwork');
+      break;
+    // Если строка равна строке запроса команды,
+    // то дальше будут передаваться данные
     case this._currentCommand:
       this._currentCommandResponse = true;
       break;
     // Конец ответа на команду
     case 'OK':
       this._currentCommandResponse = false;
-      if (this._currentCommandCallback) {
-        this._currentCommandCallback(undefined, this._currentCommandData);
-      }
-      this._currentCommand = undefined;
-      this._currentCommandData = undefined;
-      this._currentCommandCallback = undefined;
+      this._currentCommandCallback(undefined, this._currentCommandData);
       break;
     // Ошибка при выполнении команды
     case 'ERROR':
       this._currentCommandResponse = false;
-      if (this._currentCommandCallback) {
-        this._currentCommandCallback(new Error('CMD Error'));
-      }
-      this._currentCommand = undefined;
-      this._currentCommandData = undefined;
-      this._currentCommandCallback = undefined;
-
+      this._currentCommandCallback(new Error('CMD Error'));
       break;
     default:
       if (this._currentCommandResponse) {
-        // Новые данные от команды
         this._currentCommandData.push(line);
       } else {
-        // Новые данные инициированные модулем
-        this._notCommand(line);
+        this.emit('unknown', line);
       }
   }
 };
 
-
-/**
- * Обработка строк, инициированных модулем
+/*
+ * Стук к пину включения/выключения
  */
-Sim900r.prototype._notCommand = function(line) {
-  var params = line.split(': ');
-  switch (params[0]) {
-    case 'RING':
-      // Первый звонок пропускаем, так как возможно далее определиться номер
-      if (this._currentRing > 0) {
-        this.emit('ring', this.parsePhone(this._currentPhone), this._currentRing);
-      }
-      this._currentRing++;
-      break;
-    case '+CLIP':
-      this._currentPhone = params[1];
-      break;
-    case 'NO CARRIER':
-      this._currentRing = 0;
-      this._currentPhone = undefined;
-      this.emit('noCarrier');
-      break;
-    case 'RDY':
-      this.emit('powerOn');
-      break;
-    case 'Call Ready':
-      this.emit('ready');
-      break;
-    case '+CPIN':
-      if (params[1] === 'READY') {
-        this.emit('simReady');
-      } else {
-        this.emit('simError', params[1]);
-      }
-      break;
-    case 'NORMAL POWER DOWN':
-      this.emit('powerOff');
-      break;
-    case '+CMT':
-      var parts = params[1].split('"');
-      this._smsEvent = true;
-      this._smsPhone = parts[1];
-      this._smsDate = parts[5];
-      break;
-    default:
-      if (this._smsEvent) {
-        this.emit('sms', this._smsPhone, this._smsDate, params[0]);
-        this._smsPhone = undefined;
-        this._smsDate = undefined;
-        this._smsEvent = false;
-      } else {
-        this.emit('unknown', params[0], params[1]);
-      }
-  }
+Sim900r.prototype.power = function() {
+  digitalPulse(this._powerPin, 1, 1000);
 };
-
 
 /**
  * Включение модуля
  */
-Sim900r.prototype.powerOn = function(callback) {
+Sim900r.prototype.powerOn = function() {
   if (!this.isReady()) {
-    if (callback) {
-      this.on('ready', callback);
-    }
-    digitalPulse(this._powerPin, 1, 1000);
+    this.power();
   }
 };
 
@@ -160,7 +134,7 @@ Sim900r.prototype.powerOn = function(callback) {
  */
 Sim900r.prototype.powerOff = function() {
   if (this.isReady()) {
-    digitalPulse(this._powerPin, 1, 1000);
+    this.power();
   }
 };
 
@@ -176,9 +150,12 @@ Sim900r.prototype.isReady = function() {
  */
 Sim900r.prototype.cmd = function(command, callback) {
   // Нельзя отправлять новую команду, пока данные от предыдущей не получены
-  if (!this.isReady()){
+  if (!this.isReady()) {
     callback(new Error('powerOff'));
   } else if (!this._currentCommandResponse) {
+    if (!callback) {
+      callback = function() { };
+    }
     this._currentCommand = command.toUpperCase();
     this._currentCommandData = [];
     this._currentCommandCallback = callback;
@@ -191,55 +168,133 @@ Sim900r.prototype.cmd = function(command, callback) {
 };
 
 /**
+ * Отправка СМС на номер
+ */
+Sim900r.prototype.smsSend = function(phone, text, callback) {
+  var serial = this._serial;
+  this.cmd('AT+CMGS="' + phone + '"', callback);
+  setTimeout(function() {
+    serial.println(text + '\u001a');
+  }, 500);
+};
+
+/**
+ * Получение списка SMS
+ */
+Sim900r.prototype.smsList = function(callback) {
+  var self = this;
+  this.cmd('AT+CMGF=1', function(error, data) {
+    if (!error) {
+      this.cmd('AT+CMGL="ALL",1', function(error, data){
+        if (!error) {
+          var smsList = [];
+          for (var s=0; s<data.length; s = s+2) {
+            var sms = self.parseSMS(data[s], data[s+1]);
+            smsList.push(sms);
+          }
+          callback(undefined, smsList);
+        } else {
+          callback(error);
+        }
+      });
+    } else {
+      callback(error);
+    }
+  });
+};
+
+/**
+ * Чтение СМС с SIM-карты
+ */
+Sim900r.prototype.smsRead = function(index, callback) {
+  var self = this;
+  this.cmd('AT+CMGR=' + index, function(error, result) {
+    if (result.length === 0) {
+      callback(new Error('SMS is not found'));
+    } else {
+      callback(undefined, self.parseSMS(result[0], result[1], index));
+    }
+  });
+};
+
+/**
+ * Удаление СМС с SIM-карты
+ */
+Sim900r.prototype.smsDelete = function(index, callback) {
+  var command = 'AT+CMGD=' + index;
+  if (index === 'all') {
+    command = 'AT+CMGD=0,4';
+  }
+  this.cmd(command, function(err, result) {
+    print(err, result);
+  });
+};
+
+
+/**
  * Набор номера
  */
-Sim900r.prototype.voiceCall = function(phone, callback) {
+Sim900r.prototype.call = function(phone, callback) {
   this.cmd('ATD' + phone + ';', callback);
 };
 
 /**
  * Ответ на входящий звонок
  */
-Sim900r.prototype.voiceAnswer = function(callback) {
+Sim900r.prototype.answer = function(callback) {
   this.cmd('ATA', callback);
 };
 
 /**
  * Разрыв соединения
  */
-Sim900r.prototype.voiceReset = function(callback) {
+Sim900r.prototype.cancel = function(callback) {
   this.cmd('ATH0', callback);
 };
+
+
+
+
+
+/**
+ * Отправка USSD команды
+ */
+Sim900r.prototype.ussd = function(phone, callback) {
+  this.cmd('AT+CUSD=1,"'+phone+'"', callback);
+};
+
 
 /**
  * Оператор SIM-карты
  */
-Sim900r.prototype.networkProvider = function(callback) {
+Sim900r.prototype.netProvider = function(callback) {
   this.cmd('AT+CSPN?', callback);
+};
+
+/**
+ * Оператор, в сети которого зарегистрирована SIM-карта
+ */
+Sim900r.prototype.netCurrent = function(callback) {
+  this.cmd('AT+COPS?', callback);
 };
 
 /**
  * Статус регистрации в сети
  */
-Sim900r.prototype.networkStatus = function(callback) {
+Sim900r.prototype.netStatus = function(callback) {
   this.cmd('AT+CREG?', callback);
 };
 
 /**
  * Качество приема сигнала
  */
-Sim900r.prototype.networkQuality = function(callback) {
+Sim900r.prototype.netQuality = function(callback) {
   this.cmd('AT+CSQ', callback);
 };
 
-/**
- * Оператор, в сети которого зарегистрирована SIM-карта
- */
-Sim900r.prototype.networkCurrent = function(callback) {
-  this.cmd('AT+COPS?', callback);
-};
 
-Sim900r.prototype.infoImei = function(callback) {
+
+Sim900r.prototype.imei = function(callback) {
   this.cmd('AT+GSN', function(data) {
     var imei = Sim900r.prototype.parse.first(data);
     if (callback) {
@@ -248,7 +303,7 @@ Sim900r.prototype.infoImei = function(callback) {
   });
 };
 
-Sim900r.prototype.infoFirmware = function(callback) {
+Sim900r.prototype.firmware = function(callback) {
   this.cmd('AT+GMR', function(error, data) {
     if (!error) {
       data = data[0];
@@ -257,7 +312,7 @@ Sim900r.prototype.infoFirmware = function(callback) {
   });
 };
 
-Sim900r.prototype.infoTime = function(callback) {
+Sim900r.prototype.time = function(callback) {
   this.cmd('AT+CCLK?', function(error, data) {
     if (!error) {
       data = this.parseTime(data);
@@ -266,47 +321,8 @@ Sim900r.prototype.infoTime = function(callback) {
   });
 };
 
-
-/**
- * Отправка СМС на номер
- */
-Sim900r.prototype.smsSend = function(phone, text, callback) {
-  var serial = this._serial;
-  this.cmd('AT+CMGS="'+phone+'"', callback);
-  setTimeout(function() {
-    serial.println(text+'\u001a');
-  }, 500);
-};
-
-/**
- * Получение списка SMS
- */
-Sim900r.prototype.smsList = function(callback) {
-  this.cmd('AT+CMGF=1', function(error, data){
-    if (!error) {
-      this.cmd('AT+CMGL="ALL"', callback);
-    } else {
-      callback(error);
-    }
-  });
-};
-
-
-/**
- * Удаление SMS по индексу
- */
-Sim900r.prototype.smsDelete = function(index, callback) {
-  this.cmd('AT+CMGF=1', function(error, data){
-    if (!error) {
-      this.cmd('AT+CMGD='+index, callback);
-    } else {
-      callback(error);
-    }
-  });
-};
-
 Sim900r.prototype.setCallerID = function(val, callback) {
-  this.cmd('AT+CLIP='+val, callback);
+  this.cmd('AT+CLIP=' + val, callback);
 };
 
 Sim900r.prototype.getCallerID = function(callback) {
@@ -314,16 +330,31 @@ Sim900r.prototype.getCallerID = function(callback) {
 };
 
 /**
- * Метод обработки ответов
+ * Методы обработки ответов
  */
 Sim900r.prototype.parseTime = function(data) {
   data = '20' + data[0].split('"')[1];
   return new Date(data.replace(',', 'T').replace('/', '-').replace('/', '-'));
 };
 
+Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
+  var data = fLine.split('\"');
+  var indexData = data[0].split(': ');
+  var message = {
+    index: index || indexData[1],
+    phone: data[3],
+    datetime: this.parseTime(data[7]),
+    text: lLine
+  };
+  return message;
+};
+
 Sim900r.prototype.parsePhone = function(phone) {
-  if (phone) {
-    phone = phone.split('"')[1];
+  phone = phone.split('"');
+  if (phone[1]) {
+    phone = phone[1];
+  } else {
+    phone = undefined;
   }
   return phone;
 };
