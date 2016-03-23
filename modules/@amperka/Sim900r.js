@@ -294,7 +294,7 @@ Sim900r.prototype.netQuality = function(callback) {
 
 
 
-Sim900r.prototype.imei = function(callback) {
+Sim900r.prototype.getImei = function(callback) {
   this.cmd('AT+GSN', function(data) {
     var imei = Sim900r.prototype.parse.first(data);
     if (callback) {
@@ -303,7 +303,7 @@ Sim900r.prototype.imei = function(callback) {
   });
 };
 
-Sim900r.prototype.firmware = function(callback) {
+Sim900r.prototype.getFirmware = function(callback) {
   this.cmd('AT+GMR', function(error, data) {
     if (!error) {
       data = data[0];
@@ -312,13 +312,20 @@ Sim900r.prototype.firmware = function(callback) {
   });
 };
 
-Sim900r.prototype.time = function(callback) {
+Sim900r.prototype.getTime = function(callback) {
   this.cmd('AT+CCLK?', function(error, data) {
     if (!error) {
-      data = this.parseTime(data);
+      var date = this.parseSimDateToDate(data[0].split('"')[1]);
+      callback(undefined, date);
+    } else {
+      callback(error);
     }
-    callback(error, data);
   });
+};
+
+Sim900r.prototype.setTime = function(dt, callback) {
+  var date = this.parseDateToSimDate(dt);
+  this.cmd('AT+CCLK="'+date+'"', callback);
 };
 
 Sim900r.prototype.setCallerID = function(val, callback) {
@@ -332,10 +339,7 @@ Sim900r.prototype.getCallerID = function(callback) {
 /**
  * Методы обработки ответов
  */
-Sim900r.prototype.parseTime = function(data) {
-  data = '20' + data[0].split('"')[1];
-  return new Date(data.replace(',', 'T').replace('/', '-').replace('/', '-'));
-};
+
 
 Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
   var data = fLine.split('\"');
@@ -343,7 +347,7 @@ Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
   var message = {
     index: index || indexData[1],
     phone: data[3],
-    datetime: this.parseTime(data[7]),
+    date: this.parseSimDateToDate(data[7]),
     text: lLine
   };
   return message;
@@ -357,6 +361,24 @@ Sim900r.prototype.parsePhone = function(phone) {
     phone = undefined;
   }
   return phone;
+};
+
+Sim900r.prototype.parseDateToSimDate = function(dt) {
+  var year = (dt.getFullYear()+'').substr(-2);
+  var month = ('0' + dt.getMonth()).substr(-2,2);
+  var day = ('0' + dt.getDate()).substr(-2,2);
+  var hh = ('0' + dt.getHours()).substr(-2,2);
+  var mm = ('0' + dt.getMinutes()).substr(-2,2);
+  var ss = ('0' + dt.getSeconds()).substr(-2,2);
+  var date = year+'/'+month+'/'+day+','+hh+':'+mm+':'+ss+'+00';
+  return date;
+};
+
+Sim900r.prototype.parseSimDateToDate = function(dt) {
+  // 00/01/01,07:51:29+00
+  var date = '20'+dt.substr(0,2)+'-'+dt.substr(3,2)+'-'+dt.substr(6,2)+'T';
+  date += dt.substr(9,2)+':'+dt.substr(12,2)+':'+dt.substr(15,2);
+  return new Date(Date.parse(date));
 };
 
 Sim900r.prototype.parsePhoneToPDU = function(phone) {
