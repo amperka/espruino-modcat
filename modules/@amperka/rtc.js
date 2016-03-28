@@ -45,7 +45,7 @@ Rtc.prototype.setTime = function(time) {
   } else if (typeof time === 'string') {
     this._time = new Date(Date.parse(time));
   } else {
-    this._time = new Date(0);
+    this._time = new Date(getTime()*1000);
   }
 
   var halt = this.read(0x00, 1)[0] >> 7;
