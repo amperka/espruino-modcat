@@ -1,8 +1,8 @@
 // Инициализация класса
-var Rtc = function(i2c, address) {
+var Rtc = function(i2c) {
   this._time = undefined;
   this._i2c = i2c || PrimaryI2C;
-  this._address = address || 0x68;
+  this._address = 0x68;
   this.start();
 };
 
@@ -73,13 +73,13 @@ Rtc.prototype.getTime = function(unit) {
 
   var res = this._time;
   switch (unit) {
-    case 'timestamp':
-      res = Math.ceil(res.now() / 1000);
+    case 'unixtime':
+      res = Math.ceil(res.getTime() / 1000);
       break;
-    case 'string':
-      res = res.getFullYear() + '-' + res.getMonth()+1;
-      res+= '-' + res.getDate() + 'T' + res.getHours();
-      res+= ':' + res.getMinutes() + ':' + res.getSeconds();
+    case 'iso':
+      res = res.getFullYear() + '-' + res.getMonth() + 1 +
+         '-' + res.getDay() + 'T' + res.getHours() +
+         ':' + res.getMinutes() + ':' + res.getSeconds();
       break;
   }
   return res;
@@ -100,6 +100,6 @@ Rtc.prototype.stop = function() {
 };
 
 // Экспортируем класс
-exports.connect = function(i2c, address) {
-  return new Rtc(i2c, address);
+exports.connect = function(i2c) {
+  return new Rtc(i2c);
 };
