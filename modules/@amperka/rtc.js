@@ -3,6 +3,7 @@ var Rtc = function(i2c, address) {
   this._time = undefined;
   this._i2c = i2c || PrimaryI2C;
   this._address = address || 0x68;
+  this.start();
 };
 
 // Метод записывает данные data в регистр reg
