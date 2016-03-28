@@ -42,7 +42,7 @@ Rtc.prototype.setTime = function(time) {
   } else if (typeof time === 'number') {
     this._time = new Date(time * 1000);
   } else if (typeof time === 'string') {
-    this._time = Date.parse(time);
+    this._time = new Date(Date.parse(time));
   } else {
     this._time = new Date(0);
   }
@@ -77,7 +77,7 @@ Rtc.prototype.getTime = function(unit) {
       break;
     case 'string':
       res = res.getFullYear() + '-' + res.getMonth()+1;
-      res+= '-' + res.getDay() + 'T' + res.getHours();
+      res+= '-' + res.getDate() + 'T' + res.getHours();
       res+= ':' + res.getMinutes() + ':' + res.getSeconds();
       break;
   }
