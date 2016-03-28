@@ -101,7 +101,6 @@ DS130x.prototype.start = function() {
   }
 };
 
-
 DS130x.prototype.stop = function() {
   var byte = this.read(0x00, 1)[0];
   if (byte >> 7 === 0) {
