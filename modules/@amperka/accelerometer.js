@@ -70,41 +70,39 @@ LIS331DLH.prototype.init = function(opts) {
 };
 
 // Метод возвращает массив показаний акселерометра
-LIS331DLH.prototype.get = function() {
+LIS331DLH.prototype.get = function(units) {
   var d = this.read(0x28, 6);
   // reconstruct 16 bit data
-  var a = [d[0] | (d[1] << 8), d[2] | (d[3] << 8), d[4] | (d[5] << 8)];
-  // deal with sign bit
-  if (a[0] >= 32767) {
-    a[0] -= 65536;
+  var res = {
+    x: d[0] | (d[1] << 8),
+    y: d[2] | (d[3] << 8),
+    z: d[4] | (d[5] << 8)
   }
-  if (a[1] >= 32767) {
-    a[1] -= 65536;
+  if (res.x >= 32767) {
+    res.x -=65536;
   }
-  if (a[2] >= 32767) {
-    a[2] -= 65536;
+  if (res.y >= 32767) {
+    res.y -=65536;
   }
-  return a;
-};
-
-// Метод возвращает ускорение по осям, как коэфициент от G
-LIS331DLH.prototype.getG = function() {
-  var a = this.get();
-  return {
-    'x': a[0] * this._sensitivity,
-    'y': a[1] * this._sensitivity,
-    'z': a[2] * this._sensitivity
-  };
-};
-
-// Метод возвращает ускорение по осям в метрах в секунду в квадрате
-LIS331DLH.prototype.getM = function() {
-  var a = this.get();
-  return {
-    'x': a[0] * this._sensitivity * this.G,
-    'y': a[1] * this._sensitivity * this.G,
-    'z': a[2] * this._sensitivity * this.G
-  };
+  if (res.z >= 32767) {
+    res.z -=65536;
+  }
+  
+  if (units === 'G') {
+    res = {
+      x: res.x * this._sensitivity,
+      y: res.y * this._sensitivity,
+      z: res.z * this._sensitivity
+    };
+  }
+  if (units === 'a') {
+    res = {
+      x: res.x * this._sensitivity * this.G,
+      y: res.y * this._sensitivity * this.G,
+      z: res.z * this._sensitivity * this.G
+    };
+  }
+  return res;
 };
 
 // Метод возвращает идентификатор устройства
