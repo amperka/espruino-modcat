@@ -1,3 +1,10 @@
 node_modules/
 modules/@amperka/*.min.js
 binaries/espruino_iskrajs_full.bin
+snippets/
+projects/
+testing/
+testinglog/
+binary/
+firmware/
+./vscode
