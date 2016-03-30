@@ -26,20 +26,17 @@ LPS331.prototype.init = function() {
   this.writeI2C(0x20, 0xE0);
 };
 
-// Температура в raw
-LPS331.prototype.getTemp = function() {
+// Температура
+LPS331.prototype.temperature = function(units) {
   var data = this.readI2C(0x2B, 2);
   var temp = data[0] | (data[1] << 8);
   if (temp >= 32767) {
     temp -= 0xFFFF;
   }
+  if (units === 'C') {
+    temp = 42.5 + temp / 480;
+  }
   return temp;
-};
-
-// Температура в градусах цельсия
-LPS331.prototype.getTempC = function() {
-  var temp = this.getTemp();
-  return 42.5 + temp / 480;
 };
 
 // Давление
