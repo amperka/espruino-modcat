@@ -9,12 +9,12 @@ var LIS331DLH = function(i2c, address) {
 LIS331DLH.prototype.G = 9.81;
 
 // Метод записывает данные data в регистр reg
-LIS331DLH.prototype.write = function(reg, data) {
+LIS331DLH.prototype.writeI2C = function(reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // Метод производит чтение из регистра reg количестов байт count
-LIS331DLH.prototype.read = function(reg, count) {
+LIS331DLH.prototype.readI2C = function(reg, count) {
   if (count === undefined) {
     count = 1;
   }
@@ -35,7 +35,7 @@ LIS331DLH.prototype.init = function(opts) {
       config20 = config20 | 0x18; /* 00011000 */
     }
   }
-  this.write(0x20, config20);
+  this.writeI2C(0x20, config20);
 
   // No High Pass filter
   var config21 = 0x00;
@@ -51,7 +51,7 @@ LIS331DLH.prototype.init = function(opts) {
       config21 = 0x13; /* 00010011 */
     }
   }
-  this.write(0x21, config21);
+  this.writeI2C(0x21, config21);
 
   // Maximum sensitivity is 2G
   var config23 = 0x1;
@@ -66,12 +66,12 @@ LIS331DLH.prototype.init = function(opts) {
       this._sensitivity = 8 / 32767;
     }
   }
-  this.write(0x23, config23);
+  this.writeI2C(0x23, config23);
 };
 
 // Метод возвращает массив показаний акселерометра
-LIS331DLH.prototype.get = function(units) {
-  var d = this.read(0x28, 6);
+LIS331DLH.prototype.read = function(units) {
+  var d = this.readI2C(0x28, 6);
   // reconstruct 16 bit data
   var res = {
     x: d[0] | (d[1] << 8),
@@ -87,7 +87,7 @@ LIS331DLH.prototype.get = function(units) {
   if (res.z >= 32767) {
     res.z -=65536;
   }
-  
+
   if (units === 'G') {
     res = {
       x: res.x * this._sensitivity,
@@ -107,7 +107,7 @@ LIS331DLH.prototype.get = function(units) {
 
 // Метод возвращает идентификатор устройства
 LIS331DLH.prototype.whoAmI = function() {
-  return this.read(0x0F)[0];
+  return this.readI2C(0x0F)[0];
 };
 
 // Экспортируем класс
