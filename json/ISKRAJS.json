@@ -1,6 +1,6 @@
 {
  "info": {
-  "binary_version": "1v85.1057", 
+  "binary_version": "1v85.1113", 
   "variables": 5450, 
   "binaries_url_base": "http://js.amperka.ru/binaries/", 
   "link": [
@@ -8,9 +8,9 @@
   ], 
   "default_busy_pin_indicator": "B7", 
   "default_console": "EV_SERIAL2", 
-  "thumb_url": "http://js.amperka.ru/img/ISKRAJS_thumb.jpg", 
-  "binary_url": "http://js.amperka.ru/binaries/espruino_1v85.1057_iskrajs.bin", 
   "bootloader": 1, 
+  "binary_url": "http://js.amperka.ru/binaries/espruino_1v85.1113_iskrajs.bin", 
+  "thumb_url": "http://js.amperka.ru/img/ISKRAJS_thumb.jpg", 
   "builtin_modules": [
    "Flash", 
    "fs", 
@@ -22,6 +22,7 @@
   "name": "Iskra.js", 
   "images_url_base": "http://js.amperka.ru/img/", 
   "image_url": "http://js.amperka.ru/img/ISKRAJS.jpg", 
+  "json_url": "http://js.amperka.ru/json/ISKRAJS.json", 
   "binary_name": "espruino_%v_iskrajs.bin"
  }, 
  "pins": [
