@@ -22,7 +22,7 @@ Button.prototype.read = function() {
 };
 
 Button.prototype.isPressed = function() {
-  return this._pin.read() != this._normalSignal;
+  return this._pin.read() !== !!this._normalSignal;
 };
 
 Button.prototype._onChange = function(e) {
