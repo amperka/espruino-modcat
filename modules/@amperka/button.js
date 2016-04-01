@@ -1,27 +1,32 @@
 var Button = function(pin, opts) {
+  opts = opts || {};
   this._pin = pin;
-  this._pin.mode('input');
+
+  this._normalSignal = (opts.normalSignal === 0) ? 0 : 1;
+  this._pin.mode(this._normalSignal ? 'input_pullup' : 'input_pulldown');
 
   this._holdTime = opts ? opts.holdTime : null;
   this._holdTimeoutID = null;
 
-  this._watch();
-};
-
-Button.prototype.read = function() {
-  return this._pin.read() ? 'up' : 'down';
-};
-
-Button.prototype._watch = function() {
+  var debounce = (opts.debounce === undefined) ? 10 : 0;
   setWatch(this._onChange.bind(this), this._pin, {
     repeat: true,
     edge: 'both',
-    debounce: 10
+    debounce: debounce
   });
 };
 
+/* Deprecated: use `isPressed` intead */
+Button.prototype.read = function() {
+  return this.isPressed() ? 'down' : 'up';
+};
+
+Button.prototype.isPressed = function() {
+  return this._pin.read() != this._normalSignal;
+};
+
 Button.prototype._onChange = function(e) {
-  var pressed = !e.state;
+  var pressed = (this._normalSignal === 0) ? e.state : !e.state;
   var self = this;
 
   if (this._holdTime && pressed) {
