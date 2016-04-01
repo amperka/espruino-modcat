@@ -8,7 +8,7 @@ var Button = function(pin, opts) {
   this._holdTime = opts ? opts.holdTime : null;
   this._holdTimeoutID = null;
 
-  var debounce = (opts.debounce === undefined) ? 10 : 0;
+  var debounce = (opts.debounce === undefined) ? 10 : opts.debounce;
   setWatch(this._onChange.bind(this), this._pin, {
     repeat: true,
     edge: 'both',
