@@ -47,10 +47,10 @@ LPS331.prototype.read = function(units) {
     baro -= 0xFFFFFFFF;
   }
   switch (units) {
-    case 'Hq':
+    case 'mmHg':
       baro = baro / 5460.8691;
       break;
-    case 'P':
+    case 'Pa':
       baro = baro / 4096;
       break;
   }
