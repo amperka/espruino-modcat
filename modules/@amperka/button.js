@@ -5,7 +5,7 @@ var Button = function(pin, opts) {
   this._normalSignal = (opts.normalSignal === 0) ? 0 : 1;
   this._pin.mode(this._normalSignal ? 'input_pullup' : 'input_pulldown');
 
-  this._holdTime = opts ? opts.holdTime : null;
+  this._holdTime = opts.holdTime || 1;
   this._holdTimeoutID = null;
 
   var debounce = (opts.debounce === undefined) ? 10 : opts.debounce;
