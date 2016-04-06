@@ -1,88 +1,80 @@
+/**
+ * Конструктор объекта stepper
+ * @constructor
+ * @param {object} pins - объект со свойствами step, direction, enable типа Pin
+ * @param {Object} opts - объект со свойствами pps (скорость) и holdPower (pwm)
+ */
+var Stepper = function(pins, opts) {
+  this._pins = pins;
+  opts = opts || {};
 
-var Stepper = function(stepPin, directionPin, opts) {
-  this._stepPin = stepPin;
-  this._directionPin = directionPin;
+  this._pps = opts.pps || 20;
+  this._holdPower = opts.holdPower || 0;
 
-  this._delay = 5;
-  this._holdPower = 0;
-  this._enablePin;
+  this._pins.step.mode('output');
+  this._pins.enable.mode('output');
+  this._pins.direction.mode('output');
 
-  if (opts && opts.delay) {
-    this._delay = opts.delay;
-  }
-
-  if (opts && opts.enable) {
-    this._enablePin = opts.enable;
-  }
-
-  if (this._enablePin && opts.hold) {
-    this._holdPower = opts.hold;
-  }
-
-  this._stepPin.mode('output');
-  this._directionPin.mode('output');
-
-  if (this._enablePin) {
-    this._enablePin.mode('output');
-    this.power();
-  }
+  this.power();
 
   this._intervalId = null;
 };
 
-// Функция ограничивает подачу тока на двигатель
-// до holdPower процентов
-Stepper.prototype.power = function(holdPower) {
+/**
+ * Регулирует ШИМ подачи питания на двигатель
+ * @param {float} power - Скважность ШИМ от 0 до 1
+ */
+Stepper.prototype.hold = function(power) {
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
   }
 
-  if (holdPower === undefined) {
-    holdPower = this._holdPower;
+  if (!power) {
+    power = this._holdPower;
   }
 
-  if (this._enablePin) {
-    analogWrite(this._enablePin, holdPower);
-  }
+  analogWrite(this._pins.enable, power);
 };
 
-// Функция осуществляет поворот вала на steps шагов,
-// через каждые delay микросекунд.
+
+/**
+ * Проворачивает вал на step шагов, после чего выполняет callback.
+ * @param {number} steps - количество шагов. При отрицательном значении происходит движение назад
+ * @param {function} callback - функция, выполняемая после проворота вала
+ */
 Stepper.prototype.rotate = function(steps, callback) {
-  if (this._intervalId !== null) {
-    clearInterval(this._intervalId);
-    this._intervalId = null;
-  }
+  this.hold(1);
 
   if (steps === undefined) {
     steps = 1;
   }
 
-  if (steps < 0 && this._directionPin) {
-    steps = -1 * steps;
-    digitalWrite(this._directionPin, 1);
+  if (steps < 0) {
+    digitalWrite(this._pins.direction, 1);
   } else if (this._directionPin) {
-    digitalWrite(this._directionPin, 0);
+    digitalWrite(this._pins.direction, 0);
   }
 
-  this.power(100);
-
   var self = this;
-  self._intervalId = setInterval(function(){
+  this._intervalId = setInterval(function(){
     if (steps > 0){
-      digitalPulse(self._stepPin, 1, 1);
+      digitalPulse(self._pins.step, 1, 1);
       steps--;
     } else {
-      if (callback !== undefined) {
+      self.hold();
+      if (callback) {
         callback();
-      } else {
-        self.power();
       }
     }
-  }, this._delay);
+  }, 1000 / this._pps);
 };
 
-exports.connect = function(stepPin, directionPin, opts) {
-  return new Stepper(stepPin, directionPin, opts);
+/**
+ * Экспорт функции создания объекта Stepper
+ * @param {object} pins - объект со свойствами step, direction, enable типа Pin
+ * @param {Object} opts - объект со свойствами pps (скорость) и holdPower (pwm)
+ */
+exports.connect = function(pins, opts) {
+  return new Stepper(pins, opts);
 };
