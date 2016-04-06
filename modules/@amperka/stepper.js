@@ -13,7 +13,7 @@ var Stepper = function(stepPin, directionPin, enablePin, opts) {
   opts = opts || {};
 
   this._pps = opts.pps || 20;
-  this._holdPower = opts.enablePin || 0;
+  this._holdPower = opts.holdPower || 0;
 
   this._stepPin.mode('output');
   this._directionPin.mode('output');
