@@ -7,9 +7,9 @@ var AnalogLineSensor = function(pin) {
 
 AnalogLineSensor.prototype.read = function(units) {
   if (units === 'mV') {
-    return analogRead(this._pin)*E.getAnalogVRef()*1000;
+    return analogRead(this._pin) * E.getAnalogVRef() * 1000;
   } else if (units === 'V') {
-    return analogRead(this._pin)*E.getAnalogVRef();
+    return analogRead(this._pin) * E.getAnalogVRef();
   } else if (units === 'u') {
     return analogRead(this._pin);
   } else {
