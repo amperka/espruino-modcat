@@ -1,23 +1,19 @@
 /**
  * Конструктор объекта stepper
  * @constructor
- * @param {Pin} stepPin - объект пина, при подаче напряжения двигатель * сдвигается на один шаг.
- * @param {Pin} directionPin - объект пина. 1 - движение вперед, 0 - движение назад
- * @param {Pin} enablePin - объект пина, 1 - на двигатель подается напряжение
- * @param {Object} opts - объект со свойствами pps (количество шагов в секунду) и holdPower (значение ШИМ для удержания)
+ * @param {object} pins - объект со свойствами step, direction, enable типа Pin
+ * @param {Object} opts - объект со свойствами pps (скорость) и holdPower (pwm)
  */
-var Stepper = function(stepPin, directionPin, enablePin, opts) {
-  this._stepPin = stepPin;
-  this._directionPin = directionPin;
-  this._enablePin = enablePin;
+var Stepper = function(pins, opts) {
+  this._pins = pins;
   opts = opts || {};
 
   this._pps = opts.pps || 20;
   this._holdPower = opts.holdPower || 0;
 
-  this._stepPin.mode('output');
-  this._directionPin.mode('output');
-  this._enablePin.mode('output');
+  this._pins.step.mode('output');
+  this._pins.enable.mode('output');
+  this._pins.direction.mode('output');
 
   this.power(this._holdPower);
 
@@ -38,7 +34,7 @@ Stepper.prototype.power = function(power) {
     power = this._holdPower;
   }
 
-  analogWrite(this._enablePin, power);
+  analogWrite(this._pins.enable, power);
 };
 
 /**
@@ -57,9 +53,9 @@ Stepper.prototype.rotate = function(steps, callback) {
   }
 
   if (steps < 0) {
-    digitalWrite(this._directionPin, 1);
+    digitalWrite(this._pins.direction, 1);
   } else if (this._directionPin) {
-    digitalWrite(this._directionPin, 0);
+    digitalWrite(this._pins.direction, 0);
   }
 
   this.power(1);
@@ -67,7 +63,7 @@ Stepper.prototype.rotate = function(steps, callback) {
   var self = this;
   self._intervalId = setInterval(function(){
     if (steps > 0){
-      digitalPulse(self._stepPin, 1, 1);
+      digitalPulse(self._pins.step, 1, 1);
       steps--;
     } else {
       if (callback) {
@@ -80,11 +76,9 @@ Stepper.prototype.rotate = function(steps, callback) {
 
 /**
  * Экспорт функции создания объекта Stepper
- * @param {Pin} stepPin - объект пина, при подаче напряжения двигатель * сдвигается на один шаг.
- * @param {Pin} directionPin - объект пина. 1 - движение вперед, 0 - движение назад
- * @param {Pin} enablePin - объект пина, 1 - на двигатель подается напряжение
- * @param {Object} opts - объект со свойствами pps (количество шагов в секунду) и holdPower (значение ШИМ для удержания)
+ * @param {object} pins - объект со свойствами step, direction, enable типа Pin
+ * @param {Object} opts - объект со свойствами pps (скорость) и holdPower (pwm)
  */
-exports.connect = function(stepPin, directionPin, enablePin, opts) {
-  return new Stepper(stepPin, directionPin, enablePin, opts);
+exports.connect = function(pins, opts) {
+  return new Stepper(pins, opts);
 };
