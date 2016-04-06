@@ -24,7 +24,7 @@ var Stepper = function(pins, opts) {
  * Регулирует ШИМ подачи питания на двигатель
  * @param {float} power - Скважность ШИМ от 0 до 1
  */
-Stepper.prototype.power = function(power) {
+Stepper.prototype.hold = function(power) {
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
@@ -37,17 +37,6 @@ Stepper.prototype.power = function(power) {
   analogWrite(this._pins.enable, power);
 };
 
-/**
- * Прерывает вращение, устанавливает значение power для ШИМ
- * @param {number} power - значение шим от 0 до 1
- */
-Stepper.prototype.stop = function(power) {
-  if (this._intervalId !== null) {
-    clearInterval(this._intervalId);
-    this._intervalId = null;
-  }
-  this.power(power);
-};
 
 /**
  * Проворачивает вал на step шагов, после чего выполняет callback.
@@ -55,7 +44,7 @@ Stepper.prototype.stop = function(power) {
  * @param {function} callback - функция, выполняемая после проворота вала
  */
 Stepper.prototype.rotate = function(steps, callback) {
-  this.stop(1);
+  this.hold(1);
 
   if (steps === undefined) {
     steps = 1;
@@ -73,7 +62,7 @@ Stepper.prototype.rotate = function(steps, callback) {
       digitalPulse(self._pins.step, 1, 1);
       steps--;
     } else {
-      self.stop();
+      self.hold();
       if (callback) {
         callback();
       }
