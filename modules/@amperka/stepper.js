@@ -15,7 +15,7 @@ var Stepper = function(pins, opts) {
   this._pins.enable.mode('output');
   this._pins.direction.mode('output');
 
-  this.power(this._holdPower);
+  this.power();
 
   this._intervalId = null;
 };
@@ -38,15 +38,24 @@ Stepper.prototype.power = function(power) {
 };
 
 /**
- * Проворачивает вал на step шагов, после чего выполняет callback.
- * @param {integer} steps - количество шагов. При отрицательном значении происходит движение назад
- * @param {function} callback - функция, выполняемая после проворота вала
+ * Прерывает вращение, устанавливает значение power для ШИМ
+ * @param {number} power - значение шим от 0 до 1
  */
-Stepper.prototype.rotate = function(steps, callback) {
+Stepper.prototype.stop = function(power) {
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
   }
+  this.power(power);
+};
+
+/**
+ * Проворачивает вал на step шагов, после чего выполняет callback.
+ * @param {number} steps - количество шагов. При отрицательном значении происходит движение назад
+ * @param {function} callback - функция, выполняемая после проворота вала
+ */
+Stepper.prototype.rotate = function(steps, callback) {
+  this.stop(1);
 
   if (steps === undefined) {
     steps = 1;
@@ -58,20 +67,18 @@ Stepper.prototype.rotate = function(steps, callback) {
     digitalWrite(this._pins.direction, 0);
   }
 
-  this.power(1);
-
   var self = this;
-  self._intervalId = setInterval(function(){
+  this._intervalId = setInterval(function(){
     if (steps > 0){
       digitalPulse(self._pins.step, 1, 1);
       steps--;
     } else {
+      self.stop();
       if (callback) {
         callback();
       }
-      self.power();
     }
-  }, this._delay);
+  }, 1 / this._pps);
 };
 
 /**
