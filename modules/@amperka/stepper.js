@@ -15,7 +15,7 @@ var Stepper = function(pins, opts) {
   this._pins.enable.mode('output');
   this._pins.direction.mode('output');
 
-  this.power();
+  this.hold();
 
   this._intervalId = null;
 };
@@ -51,9 +51,10 @@ Stepper.prototype.rotate = function(steps, callback) {
   }
 
   if (steps < 0) {
-    digitalWrite(this._pins.direction, 1);
-  } else if (this._directionPin) {
-    digitalWrite(this._pins.direction, 0);
+    this._pins.direction.write(1);
+    steps *= -1;
+  } else {
+    this._pins.direction.write(0);
   }
 
   var self = this;
