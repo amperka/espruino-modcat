@@ -78,7 +78,7 @@ Stepper.prototype.rotate = function(steps, callback) {
         callback();
       }
     }
-  }, 1 / this._pps);
+  }, 1000 / this._pps);
 };
 
 /**
