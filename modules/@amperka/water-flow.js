@@ -2,7 +2,7 @@
 var WaterFlow = function(pin, opts) {
   this._pin = pin;
 
-  this._pin.mode('input_pulldown');
+  this._pin.mode('input_pullup');
 
   this._litres = 0;
   this._pulses = 0;
