@@ -88,6 +88,6 @@
     "require": false,
     "print": false,
     "PrimaryI2C": false,
-	"Uint8Array": false
+    "Uint8Array": false
   }
 }
