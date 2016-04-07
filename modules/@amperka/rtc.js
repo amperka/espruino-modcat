@@ -60,7 +60,7 @@ Rtc.prototype.setTime = function(time) {
   ]);
 };
 
-Rtc.prototype.getTime = function(format) {
+Rtc.prototype.getTime = function(unit) {
   var time = this.read(0x00, 7);
   this._time = new Date(
     this._bcdToDec(time[6]) + 2000,
@@ -72,7 +72,7 @@ Rtc.prototype.getTime = function(format) {
   );
 
   var res = this._time;
-  switch (format) {
+  switch (unit) {
     case 'unixtime':
       res = Math.ceil(res.getTime() / 1000);
       break;
