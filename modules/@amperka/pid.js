@@ -5,7 +5,7 @@ var Pid = function(opts) {
   this._ki = opts.ki || 0;
   this._kd = opts.kd || 0;
   this._outputMin = opts.outputMin || 0;
-  this._outputMax = opts.outputMax || 1;
+  this._outputMax = (opts.outputMax === undefined)? 1 : opts.outputMax;
   this._lastTime = null;
   this._intervalId = null;
 };
@@ -17,12 +17,12 @@ Pid.prototype._clearErrors = function() {
 };
 
 Pid.prototype.setup = function(opts) {
-  this._target = opts.target || this._target;
-  this._kp = opts.kp || this._kp;
-  this._ki = opts.ki || this._ki;
-  this._kd = opts.kd || this._kd;
-  this._outputMin = opts.outputMin || this._outputMin;
-  this._outputMax = opts.outputMax || this._outputMax;
+  this._target = (opts.target === undefined) ? this._target : opts.target;
+  this._kp = (opts.kp === undefined) ? this._kp : opts.kp;
+  this._ki = (opts.ki === undefined) ? this._ki : opts.ki;
+  this._kd = (opts.kd === undefined) ? this._kd : opts.kd;
+  this._outputMin = (opts.outputMin === undefined) ? this._outputMin : opts.outputMin;
+  this._outputMax = (opts.outputMax === undefined) ? this._outputMax : opts.outputMax;
   this._clearErrors();
 };
 
