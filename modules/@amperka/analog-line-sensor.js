@@ -13,24 +13,23 @@ AnalogLineSensor.prototype.read = function(units) {
   } else if (units === 'u') {
     return analogRead(this._pin);
   } else {
-    return E.clip(analogRead(this._pin), this._min, this._max);
+    var calibratedValue = analogRead(this._pin);
+    if ((this._min !== 0) || (this._max !== 1)) {
+      calibratedValue = E.clip(
+        (calibratedValue - this._min) / (this._max - this._min),
+        0, 1);
+    }
+    return calibratedValue;
   }
 };
 
+
 AnalogLineSensor.prototype.calibrate = function(opts) {
   if (opts && opts.white !== undefined) {
-    if (opts.white === true) {
-      this._min = analogRead(this._pin);
-    } else {
-      this._min = opts.white;
-    }
+    this._min = (opts.white === true) ? analogRead(this._pin) : opts.white;
   }
   if (opts && opts.black !== undefined) {
-    if (opts.black === true) {
-      this._max = analogRead(this._pin);
-    } else {
-      this._max = opts.black;
-    }
+    this._max = (opts.black === true) ? analogRead(this._pin) : opts.black;
   }
 };
 
