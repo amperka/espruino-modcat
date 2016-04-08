@@ -81,7 +81,6 @@ Rtc.prototype.getTime = function(unit) {
          '-' + res.getDay() + 'T' + res.getHours() +
          ':' + res.getMinutes() + ':' + res.getSeconds();
       break;
-    default: break;
   }
   return res;
 };
