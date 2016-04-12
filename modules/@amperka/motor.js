@@ -3,8 +3,9 @@ var Motor = function(opts) {
   this._pwmPin.mode('output');
   this._phasePin = opts.phasePin;
   this._phasePin.mode('output');
-  this._freq = opts.freq || 100;
-  analogWrite(this._pwmPin, 0, {freq: this._freq});
+  if (opts.freq) {
+    analogWrite(this._pwmPin, 0, {freq: opts.freq});
+  }
 };
 
 Motor.prototype.write = function(u) {
