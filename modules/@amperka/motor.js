@@ -9,8 +9,8 @@ var Motor = function(opts) {
 };
 
 Motor.prototype.write = function(u) {
-  u < 0 ? this._phasePin.write(1) : this._phasePin.write(0);
-  analogWrite(self._pwmPin, E.clip(Math.abs(u), 0, 1));
+  this._phasePin.write(u < 0);
+  analogWrite(this._pwmPin, E.clip(Math.abs(u), 0, 1));
 };
 
 exports.MotorShield = {
