@@ -48,6 +48,7 @@ WaterFlow.prototype._onChange = function() {
   this._pulseTimerID = setTimeout(function() {
     self._pulseTimerID = null;
     self._speed = 0;
+    this.emit('drain');
   }, this._updatePeriod);
 
   this.emit('pulse');
