@@ -45,7 +45,6 @@ PN532.prototype._handleIrq = function(e) {
 };
 
 PN532.prototype._sendCommandCheckAck = function(cmd, cmdlen) {
-  // console.log('_sendCommandCheckAck function');
   cmdlen++;
   var toSend = [
     this._SPI_DATAWRITE,
@@ -68,7 +67,6 @@ PN532.prototype._sendCommandCheckAck = function(cmd, cmdlen) {
   toSend.push(this._POSTAMBLE);
 
   var send = new Uint8Array(toSend, 0, 9 + cmdlen);
-  // this._spi.send(send, this._csPin);
   this._i2c.writeTo(this._PN532_I2C_ADDRESS, send);
 
   this._imWaitingFor.push(this._readACK.bind(this));
