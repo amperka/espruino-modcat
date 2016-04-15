@@ -14,6 +14,16 @@ var Robot = function(opts) {
     echoPin: P13
   };
   this._servo = opts.servo || P8;
+
+  var middle = opts.servoMiddle || 90;
+  this.servoMiddle(middle);
+  var sector = opts.servoLookupSector || 90;
+  this.servoLookupSector(sector);
+  var acceleration = opts.acceleration || 0.2;
+  this.acceleration(acceleration);
+
+  this._speedIntervalID = null;
+
   this._init();
 };
 
@@ -31,11 +41,20 @@ Robot.prototype._init = function() {
   this.rightEncoder = DigitalLineSensor.connect(this._rightEncoder);
   this.ultrasonic = require('@amperka/ultrasonic').connect(this._ultrasonic);
   this.servo = require('@amperka/servo').connect(this._servo);
+
+  this.stop();
+  this.lookAt(0);
 };
 
 Robot.prototype.stop = function() {
-  this.leftMotor.write(0);
-  this.rightMotor.write(0);
+  this._lCurrentSpeed = 0;
+  this._rCurrentSpeed = 0;
+  if (this._speedIntervalID) {
+    clearInterval(this._speedIntervalID);
+    this._speedIntervalID = null;
+  }
+  this.leftMotor.write(this._lCurrentSpeed);
+  this.rightMotor.write(this._rCurrentSpeed);
 };
 
 exports.connect = function(opts) {
@@ -47,13 +66,58 @@ Robot.prototype.beep = function() {
   this.voice.beep(0.5);
 };
 
-/*
+// servo
+Robot.prototype.servoMiddle = function(degrees) {
+  if (degrees === undefined) {
+    return this._middle;
+  } else {
+    this._middle = E.clip(degrees, 0, 180);
+  }
+};
+
+Robot.prototype.servoLookupSector = function(degrees) {
+  if (degrees === undefined) {
+    return this._sector;
+  } else {
+    this._sector = E.clip(degrees, 0, 180);
+    this._halfSector = this._sector/2;
+  }
+};
+
 Robot.prototype.lookAt = function(degrees) {
+  if (degrees === undefined) {
+    return this._lookAt;
+  } else {
+    this._lookAt = E.clip(degrees, -this._halfSector, this._halfSector);
+    this.servo.write(this._middle - this._lookAt);
+  }
+};
+
+Robot.prototype.acceleration = function(acceleration) {
+  if (acceleration === undefined) {
+    return this._acceleration;
+  } else {
+    this._acceleration = E.clip(acceleration, 0, 1);
+  }
 };
 
 Robot.prototype.go = function(opts) {
   opts = opts || {};
+  this._lSpeed = (opts.l === undefined) ? 0 : E.clip(opts.l, -1, 1);
+  this._rSpeed = (opts.r === undefined) ? 0 : E.clip(opts.r, -1, 1);
+  if (this._speedIntervalID === null) {
+    this._speedIntervalID = setInterval(this._updateSpeed.bind(this), 20);
+  }
 };
+
+Robot.prototype._updateSpeed = function() {
+  var accel = this.acceleration();
+  this._lCurrentSpeed = accel * this._lSpeed + (1-accel) * this._lCurrentSpeed;
+  this._rCurrentSpeed = accel * this._rSpeed + (1-accel) * this._rCurrentSpeed;
+  this.leftMotor.write(this._lCurrentSpeed);
+  this.rightMotor.write(this._rCurrentSpeed);
+};
+/*
 Robot.prototype.speed = function(speed) {
 };
 
