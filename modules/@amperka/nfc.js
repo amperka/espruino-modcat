@@ -27,8 +27,7 @@ var PN532 = function(connect) {
 
 PN532.prototype.wakeUp = function(callback) {
 
-  setWatch(this._handleIrq.bind(this), this._irqPin,
-    {repeat: true, debounce: 0.1});
+  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true});
 
   this._packetBuffer[0] = this._COMMAND_GETFIRMWAREVERSION;
   this._sendCommandCheckAck(this._packetBuffer, 1);
