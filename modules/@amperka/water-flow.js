@@ -11,6 +11,8 @@ var WaterFlow = function(pin, opts) {
 
   this._speed = 0;
 
+  opts = opts || {};
+
   this._avg = opts.averageLength || 100;
   this._pulsesPerLitre = opts.pulsesPerLitre || 450;
   this._minimumSpeed = opts.minimumSpeed || 1;
