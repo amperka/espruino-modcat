@@ -1,15 +1,5 @@
 
-// SPI2.setup({baud:3200000, mosi:B15, sck:B13, miso:B14});
-// var arr = new Uint8ClampedArray(numberLed * 3);
-//   for (var i = numberLed - 1, j = 0; j < halfNumberLed; i -= 1, j += 1) {
-//     var left = i * 3;
-//     var right = j * 3;
-//     if(cm - minDistance < j * step) {
-//       arr[left  ] = arr[right  ] = colors[right  ];
-//       arr[left+1] = arr[right+1] = colors[right+1];
-//       arr[left+2] = arr[right+2] = colors[right+2];
-
-var Strip = function(spi, length, type) {
+var Strip = function(spi, length, order) {
   this._spi = spi || SPI2;
   this._length = length || 0;
 
@@ -18,21 +8,13 @@ var Strip = function(spi, length, type) {
   this._color = new Array(length * 3 || 0);
   this._result = new Uint8ClampedArray(length * 3 || 0);
 
-  this._type = 0;
-  if (type === 'BGR') {
-    this._r = 2;
-    this._g = 1;
-    this._b = 0;
-  }
-  if (type === 'RGB') {
-    this._r = 0;
-    this._g = 1;
-    this._b = 2;
-  }
-  if (type === 'RBG') {
-    this._r = 0;
-    this._g = 2;
-    this._b = 1;
+  for (var i = 0; i < 3; i++) {
+    switch (order.charAt(i)) {
+      case 'R': this._r = i; break;
+      case 'G': this._g = i; break;
+      case 'B': this._b = i; break;
+      default: break;
+    }
   }
 
 };
@@ -102,6 +84,6 @@ Strip.prototype.getColor = function(index, type) {
   }
 };
 
-exports.connect = function(spi, length, type) {
-  return new Strip(spi, length, type);
+exports.connect = function(spi, length, order) {
+  return new Strip(spi, length, order);
 };
