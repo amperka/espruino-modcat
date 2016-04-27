@@ -69,6 +69,7 @@ Strip.prototype.apply = function() {
 Strip.prototype.getColor = function(index, type) {
   var i = index * 3;
 
+  type = type || 'object';
   if (type === 'object') {
     return {
       red: this._color[i+this._r],
