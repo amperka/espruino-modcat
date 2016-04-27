@@ -1,12 +1,13 @@
 
 var Strip = function(spi, length, order) {
-  this._spi = spi || SPI2;
+  this._spi = spi;
   this._length = length || 0;
+  this._arrayLength = this._length * 3;
 
   this._brightness = 255;
 
-  this._color = new Array(length * 3 || 0);
-  this._result = new Uint8ClampedArray(length * 3 || 0);
+  this._color = new Array(this._arrayLength || 0);
+  this._result = new Uint8ClampedArray(this._arrayLength || 0);
 
   for (var i = 0; i < 3; i++) {
     switch (order.charAt(i)) {
@@ -44,7 +45,7 @@ Strip.prototype.brightness = function(brightness) {
   if (brightness !== undefined) {
     if (brightness >= 0 && brightness <= 1) {
       brightness *= 255;
-      for (var i in this._color) {
+      for (var i = 0; i < this._arrayLength; ++i) {
         this._result[i] = this._color[i] * brightness;
       }
       this._brightness = brightness;
@@ -55,7 +56,7 @@ Strip.prototype.brightness = function(brightness) {
 };
 
 Strip.prototype.clear = function() {
-  for (var i in this._color) {
+  for (var i = 0; i < this._arrayLength; ++i) {
     this._result[i] = this._color[i] = 0;
   }
   this.apply();
