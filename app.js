@@ -12,7 +12,7 @@ app.get('/', function (req, res) {
 
 // The 404 Route
 app.get('*', function(req, res){
-  if (req.url.indexOf('amperka') > -1) {
+  if (req.url.indexOf('amperka') > -1 || req.url.indexOf('@') > -1) {
     console.log('Not found:', req.url)
     res.status(404).send('Not found');
   } else if (req.originalUrl.indexOf('/modules/') === 0) {
