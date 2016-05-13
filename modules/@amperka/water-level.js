@@ -2,7 +2,7 @@
 var WaterLevel = function(pin, opts) {
   this._pin = pin;
 
-  this._pin.mode('input_pulldown');
+  this._pin.mode('input_pullup');
 
   opts = opts || {};
 

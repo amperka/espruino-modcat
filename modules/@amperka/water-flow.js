@@ -20,8 +20,11 @@ var WaterFlow = function(pin, opts) {
   this._lastTime = getTime();
 
   this._speedNumerator = this._avg / this._pulsesPerLitre;
+  console.log(this._speedNumerator);
   this._litresPerPulse = 1 / this._pulsesPerLitre;
-  this._updatePeriod = 60 / (this._minimumSpeed * this._pulsesPerLitre * 1000);
+  console.log(this._litresPerPulse);
+  this._updatePeriod = 60 / (this._minimumSpeed * this._pulsesPerLitre) * 1000;
+  console.log(this._updatePeriod);
 
   this._watch();
 };
@@ -42,7 +45,7 @@ WaterFlow.prototype._onChange = function() {
     clearTimeout(this._pulseTimerID);
     this._pulseTimerID = null;
     var time = getTime();
-    this._speed = this._speedNumerator / (time - this._lastTime);
+    this._speed = this._speedNumerator / (time - this._lastTime) / 100000;
     this._lastTime = time;
   }
 
@@ -50,7 +53,7 @@ WaterFlow.prototype._onChange = function() {
   this._pulseTimerID = setTimeout(function() {
     self._pulseTimerID = null;
     self._speed = 0;
-    this.emit('drain');
+    self.emit('drain');
   }, this._updatePeriod);
 
   this.emit('pulse');
