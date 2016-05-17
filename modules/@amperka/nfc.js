@@ -123,7 +123,8 @@ PN532.prototype.readPage = function(page, callback) {
   this._packetBuffer[3] = page;            // Page Number (0..63 in most cases)
 
   this._sendCommandCheckAck(this._packetBuffer, 4);
-  this._imWaitingFor.push(this._readPageACK.bind(this, callback));
+  var waitFor = this._readPageACK.bind(this, callback);
+  this._imWaitingFor.push(waitFor);
 };
 
 PN532.prototype._readPageACK = function(callback) {
