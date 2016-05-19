@@ -13,18 +13,21 @@ var WaterFlow = function(pin, opts) {
 
   opts = opts || {};
 
-  this._avg = opts.averageLength || 100;
+  this._avg = opts.averageLength || 10;
   this._pulsesPerLitre = opts.pulsesPerLitre || 450;
   this._minimumSpeed = opts.minimumSpeed || 1;
 
   this._lastTime = getTime();
 
-  this._speedNumerator = this._avg / this._pulsesPerLitre;
-  console.log(this._speedNumerator);
   this._litresPerPulse = 1 / this._pulsesPerLitre;
-  console.log(this._litresPerPulse);
-  this._updatePeriod = 60 / (this._minimumSpeed * this._pulsesPerLitre) * 1000;
-  console.log(this._updatePeriod);
+  console.log('_litresPerPulse ', this._litresPerPulse);
+  this._speedNumerator = this._litresPerPulse / this._avg;
+  console.log('_speedNumerator ', this._speedNumerator);
+  this._updatePeriod = (60 * 1000) / (this._minimumSpeed * this._pulsesPerLitre);
+  console.log('_updatePeriod ', this._updatePeriod);
+
+  this._avgArray = new Array(this._avg); // [litres per second]
+  this._avgIterator = 0;
 
   this._watch();
 };
@@ -44,8 +47,14 @@ WaterFlow.prototype._onChange = function() {
   if (this._pulseTimerID !== null) {
     clearTimeout(this._pulseTimerID);
     this._pulseTimerID = null;
+
     var time = getTime();
-    this._speed = this._speedNumerator / (time - this._lastTime) / 100000;
+    // [litres per second]
+    this._avgArray[this._avgIterator] = this._speedNumerator / (time - this._lastTime);
+    if (++this._avgIterator === this._avg) {
+      this._avgIterator = 0;
+    }
+
     this._lastTime = time;
   }
 
