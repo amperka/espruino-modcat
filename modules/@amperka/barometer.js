@@ -2,9 +2,12 @@
  * Класс для работы с датчиком давления
  */
 // Инициализация класса
-var LPS331 = function(i2c, address) {
-  this._i2c = i2c;
-  address === undefined ? this._address = 0x5C : this._address = address;
+var LPS331 = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  this._i2c = opts.i2c || I2C1;
+  this._address = opts.address || 0x5C;
 };
 
 // Метод записывает данные data в регистр reg
@@ -63,6 +66,6 @@ LPS331.prototype.whoAmI = function() {
 };
 
 // Экспортируем класс
-exports.connect = function(i2c, address) {
-  return new LPS331(i2c, address);
+exports.connect = function(opts) {
+  return new LPS331(opts);
 };
