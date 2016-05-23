@@ -3,9 +3,7 @@
  */
 // Инициализация класса
 var LPS331 = function(opts) {
-  if (!opts) {
-    opts = {};
-  }
+  opts = opts || {};
   this._i2c = opts.i2c || I2C1;
   this._address = opts.address || 0x5C;
 };
