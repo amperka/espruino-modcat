@@ -29,7 +29,15 @@ app.get('/json/boards.json', function(req, res) {
 });
 
 app.get('/json/*', function(req, res){
-  res.sendFile(req.params[0], {root: __dirname + '/json'});
+  var root = __dirname + '/json';
+  var filename = req.params[0];
+  fs.access(root + '/' + filename, fs.F_OK, function(err) {
+    if (err) {
+      res.redirect('http://espruino.com/json/' + filename);
+    } else {
+      res.sendFile(filename, {root: root});
+    }
+  });
 });
 
 // The 404 Route
