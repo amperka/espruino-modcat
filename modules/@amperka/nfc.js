@@ -2,9 +2,9 @@ var PN532 = function(connect) {
 
   connect = connect || {};
 
-  this._spi = connect.spi;
-  this._csPin = connect.csPin;
   this._irqPin = connect.irqPin;
+
+  this._i2c = connect.i2c;
 
   this._packetBuffer = new Uint8Array(48);
   this._imWaitingFor = new Array();
@@ -22,12 +22,12 @@ var PN532 = function(connect) {
   this._SPI_DATAREAD = 0x03;
   this._MIFARE_ULTRALIGHT_CMD_WRITE = 0xA2;
   this._MIFARE_CMD_READ = 0x30;
+  this._PN532_I2C_ADDRESS = 0x48 >> 1;
 };
 
 PN532.prototype.wakeUp = function(callback) {
 
-  setWatch(this._handleIrq.bind(this), this._irqPin,
-    {repeat: true, debounce: 0.1});
+  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true});
 
   this._packetBuffer[0] = this._COMMAND_GETFIRMWAREVERSION;
   this._sendCommandCheckAck(this._packetBuffer, 1);
@@ -66,7 +66,7 @@ PN532.prototype._sendCommandCheckAck = function(cmd, cmdlen) {
   toSend.push(this._POSTAMBLE);
 
   var send = new Uint8Array(toSend, 0, 9 + cmdlen);
-  this._spi.send(send, this._csPin);
+  this._i2c.writeTo(this._PN532_I2C_ADDRESS, send);
 
   this._imWaitingFor.push(this._readACK.bind(this));
 };
@@ -84,7 +84,7 @@ PN532.prototype._SAMConfig = function(callback) {
 PN532.prototype._SAMConfigACK = function(callback) {
   this._packetBuffer = this._read(9);
   if (callback !== undefined) {
-    callback(this._packetBuffer[6] !== 0x15);
+    callback(this._packetBuffer[7] !== 0x15);
   }
 };
 
@@ -96,16 +96,16 @@ PN532.prototype.listen = function() {
 
 PN532.prototype._listenACK = function() {
   this._packetBuffer = this._read(20);
-  if (this._packetBuffer[7] !== 1) {
+  if (this._packetBuffer[8] !== 1) {
     this.emit('tag', {success: false});
     return;
   }
-  var ATQA = this._packetBuffer[9];
+  var ATQA = this._packetBuffer[10];
   ATQA <<= 8;
-  ATQA |= this._packetBuffer[10];
-  var uid = new Array(this._packetBuffer[12]);
-  for (var i = 0; i < this._packetBuffer[12]; i++) {
-    uid[i] = this._packetBuffer[13+i];
+  ATQA |= this._packetBuffer[11];
+  var uid = new Array(this._packetBuffer[13]);
+  for (var i = 0; i < this._packetBuffer[13]; i++) {
+    uid[i] = this._packetBuffer[14+i];
   }
   this.emit('tag', false, {uid: uid, ATQA: ATQA});
 };
@@ -129,13 +129,13 @@ PN532.prototype.readPage = function(page, callback) {
 PN532.prototype._readPageACK = function(callback) {
   var error = true;
   this._packetBuffer = this._read(26);
-  if (this._packetBuffer[7] !== 0x00) {
+  if (this._packetBuffer[8] !== 0x00) {
     if (callback !== undefined) {
       callback(error);
     }
     return;
   }
-  var buffer = this._packetBuffer.slice(8, 12);
+  var buffer = this._packetBuffer.slice(9, 13);
   callback(!error, buffer);
 };
 
@@ -170,15 +170,14 @@ PN532.prototype._writePageACK = function(callback) {
 PN532.prototype._read = function(length) {
   var buffer = new Uint8Array(length);
   buffer.fill(this._SPI_DATAREAD);
-  this._spi.send(buffer.slice(0, 1), this._csPin);
-  var data = this._spi.send(buffer, this._csPin);
+  var data = this._i2c.readFrom(this._PN532_I2C_ADDRESS, length+1);
   return data;
 };
 
 PN532.prototype._readACK = function() {
   var ackBuff = this._read(6);
   var pn532ack = new Uint8Array([0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00]);
-  return this._pn532ack === ackBuff;
+  return pn532ack === ackBuff;
 };
 
 exports.connect = function(opts) {

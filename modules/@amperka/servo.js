@@ -27,6 +27,7 @@ var ServoHW = function(pin, options) {
   var pulsDiff = (this._pulseMax - this._pulseMin);
   this._valueStep = pulsDiff / (this._valueMax - this._valueMin) / this._period;
 };
+
 ServoHW.prototype.write = function(value, units) {
   switch (units) {
     case 'us':
@@ -42,7 +43,10 @@ ServoHW.prototype.write = function(value, units) {
       var pwm = this._valueStart + this._valueStep * (value - this._valueMin);
       analogWrite(this._pin, pwm, {freq: this._freq});
   }
+
+  return this;
 };
+
 exports.connect = function(pin, options) {
   return new ServoHW(pin, options);
 };

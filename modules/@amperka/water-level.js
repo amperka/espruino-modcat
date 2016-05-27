@@ -3,10 +3,11 @@ var WaterLevel = function(pin, opts) {
   this._pin = pin;
 
   this._pin.mode('input_pulldown');
+
+  opts = opts || {};
+
   this._mountedOnTop = (opts.mounted === 'onTop') ? true : false;
-
   this._debounce = opts.debounce ? opts.debounce * 1000 : 3000;
-
   this._toggleTimerID = null;
 
   this._watch();

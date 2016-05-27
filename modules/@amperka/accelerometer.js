@@ -54,7 +54,7 @@ LIS331DLH.prototype.init = function(opts) {
   this.writeI2C(0x21, config21);
 
   // Maximum sensitivity is 2G
-  var config23 = 0x1;
+  var config23 = 0x00;
   this._sensitivity = 2 / 32767;
   if (opts !== undefined && opts.maxAccel !== undefined) {
     if (opts.maxAccel === 4) {
