@@ -26,41 +26,30 @@ var ServoHW = function(pin, options) {
   this._valueStart = this._pulseMin / this._period;
   var pulsDiff = (this._pulseMax - this._pulseMin);
   this._valueStep = pulsDiff / (this._valueMax - this._valueMin) / this._period;
-
-  this._dutyCycle = 0;
-};
-
-ServoHW.prototype.attach = function(activate) {
-  if (activate === undefined || activate) {
-    console.log('enable');
-    analogWrite(this._pin, this._dutyCycle, {freq: this._freq});
-  } else {
-    console.log('disable');
-    digitalWrite(this._pin, 0);
-  }
-  return this;
 };
 
 ServoHW.prototype.write = function(value, units) {
+
   if (value === false) {
     digitalWrite(this._pin, 0);
+    return this;
   }
 
   switch (units) {
     case 'us':
       value = E.clip(value, this._pulseMin * 1000, this._pulseMax * 1000);
-      this._dutyCycle = (value / 1000) / this._period;
+      analogWrite(this._pin, (value / 1000) / this._period, {freq: this._freq});
       break;
     case 'ms':
       value = E.clip(value, this._pulseMin, this._pulseMax);
-      this._dutyCycle = value / this._period;
+      analogWrite(this._pin, value / this._period, {freq: this._freq});
       break;
     default:
       value = E.clip(value, this._valueMin, this._valueMax);
-      this._dutyCycle = this._valueStart + this._valueStep * (value - this._valueMin);
+      analogWrite(this._pin, this._valueStart + this._valueStep * (value - this._valueMin), {
+        freq: this._freq
+      });
   }
-  
-  analogWrite(this._pin, this._dutyCycle, {freq: this._freq});
 
   return this;
 };
