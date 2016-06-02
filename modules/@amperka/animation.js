@@ -61,9 +61,8 @@ Animation.prototype.reverse = function() {
   return this;
 };
 
-Animation.prototype.stop = function(opts) {
-  opts = opts || {};
-  var skip = opts.skip || true;
+Animation.prototype.stop = function(skip) {
+  skip = skip || true;
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
