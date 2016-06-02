@@ -28,8 +28,7 @@ var defaultTransition = {
   to: 1,
   duration: 1,
   updateInterval: 0.01,
-  loop: false,
-  skipOnStop: true
+  loop: false
 };
 
 var Animation = function(transition) {
@@ -62,17 +61,19 @@ Animation.prototype.reverse = function() {
   return this;
 };
 
-Animation.prototype.stop = function() {
+Animation.prototype.stop = function(opts) {
+  opts = opts || {};
+  var skip = opts.skip || true;
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
-    if (this._queue[this._qi].skipOnStop) {
+    if (skip) {
       this.emit('update', this._queue[this._qi].from);
     }
   } else {
     this._phase = 1;
     this._qi = this._queue.length - 1;
-    if (this._queue[this._qi].skipOnStop) {
+    if (skip) {
       this.emit('update', this._queue[this._qi].to);
     }
   }
