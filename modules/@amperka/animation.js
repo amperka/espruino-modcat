@@ -62,17 +62,16 @@ Animation.prototype.reverse = function() {
 };
 
 Animation.prototype.stop = function(skip) {
-  skip = (skip === undefined) ? true : skip;
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
-    if (skip) {
+    if (skip !== false) {
       this.emit('update', this._queue[this._qi].from);
     }
   } else {
     this._phase = 1;
     this._qi = this._queue.length - 1;
-    if (skip) {
+    if (skip !== false) {
       this.emit('update', this._queue[this._qi].to);
     }
   }
