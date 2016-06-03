@@ -41,9 +41,11 @@ WaterFlow.prototype._average = function() {
 
   this._avgArray[this._avgIterator] = getTime();
 
-  var last = this._avgArray[this._avgIterator + 1];
+  var last;
   if (this._avgIterator === this._avg - 1) {
     last = this._avgArray[0];
+  } else {
+    last = this._avgArray[this._avgIterator + 1];
   }
 
   var speed = this._speedNumerator / (this._avgArray[this._avgIterator] - last);
