@@ -61,15 +61,19 @@ Animation.prototype.reverse = function() {
   return this;
 };
 
-Animation.prototype.stop = function() {
+Animation.prototype.stop = function(skip) {
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
-    this.emit('update', this._queue[this._qi].from);
+    if (skip !== false) {
+      this.emit('update', this._queue[this._qi].from);
+    }
   } else {
     this._phase = 1;
     this._qi = this._queue.length - 1;
-    this.emit('update', this._queue[this._qi].to);
+    if (skip !== false) {
+      this.emit('update', this._queue[this._qi].to);
+    }
   }
 
   this._clearInterval();
