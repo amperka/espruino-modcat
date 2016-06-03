@@ -62,7 +62,7 @@ Animation.prototype.reverse = function() {
 };
 
 Animation.prototype.stop = function(skip) {
-  skip = skip || true;
+  skip = (skip === undefined) ? true : skip;
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
