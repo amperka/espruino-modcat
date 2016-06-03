@@ -29,6 +29,12 @@ var ServoHW = function(pin, options) {
 };
 
 ServoHW.prototype.write = function(value, units) {
+
+  if (value === false) {
+    digitalWrite(this._pin, 0);
+    return this;
+  }
+
   switch (units) {
     case 'us':
       value = E.clip(value, this._pulseMin * 1000, this._pulseMax * 1000);
@@ -40,8 +46,9 @@ ServoHW.prototype.write = function(value, units) {
       break;
     default:
       value = E.clip(value, this._valueMin, this._valueMax);
-      var pwm = this._valueStart + this._valueStep * (value - this._valueMin);
-      analogWrite(this._pin, pwm, {freq: this._freq});
+      analogWrite(this._pin, this._valueStart + this._valueStep * (value - this._valueMin), {
+        freq: this._freq
+      });
   }
 
   return this;
