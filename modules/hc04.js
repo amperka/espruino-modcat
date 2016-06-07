@@ -2,6 +2,7 @@ var HC04 = function(opts) {
   opts = opts || {};
   this._echo = opts.echo;
   this._trigger = opts.trigger;
+  this._intId = undefined;
 };
 
 HC04.prototype.read = function(callback, units) {
@@ -43,6 +44,23 @@ HC04.prototype.read = function(callback, units) {
     repeat: true
   });
   digitalPulse(this._trigger, 1, 0.01);
+};
+
+HC04.prototype.loop = function(timeout, units) {
+  if (this._intId || !timeout) {
+    clearInterval(this._intId);
+  }
+
+  if (timeout < 100) {
+    return new Error('Timeout too short');
+  }
+
+  var self = this;
+  this._intId = setInterval(function(){
+    self.read(function(result) {
+      self.emit('read', result);
+    }, units);
+  }, timeout);
 };
 
 exports.connect = function(opts) {
