@@ -42,6 +42,7 @@ var Animation = function(transition) {
 };
 
 Animation.prototype.queue = function(transition) {
+  transition.from = transition.from || this._queue[this._queue.length - 1].to;
   var trans = extend(
     {}, this._queue[this._queue.length - 1], transition || {});
   this._queue.push(trans);
@@ -131,7 +132,7 @@ Animation.prototype._update = function() {
     trans = this._queue[this._qi];
     changeInterval(
       this._intervalID,
-      this._queue[this._qi].updateInterval);
+      this._queue[this._qi].updateInterval * 1000);
   }
 
   var val = lerp(this._phase, trans.from, trans.to);
