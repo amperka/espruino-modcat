@@ -14,7 +14,7 @@ QuadDisplay.prototype.display = function(str, align){
         chr = (SYMBOLS[s[++i]] || 0b11111111) & 0b11111110;
         break;
       case "&":
-        chr = (SYMBOLS[s[++i]] || 0b11111111) & 0b11111110;
+        chr = ~ (1 << (s[++i]|0 || 0));
         break;
       default:
         chr = SYMBOLS[s[i]] || 0b11111111;
