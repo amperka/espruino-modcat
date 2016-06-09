@@ -18,6 +18,7 @@ var IMU10 = function(opts) {
     this._i2c.setup({sda: SDA, scl: SCL, bitrate: 400000});
     this._i2c.initialized = 400000;
   }
+
 };
 
 IMU10.prototype.setup = function() {
@@ -30,14 +31,18 @@ IMU10.prototype.setup = function() {
   this._writeI2C(this._accl, 0x23, 0x10);   // 0b00010000 - периодичное считывание, максимум 4G
 
   // Инициализация магнетометра
-  this._writeI2C(this._magn, 0x20, 0xC2);   // 0b11000010 - включаем X,Y, HiPower, Fast data rate
-  this._writeI2C(this._magn, 0x21, 0x20);   // 0b00100000 - чувствительность 8 gauss
+  this._writeI2C(this._magn, 0x20, 0xFC);   // 0b11111100 - включаем X,Y на UHiPower, отключаем FDR, 80Гц
+  this._writeI2C(this._magn, 0x21, 0x00);   // 0b00000000 - чувствительность 4 gauss
   this._writeI2C(this._magn, 0x22, 0x00);   // 0b00000000 - no Low power, Continuous-conversion mode
-  this._writeI2C(this._magn, 0x23, 0x08);   // 0b00001000 - HiPower for Z
+  this._writeI2C(this._magn, 0x23, 0x0C);   // 0b00001100 - UHiPower for Z
   this._writeI2C(this._magn, 0x24, 0x80);   // 0x10000000 - включаем Fast Read
 
   // Инициализация гироскопа
-
+  this._writeI2C(this._gyro, 0x20, 0x8F);   // 0x10001111 - включаем 400/20, X, Y, Z
+  this._writeI2C(this._gyro, 0x21, 0x22);   // 0x00100010 - normal HPF, cut off 8
+  this._writeI2C(this._gyro, 0x22, 0x00);   // 0x00000000 - прерывания не используем
+  this._writeI2C(this._gyro, 0x23, 0x48);   // 0x01001000 - continous update, 500 dps
+  this._writeI2C(this._gyro, 0x24, 0x11);   // 0x00010001 - HPF
 };
 
 
@@ -53,14 +58,54 @@ IMU10.prototype._writeI2C = function(addr, reg, data) {
   this._i2c.writeTo(addr, [reg, data]);
 };
 
-// Возвращает данные в гектоПаскалях
+IMU10.prototype.all = function() {
+  var acclData = this._readI2C(this._accl, 0x28, 6);
+  var gyroData = this._readI2C(this._gyro, 0x28, 6);
+  var magnData = this._readI2C(this._magn, 0x28, 6);
+
+  var acclRes = new Int16Array(acclData.buffer, 0, 3);
+  var gyroRes = new Int16Array(gyroData.buffer, 0, 3);
+  var magnRes = new Int16Array(magnData.buffer, 0, 3);
+
+  acclRes[1] /= 8192;
+  acclRes[2] /= 8192;
+
+  gyroRes[0] /= 3421;
+  gyroRes[1] /= 3421;
+  gyroRes[2] /= 3421;
+
+  magnRes[0] /= 6842;
+  magnRes[1] /= 6842;
+  magnRes[2] /= 6842;
+
+  return {
+    accl: acclRes,
+    gyro: gyroRes,
+    magn: magnRes
+  };
+};
+
+// Возвращает данные гироскопа в градусах в секунду в квадрате
+IMU10.prototype.gyro = function() {
+  var coef = 1 / 3421;
+  var data = this._readI2C(this._gyro, 0x28, 6);
+  var gyro = new Int16Array(data.buffer, 0, 3);
+  var res = {
+    x: gyro[0] * coef,
+    y: gyro[1] * coef,
+    z: gyro[2] * coef
+  };
+  return res;
+};
+
+// Возвращает данные барометра в гектоПаскалях
 IMU10.prototype.baro = function() {
   var data = this._readI2C(this._baro, 0x28, 3);
   var baro = new Uint32Array(data.buffer, 0, 1);
   return baro[0] / 4096;
 };
 
-// Возвращает данные ускорений в коэфициенте G
+// Возвращает данные акселерометра в коэфициенте G
 IMU10.prototype.accl = function() {
   var coef = 4 / 32767;
   var data = this._readI2C(this._accl, 0x28, 6);
@@ -74,6 +119,7 @@ IMU10.prototype.accl = function() {
   return res;
 };
 
+// Возвращает данные магнитометра в Гауссах
 IMU10.prototype.magn = function() {
   /*
    * В зависимости от чувствительности, 1 гаусс равняется:
@@ -82,8 +128,8 @@ IMU10.prototype.magn = function() {
    * Sen = 12G, 1G = 2281
    * Sen = 16G, 1G = 1711
    */
-  var coef = 1 / 3421;
-  var data = this._readI2C(this._accl, 0x28, 6);
+  var coef = 1 / 6842;
+  var data = this._readI2C(this._magn, 0x28, 6);
   var magn = new Int16Array(data.buffer, 0, 3);
   var res = {
     x: magn[0] * coef,
