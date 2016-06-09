@@ -1,45 +1,101 @@
 var QuadDisplay = function(pin){
     this.pin = pin;
+    this.buffer = Array(67);
 };
 
 QuadDisplay.prototype.display = function(str, align){
-  var ret = [], chr, s = (str + ""), c;
+  var s = (str + ""), chr = 0, index = 0, dot = false;
 
-  if(align) s = _pad(s) + s;
-  else s = s + _pad(s);
+  s = align ? (_pad(s) + s) : (s + _pad(s));
 
   for(var i=0, l=s.length; i<l; i++){
     switch(s[i]) {
       case ".":
-        chr = (SYMBOLS[s[++i]] || 0b11111111) & 0b11111110;
+        chr = null;
+        dot = true;
         break;
       case "&":
         chr = ~ (1 << (s[++i]|0 || 0));
         break;
+      case "%":
+        chr = ~ parseInt(s[++i] + s[++i], 16);
+        break;
       default:
         chr = SYMBOLS[s[i]] || 0b11111111;
         break;
-    }    
+    }
+
+    if(dot && chr === null) continue;
+    if(dot) chr &= 0b11111110;
 
     for(var j=8;j;j--){
-      ret = (chr & 1) ? ret.concat(QuadDisplay.BIT1) : ret.concat(QuadDisplay.BIT0);
+      this.buffer[index*16+(8-j)*2] = (chr & 1) ? 0.0001 : 0.015;
+      this.buffer[index*16+(8-j)*2+1] = (chr & 1) ? 0.030 : 0.060;
       chr = chr >> 1;
     }
+    dot = false;
+    index++;
   }
 
-  digitalPulse(this.pin, 0, ret.concat(QuadDisplay.DONE));
+  this.buffer[64] = 0.060;
+  this.buffer[65] = 0.3;
+  this.buffer[66] = 0;
+  digitalPulse(this.pin, 0, this.buffer);
+};
+
+QuadDisplay.prototype.marquee = function(str, _opts){
+  var opts = _opts || {},
+      callback = opts.callback || null,
+      speed = opts.speed || 500,
+      loop = opts.loop || false,
+      x = -3, _x,
+      interval,
+      chunk;
+
+  interval = setInterval(function(){
+    _x = -1;
+    while(x != _x){
+      _x = x;
+      if(str[x] == '.') x++;
+      if(str[x-1] == '&') x++;
+      if(str[x-2] == '%') x++;
+      if(str[x-1] == '%') x+=2;
+    };
+
+    chunk = _slice(str, x++);
+    this.display(chunk, x <= 0);
+    if(_pad(chunk).length > 3) {
+      if(callback) callback(interval);
+      if(loop){
+        x = -3;        
+      } else {
+        clearInterval(interval);
+      }
+    }
+  }.bind(this), speed);
+};
+
+function _slice(s, from){
+  var i = from, cnt = 0;
+  while(cnt < 4){
+    if(s[i] != ".") cnt++;
+    i += (s[i] == "%") ? 3 : (s[i] == "&") ? 2 : 1;
+  }
+  return s.slice(Math.max(from, 0), i);
 };
 
 function _pad(s, pad){
   var sl = pad || 5;
-  for(var i=0,l=s.length;i<l;i++) 
-    sl -= (s[i] == "." || s[i] == "&") ? 0 : 1;
+  for(var i=0,l=s.length;i<l;i++) {
+    if(s[i] == "%"){ 
+      sl--;
+      i+=2;
+    } else if(s[i] != "." && s[i] != "&") {
+      sl--;
+    }
+  }
   return Array(sl<0 ? 0 : sl).join(" ");
-}
-
-QuadDisplay.BIT0 = [0.015, 0.060];
-QuadDisplay.BIT1 = [0.001, 0.030];
-QuadDisplay.DONE = [0.060, 0.3, 0];
+};
 
 var SYMBOLS = {
   " ": 0b11111111,
@@ -97,12 +153,12 @@ var SYMBOLS = {
   "s": 0b01001001,
   "T": 0b11100001,
   "t": 0b11100001,
-  "u": 0b11000111,
   "U": 0b10000011,
-  "v": 0b11000111,
+  "u": 0b11000111,
   "V": 0b10000011,
-  "w": 0b11000111,
+  "v": 0b11000111,
   "W": 0b10000011,
+  "w": 0b11000111,
   "X": 0b10010001,
   "x": 0b11010001,
   "Y": 0b10001001,
