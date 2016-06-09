@@ -23,12 +23,21 @@ var IMU10 = function(opts) {
 IMU10.prototype.setup = function() {
   // Инициализация барометра
   this._writeI2C(this._baro, 0x20, 0xE0);   // 0b11100000 - включаем барометр на частоте в 12.5Гц
+
   // Инициализация акселерометра
   this._writeI2C(this._accl, 0x20, 0x37);   // 0b00110111 - включаем акселерометр на частоте 400Гц
-  this._writeI2C(this._accl, 0x21, 0x00);   // 0b00000000 - выключаем ФВЧ, так как он фильтрует силу притяжения
+  this._writeI2C(this._accl, 0x21, 0x00);   // 0b00000000 - выключаем ФВЧ
   this._writeI2C(this._accl, 0x23, 0x10);   // 0b00010000 - периодичное считывание, максимум 4G
+
   // Инициализация магнетометра
-  this._writeI2C(this._magn, 0x20, 0xE0);   // 0b11100000 - включаем барометр на частоте в 12.5Гц
+  this._writeI2C(this._magn, 0x20, 0xC2);   // 0b11000010 - включаем X,Y, HiPower, Fast data rate
+  this._writeI2C(this._magn, 0x21, 0x20);   // 0b00100000 - чувствительность 8 gauss
+  this._writeI2C(this._magn, 0x22, 0x00);   // 0b00000000 - no Low power, Continuous-conversion mode
+  this._writeI2C(this._magn, 0x23, 0x08);   // 0b00001000 - HiPower for Z
+  this._writeI2C(this._magn, 0x24, 0x80);   // 0x10000000 - включаем Fast Read
+
+  // Инициализация гироскопа
+
 };
 
 
@@ -66,7 +75,22 @@ IMU10.prototype.accl = function() {
 };
 
 IMU10.prototype.magn = function() {
-
+  /*
+   * В зависимости от чувствительности, 1 гаусс равняется:
+   * Sen = 4G, 1G = 6842
+   * Sen = 8G, 1G = 3421
+   * Sen = 12G, 1G = 2281
+   * Sen = 16G, 1G = 1711
+   */
+  var coef = 1 / 3421;
+  var data = this._readI2C(this._accl, 0x28, 6);
+  var magn = new Int16Array(data.buffer, 0, 3);
+  var res = {
+    x: magn[0] * coef,
+    y: magn[1] * coef,
+    z: magn[2] * coef
+  };
+  return res;
 };
 
 exports.connect = function(opts) {
