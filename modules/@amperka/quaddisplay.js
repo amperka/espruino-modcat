@@ -4,7 +4,7 @@ var QuadDisplay = function(pin){
 };
 
 QuadDisplay.prototype.display = function(str, align){
-  var s = (str + ""), chr = 0, index = 0, dot = false;
+  var s = str.toString(), chr = 0, index = 0, dot = false;
 
   s = align ? (_pad(s) + s) : (s + _pad(s));
 
@@ -43,11 +43,12 @@ QuadDisplay.prototype.display = function(str, align){
   digitalPulse(this.pin, 0, this.buffer);
 };
 
-QuadDisplay.prototype.marquee = function(str, _opts){
+QuadDisplay.prototype.marquee = function(_str, _opts){
   var opts = _opts || {},
       callback = opts.callback || null,
       speed = opts.speed || 500,
       loop = opts.loop || false,
+      str = _str.toString(),
       x = -3, _x,
       interval,
       chunk;
