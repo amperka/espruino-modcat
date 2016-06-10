@@ -38,11 +38,11 @@ IMU10.prototype.setup = function() {
   this._writeI2C(this._magn, 0x24, 0x80);   // 0x10000000 - включаем Fast Read
 
   // Инициализация гироскопа
-  this._writeI2C(this._gyro, 0x20, 0x8F);   // 0x10001111 - включаем 400/20, X, Y, Z
-  this._writeI2C(this._gyro, 0x21, 0x22);   // 0x00100010 - normal HPF, cut off 8
+  this._writeI2C(this._gyro, 0x20, 0x0F);   // 0x10001111 - включаем 400/20, X, Y, Z
+  this._writeI2C(this._gyro, 0x21, 0x00);   // 0x00100010 - normal HPF, cut off 8
   this._writeI2C(this._gyro, 0x22, 0x00);   // 0x00000000 - прерывания не используем
-  this._writeI2C(this._gyro, 0x23, 0x48);   // 0x01001000 - continous update, 500 dps
-  this._writeI2C(this._gyro, 0x24, 0x11);   // 0x00010001 - HPF
+  this._writeI2C(this._gyro, 0x23, 0x00);   // 0x01001000 - continous update, 500 dps
+  this._writeI2C(this._gyro, 0x24, 0x00);   // 0x00010001 - HPF
 };
 
 
@@ -62,32 +62,40 @@ IMU10.prototype.all = function() {
   var acclData = this._readI2C(this._accl, 0x28, 6);
   var gyroData = this._readI2C(this._gyro, 0x28, 6);
   var magnData = this._readI2C(this._magn, 0x28, 6);
-
+  
   var acclRes = new Int16Array(acclData.buffer, 0, 3);
   var gyroRes = new Int16Array(gyroData.buffer, 0, 3);
   var magnRes = new Int16Array(magnData.buffer, 0, 3);
 
-  acclRes[1] /= 8192;
-  acclRes[2] /= 8192;
-
-  gyroRes[0] /= 3421;
-  gyroRes[1] /= 3421;
-  gyroRes[2] /= 3421;
-
-  magnRes[0] /= 6842;
-  magnRes[1] /= 6842;
-  magnRes[2] /= 6842;
-
+  this.quaternion = {
+    
+  }
   return {
-    accl: acclRes,
-    gyro: gyroRes,
-    magn: magnRes
+    accl: {
+      x: acclRes[0] / 8192,
+      y: acclRes[1] / 8192,
+      z: acclRes[2] / 8192
+    },
+    gyro: {
+      x: gyroRes[0] / 114,
+      y: gyroRes[1] / 114,
+      z: gyroRes[2] / 114
+    },
+    magn: {
+      x: magnRes[0] / 6842,
+      y: magnRes[1] / 6842,
+      z: magnRes[2] / 6842
+    }
   };
+};
+
+IMU10.prototype.madgwickAHRS = function(data) {
+
 };
 
 // Возвращает данные гироскопа в градусах в секунду в квадрате
 IMU10.prototype.gyro = function() {
-  var coef = 1 / 3421;
+  var coef = 1 / 114;
   var data = this._readI2C(this._gyro, 0x28, 6);
   var gyro = new Int16Array(data.buffer, 0, 3);
   var res = {
