@@ -42,7 +42,9 @@ var Animation = function(transition) {
 };
 
 Animation.prototype.queue = function(transition) {
-  transition.from = transition.from || this._queue[this._queue.length - 1].to;
+  if (transition.from === undefined) {
+    transition.from = this._queue[this._queue.length - 1].to || 0;
+  }
   var trans = extend(
     {}, this._queue[this._queue.length - 1], transition || {});
   this._queue.push(trans);
