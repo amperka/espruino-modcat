@@ -44,7 +44,7 @@ Timer.prototype.reset = function() {
 
 Timer.prototype.interval = function(val, units) {
   if (!val) {
-    return this._interval / 1000;
+    return this._interval;
   }
   switch (units) {
     case 'ms':
