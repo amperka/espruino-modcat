@@ -10,7 +10,7 @@ Timer.prototype.isRunning = function() {
 
 Timer.prototype.run = function() {
   if (this.isRunning()) {
-    return;
+    return this;
   }
 
   this._intervalID = setInterval(
