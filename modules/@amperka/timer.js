@@ -42,6 +42,25 @@ Timer.prototype.reset = function() {
   return this;
 };
 
+Timer.prototype.interval = function(val, units) {
+  if (!val) {
+    return this._interval / 1000;
+  }
+  switch (units) {
+    case 'ms':
+      this._interval = val / 1000;
+      break;
+    case 'm':
+      this._interval = val * 60;
+      break;
+    default:
+      this._interval = val;
+  }
+  if (this.isRunning()) {
+    changeInterval(this._intervalID, this._interval * 1000);
+  }
+};
+
 exports.create = function(interval) {
   return new Timer(interval);
 };
