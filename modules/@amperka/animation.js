@@ -42,6 +42,9 @@ var Animation = function(transition) {
 };
 
 Animation.prototype.queue = function(transition) {
+  if (transition.from === undefined) {
+    transition.from = this._queue[this._queue.length - 1].to || 0;
+  }
   var trans = extend(
     {}, this._queue[this._queue.length - 1], transition || {});
   this._queue.push(trans);
@@ -61,15 +64,19 @@ Animation.prototype.reverse = function() {
   return this;
 };
 
-Animation.prototype.stop = function() {
+Animation.prototype.stop = function(skip) {
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
-    this.emit('update', this._queue[this._qi].from);
+    if (skip !== false) {
+      this.emit('update', this._queue[this._qi].from);
+    }
   } else {
     this._phase = 1;
     this._qi = this._queue.length - 1;
-    this.emit('update', this._queue[this._qi].to);
+    if (skip !== false) {
+      this.emit('update', this._queue[this._qi].to);
+    }
   }
 
   this._clearInterval();
@@ -103,7 +110,7 @@ Animation.prototype._update = function() {
   var qi = this._reversed ? (qlast - this._qi) : this._qi;
   phase += dphase;
 
-  var tweakIval = false;
+  var qiChanged = false;
   if (phase > 1) {
     // phase overflow
     if (trans.loop) {
@@ -113,7 +120,7 @@ Animation.prototype._update = function() {
       // we have subsequent transition
       phase -= Math.floor(phase);
       ++qi;
-      tweakIval = true;
+      qiChanged = true;
     } else {
       // animation completed
       phase = 1;
@@ -123,10 +130,11 @@ Animation.prototype._update = function() {
 
   this._phase = this._reversed ? (1 - phase) : phase;
   this._qi = this._reversed ? (qlast - qi) : qi;
-  if (tweakIval) {
+  if (qiChanged) {
+    trans = this._queue[this._qi];
     changeInterval(
       this._intervalID,
-      this._queue[this._qi].updateInterval);
+      this._queue[this._qi].updateInterval * 1000);
   }
 
   var val = lerp(this._phase, trans.from, trans.to);

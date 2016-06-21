@@ -9,7 +9,7 @@ var Motor = function(opts) {
 };
 
 Motor.prototype.write = function(u) {
-  this._phasePin.write(u < 0);
+  this._phasePin.write(u > 0);
   analogWrite(this._pwmPin, E.clip(Math.abs(u), 0, 1));
 };
 

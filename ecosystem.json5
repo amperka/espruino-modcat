@@ -11,7 +11,7 @@
       user : "weber",
       host : "js.amperka.ru",
       ref  : "origin/master",
-      repo : "git@github.com:nailxx/espruino-modcat.git",
+      repo : "git@github.com:amperka/espruino-modcat.git",
       path : "/srv/js.amperka.ru",
       "post-deploy" : "npm install && grunt && pm2 startOrRestart ecosystem.json5 --env production"
     }
