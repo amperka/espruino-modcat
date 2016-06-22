@@ -2,7 +2,7 @@
  * Библиотека для работы с IMU10 модулем, реализующая ИНС
  */
 
-var IMU10 = function(opts) {
+var IMU10 = function (opts) {
   opts = opts || {};
   this._i2c = opts.i2c || PrimaryI2C;                 // Шина I2C
   this._baro = opts.baro || 0x5C;                     // Адрес бароматра
@@ -12,16 +12,20 @@ var IMU10 = function(opts) {
 
   this._zeroPressure = undefined;                     // Давление на уровне земли
   this._intId = undefined;                            // ID интервала
+  this._position = {
+    tm: getTime(), q0: 1, q1: 0, q2: 0, q3: 0
+  };
+  this._lastTime = getTime();
 
   // Настроим I2C
   if (!this._i2c.initialized) {
-    this._i2c.setup({sda: SDA, scl: SCL, bitrate: 400000});
+    this._i2c.setup({ sda: SDA, scl: SCL, bitrate: 400000 });
     this._i2c.initialized = 400000;
   }
 
 };
 
-IMU10.prototype.setup = function() {
+IMU10.prototype.setup = function () {
   // Инициализация барометра
   this._writeI2C(this._baro, 0x20, 0xE0);   // 0b11100000 - включаем барометр на частоте в 12.5Гц
 
@@ -38,38 +42,35 @@ IMU10.prototype.setup = function() {
   this._writeI2C(this._magn, 0x24, 0x80);   // 0x10000000 - включаем Fast Read
 
   // Инициализация гироскопа
-  this._writeI2C(this._gyro, 0x20, 0x0F);   // 0x10001111 - включаем 400/20, X, Y, Z
-  this._writeI2C(this._gyro, 0x21, 0x00);   // 0x00100010 - normal HPF, cut off 8
-  this._writeI2C(this._gyro, 0x22, 0x00);   // 0x00000000 - прерывания не используем
-  this._writeI2C(this._gyro, 0x23, 0x00);   // 0x01001000 - continous update, 500 dps
-  this._writeI2C(this._gyro, 0x24, 0x00);   // 0x00010001 - HPF
+  this._writeI2C(this._gyro, 0x20, 0x0F);
+  this._writeI2C(this._gyro, 0x21, 0x00);
+  this._writeI2C(this._gyro, 0x22, 0x00);
+  this._writeI2C(this._gyro, 0x23, 0x00);
+  this._writeI2C(this._gyro, 0x24, 0x00);
 };
 
 
 // Метод читает регистры, начиная с reg, приборчика addr, данные в количестве count байт
-IMU10.prototype._readI2C = function(addr, reg, count){
+IMU10.prototype._readI2C = function (addr, reg, count) {
   count = count || 1;
   this._i2c.writeTo(addr, reg | 0x80);
   return this._i2c.readFrom(addr, count);
 };
 
 // Метода записывает в регистры, начиная с reg приборчика addr данные data
-IMU10.prototype._writeI2C = function(addr, reg, data) {
+IMU10.prototype._writeI2C = function (addr, reg, data) {
   this._i2c.writeTo(addr, [reg, data]);
 };
 
-IMU10.prototype.all = function() {
+IMU10.prototype.all = function () {
   var acclData = this._readI2C(this._accl, 0x28, 6);
   var gyroData = this._readI2C(this._gyro, 0x28, 6);
   var magnData = this._readI2C(this._magn, 0x28, 6);
-  
+
   var acclRes = new Int16Array(acclData.buffer, 0, 3);
   var gyroRes = new Int16Array(gyroData.buffer, 0, 3);
   var magnRes = new Int16Array(magnData.buffer, 0, 3);
 
-  this.quaternion = {
-    
-  }
   return {
     accl: {
       x: acclRes[0] / 8192,
@@ -77,9 +78,9 @@ IMU10.prototype.all = function() {
       z: acclRes[2] / 8192
     },
     gyro: {
-      x: gyroRes[0] / 114,
-      y: gyroRes[1] / 114,
-      z: gyroRes[2] / 114
+      x: gyroRes[0] / 114 / 60,
+      y: gyroRes[1] / 114 / 60,
+      z: gyroRes[2] / 114 / 60
     },
     magn: {
       x: magnRes[0] / 6842,
@@ -89,13 +90,10 @@ IMU10.prototype.all = function() {
   };
 };
 
-IMU10.prototype.madgwickAHRS = function(data) {
-
-};
 
 // Возвращает данные гироскопа в градусах в секунду в квадрате
 IMU10.prototype.gyro = function() {
-  var coef = 1 / 114;
+  var coef = 1 / (114*60);
   var data = this._readI2C(this._gyro, 0x28, 6);
   var gyro = new Int16Array(data.buffer, 0, 3);
   var res = {
@@ -145,6 +143,86 @@ IMU10.prototype.magn = function() {
     z: magn[2] * coef
   };
   return res;
+};
+
+IMU10.prototype.madgwick = function(g, a) {
+  var beta = 0.22;
+  var recipNorm;
+  var s0, s1, s2, s3;
+  var qDot1, qDot2, qDot3, qDot4;
+  var _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2, _8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
+
+  // Rate of change of quaternion from gyroscope
+  qDot1 = 0.5 * (-this._position.q1 * g.x - this._position.q2 * g.y - this._position.q3 * g.z);
+  qDot2 = 0.5 * (this._position.q0 * g.x + this._position.q2 * g.z - this._position.q3 * g.y);
+  qDot3 = 0.5 * (this._position.q0 * g.y - this._position.q1 * g.z + this._position.q3 * g.x);
+  qDot4 = 0.5 * (this._position.q0 * g.z + this._position.q1 * g.y - this._position.q2 * g.x);
+
+  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+  if (!((a.x === 0.0) && (a.y === 0.0) && (a.z === 0.0))) {
+
+    // Normalise accelerometer measurement
+    recipNorm = 1 / Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    a.x *= recipNorm;
+    a.y *= recipNorm;
+    a.z *= recipNorm;
+
+    // Auxiliary variables to avoid repeated arithmetic
+    _2q0 = 2.0 * this._position.q0;
+    _2q1 = 2.0 * this._position.q1;
+    _2q2 = 2.0 * this._position.q2;
+    _2q3 = 2.0 * this._position.q3;
+    _4q0 = 4.0 * this._position.q0;
+    _4q1 = 4.0 * this._position.q1;
+    _4q2 = 4.0 * this._position.q2;
+    _8q1 = 8.0 * this._position.q1;
+    _8q2 = 8.0 * this._position.q2;
+    q0q0 = this._position.q0 * this._position.q0;
+    q1q1 = this._position.q1 * this._position.q1;
+    q2q2 = this._position.q2 * this._position.q2;
+    q3q3 = this._position.q3 * this._position.q3;
+
+    // Gradient decent algorithm corrective step
+    s0 = _4q0 * q2q2 + _2q2 * a.x + _4q0 * q1q1 - _2q1 * a.y;
+    s1 = _4q1 * q3q3 - _2q3 * a.x + 4.0 * q0q0 * this._position.q1 - _2q0 * a.y - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * a.z;
+    s2 = 4.0 * q0q0 * this._position.q2 + _2q0 * a.x + _4q2 * q3q3 - _2q3 * a.y - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * a.z;
+    s3 = 4.0 * q1q1 * this._position.q3 - _2q1 * a.x + 4.0 * q2q2 * this._position.q3 - _2q2 * a.y;
+    recipNorm = 1 / Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
+    s0 *= recipNorm;
+    s1 *= recipNorm;
+    s2 *= recipNorm;
+    s3 *= recipNorm;
+
+    // Apply feedback step
+    qDot1 -= beta * s0;
+    qDot2 -= beta * s1;
+    qDot3 -= beta * s2;
+    qDot4 -= beta * s3;
+  }
+
+  // Integrate rate of change of quaternion to yield quaternion
+  this._position.tm = getTime();
+  var period = 1 / 10; // this._position.tm - this._position.tm;
+  this._position.q0 += qDot1 * period;
+  this._position.q1 += qDot2 * period;
+  this._position.q2 += qDot3 * period;
+  this._position.q3 += qDot4 * period;
+
+  // Normalise quaternion
+  recipNorm = 1 / Math.sqrt(this._position.q0 * this._position.q0 + this._position.q1 * this._position.q1 + this._position.q2 * this._position.q2 + this._position.q3 * this._position.q3);
+  this._position.q0 *= recipNorm;
+  this._position.q1 *= recipNorm;
+  this._position.q2 *= recipNorm;
+  this._position.q3 *= recipNorm;
+};
+
+IMU10.prototype.start = function(callback) {
+  var self = this;
+  setInterval(function() {
+    var data = self.all();
+    self.madgwick(data.gyro, data.accl);
+    callback(self._position);
+  }, 100);
 };
 
 exports.connect = function(opts) {
