@@ -201,8 +201,9 @@ IMU10.prototype.madgwick = function(g, a) {
   }
 
   // Integrate rate of change of quaternion to yield quaternion
-  this._position.tm = getTime();
-  var period = 1 / 10; // this._position.tm - this._position.tm;
+  var tm = getTime();
+  var period = tm - this._position.tm; // this._position.tm - this._position.tm;
+  this._position.tm = tm;
   this._position.q0 += qDot1 * period;
   this._position.q1 += qDot2 * period;
   this._position.q2 += qDot3 * period;
