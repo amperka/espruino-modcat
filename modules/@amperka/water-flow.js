@@ -2,7 +2,7 @@
 var WaterFlow = function(pin, opts) {
   this._pin = pin;
 
-  this._pin.mode('input_pullup');
+  this._pin.mode('input_pulldown');
 
   this._litres = 0;
   this._pulses = 0;
@@ -13,15 +13,18 @@ var WaterFlow = function(pin, opts) {
 
   opts = opts || {};
 
-  this._avg = opts.averageLength || 100;
+  this._avg = opts.averageLength || 10;
   this._pulsesPerLitre = opts.pulsesPerLitre || 450;
   this._minimumSpeed = opts.minimumSpeed || 1;
 
-  this._lastTime = getTime();
-
-  this._speedNumerator = this._avg / this._pulsesPerLitre;
   this._litresPerPulse = 1 / this._pulsesPerLitre;
-  this._updatePeriod = 60 / (this._minimumSpeed * this._pulsesPerLitre * 1000);
+  this._speedNumerator = this._litresPerPulse * this._avg;
+  this._updatePeriod = (60 * 1000) / (this._minimumSpeed * this._pulsesPerLitre);
+
+  this._avgArray = new Array(this._avg); // [litres per second]
+  this._avgIterator = 0;
+
+  this.reset();
 
   this._watch();
 };
@@ -34,6 +37,26 @@ WaterFlow.prototype._watch = function() {
   });
 };
 
+WaterFlow.prototype._average = function() {
+
+  this._avgArray[this._avgIterator] = getTime();
+
+  var last;
+  if (this._avgIterator === this._avg - 1) {
+    last = this._avgArray[0];
+  } else {
+    last = this._avgArray[this._avgIterator + 1];
+  }
+
+  var speed = this._speedNumerator / (this._avgArray[this._avgIterator] - last);
+
+  if (++this._avgIterator === this._avg) {
+    this._avgIterator = 0;
+  }
+
+  return speed;
+};
+
 WaterFlow.prototype._onChange = function() {
   this._pulses++;
   this._litres += this._litresPerPulse;
@@ -41,16 +64,14 @@ WaterFlow.prototype._onChange = function() {
   if (this._pulseTimerID !== null) {
     clearTimeout(this._pulseTimerID);
     this._pulseTimerID = null;
-    var time = getTime();
-    this._speed = this._speedNumerator / (time - this._lastTime);
-    this._lastTime = time;
+    this._speed = this._average();
   }
 
   var self = this;
   this._pulseTimerID = setTimeout(function() {
     self._pulseTimerID = null;
     self._speed = 0;
-    this.emit('drain');
+    self.emit('drain');
   }, this._updatePeriod);
 
   this.emit('pulse');
@@ -66,17 +87,20 @@ WaterFlow.prototype.volume = function(units) {
 };
 
 WaterFlow.prototype.reset = function() {
+  var time = getTime();
+  for (var i = 0; i < this._avg; ++i) {
+    this._avgArray[i] = time;
+  }
   this._litres = 0;
   this._pulses = 0;
-  this._lastTime = getTime();
 };
 
 WaterFlow.prototype.speed = function(units) {
   switch (units) {
-    case 'l/min': return this._speed * 60 * 1000;
-    case 'cm^3/min': return this._speed * 60 * 1000000;
-    case 'm^3/min': return this._speed * 60;
-    default: return this._speed * 60 * 1000;
+    case 'l/min': return this._speed * 60;
+    case 'cm^3/min': return this._speed * 60 * 1000;
+    case 'm^3/min': return this._speed * 60 / 1000;
+    default: return this._speed * 60;
   }
 };
 
