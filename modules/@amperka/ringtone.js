@@ -234,6 +234,7 @@ Player.prototype._parseAndPlay = function() {
   if (!note) {
     // end of play
     this._noteFunc(0, 0);
+    // prevent adding void before function by minifier
     var c = this._promise.resolve(); c;
     return;
   }
