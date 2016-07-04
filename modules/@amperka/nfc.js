@@ -37,7 +37,11 @@ PN532.prototype.wakeUp = function(callback) {
 PN532.prototype._handleIrq = function(e) {
   if (e.state === false) {
     var irqWasFor = this._imWaitingFor.splice(0, 1);
+    var i = 0;
     if (typeof irqWasFor[0] === 'function') {
+      i = true;
+    }
+    if (i) {
       irqWasFor[0]();
     }
   }
@@ -158,7 +162,7 @@ PN532.prototype.writePage = function(page, data, callback) {
   this._packetBuffer[7] = data[3];
   this._sendCommandCheckAck(this._packetBuffer, 8);
 
-  this._imWaitingFor.push(this._writePageACK.bind(this, callback));
+  var c = this._imWaitingFor.push(this._writePageACK.bind(this, callback)); c;
 };
 
 PN532.prototype._writePageACK = function(callback) {

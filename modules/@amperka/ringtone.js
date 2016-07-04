@@ -234,7 +234,7 @@ Player.prototype._parseAndPlay = function() {
   if (!note) {
     // end of play
     this._noteFunc(0, 0);
-    this._promise.resolve();
+    var c = this._promise.resolve(); c;
     return;
   }
 
