@@ -158,11 +158,8 @@ PN532.prototype.writePage = function(page, data, callback) {
   this._packetBuffer[7] = data[3];
   this._sendCommandCheckAck(this._packetBuffer, 8);
 
-  try {
-    this._imWaitingFor.push(this._writePageACK.bind(this, callback));
-  } catch (e) {
-    e;
-  }
+  var waitFor = this._writePageACK.bind(this, callback);
+  this._imWaitingFor.push(waitFor);
 };
 
 PN532.prototype._writePageACK = function(callback) {
