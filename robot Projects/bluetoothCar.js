@@ -1,41 +1,37 @@
 var robby = require('@amperka/robot').connect();
 var velocity = 0;
 var defaultSpeed = 0.5;
-var cmd="";
 PrimarySerial.setup(9600);
-PrimarySerial.on('data', function (data) {     control(data);
-  
+
+var drive = function(l, r){
+  robby.go({l: -l, r: -r});
+};
+
+var control = function(dataIn) { // функция управления
+  switch (dataIn) {
+    case 'F': drive(velocity, velocity); break;
+    case 'B': drive(-velocity, -velocity); break;
+    case 'L': drive(-velocity, velocity); break;
+    case 'R': drive(velocity, -velocity); break;
+    case 'I': drive(defaultSpeed + velocity, defaultSpeed - velocity); break;
+    case 'J': drive(-defaultSpeed - velocity, -defaultSpeed + velocity); break;
+    case 'G': drive(defaultSpeed - velocity, defaultSpeed + velocity); break;
+    case 'H': drive(-defaultSpeed + velocity, -defaultSpeed - velocity); break;
+    case 'S': drive(0, 0); break;
+    case 'q': velocity = 1; break;
+    default: {
+      // если к нам пришло значение от 0 до 9
+      if ((dataIn >= 0) && (dataIn <= 9)) {
+        velocity = 0.1 + dataIn * 0.1; // сохраняем новое значение скорости
+      }
+    } break;
+  }
+};
+
+PrimarySerial.on('data', function(data) {
+  control(data);
 });
 
-var control = function(dataIn)  // функция управления
-{
-  if (dataIn == 'F') {         //Если пришла команда "F"
-    drive(velocity, velocity);   //едем вперёд
-  }
-  else if (dataIn == 'B')    //или если пришла команда "B"
-    drive(-velocity, -velocity); //едем назад
- 
-  else if (dataIn == 'L')    //или если пришла команда "L"
-    drive(-velocity, velocity);  //поворачиваем налево на месте
- 
-  else if (dataIn == 'R')    //или если пришла команда "R"
-    drive(velocity, -velocity);  //поворачиваем направо на месте
- 
-  else if (dataIn == 'I')    //или если пришла команда "I", едем вперёд и направо
-    drive(defaultSpeed + velocity, defaultSpeed - velocity);
- 
-  else if (dataIn == 'J')    //или если пришла команда "J", едем назад и направо
-    drive(-defaultSpeed - velocity, -defaultSpeed + velocity);
- 
-  else if (dataIn == 'G')   //или если пришла команда "I", едем вперёд и налево
-    drive(defaultSpeed - velocity, defaultSpeed + velocity);
- 
-  else if (dataIn == 'H')   //или если пришла команда "H", едем назад и налево
-    drive(-defaultSpeed + velocity, -defaultSpeed - velocity);
- 
-  else if (dataIn == 'S')   //или если пришла команда "S", стоим
-    drive(0, 0);
- 
 /*
   else if (dataIn == 'U')   //или если "U", зажигаем "передние фары"
   {
@@ -58,18 +54,6 @@ var control = function(dataIn)  // функция управления
     uDigitalWrite(L4, LOW);
   }
   */
- 
-  // если к нам пришло значение от 0 до 9
-  else if ((dataIn >= 0) && (dataIn <= 9)) 
-    velocity = 0.1 + dataIn * 0.1; //сохраняем новое значение скорости
- 
-  else if (dataIn == 'q') //если "q" - полный газ!
-    velocity = 1;
-};
-
-var drive = function(l, r){
-  robby.go({l: -l, r: -r});
-};
 
 /*
 var speed = 0.5;
