@@ -19,13 +19,13 @@ ACS712.prototype.read = function(units) {
   }
 };
 
-ACS712.prototype.readEffective = function(units, period) {
+ACS712.prototype.readEffective = function(period, units) {
 
   var I = 0;
   period = period || 0;
 
   if (period === 0) {
-    I = analogRead(this._pin) * this._value2currentDivider + this._value2currentConst;
+    return this.read(units);
   } else {
 
     var startTime = getTime();
