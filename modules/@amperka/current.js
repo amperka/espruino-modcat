@@ -21,31 +21,24 @@ ACS712.prototype.read = function(units) {
 
 ACS712.prototype.readEffective = function(period, units) {
 
-  var I = 0;
-  period = period || 0;
+  period = period || 0.04;
 
-  if (period === 0) {
-    return this.read(units);
-  } else {
+  var startTime = getTime();
+  var numberOfMeasurements = 0;
+  var value = 0;
+  var sqrSum = 0;
+  var sum = 0;
 
-    var startTime = getTime();
-    var numberOfMeasurements = 0;
-    var value = 0;
-    var sqrSum = 0;
-    var sum = 0;
-
-    while (getTime() - startTime < period) {
-      numberOfMeasurements++;
-      value = analogRead(this._pin);
-      sum += value;
-      sqrSum += value * value;
-    }
-
-    I = Math.sqrt(
-      (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements + this._constSQR
-    );
-
+  while (getTime() - startTime < period) {
+    numberOfMeasurements++;
+    value = analogRead(this._pin);
+    sum += value;
+    sqrSum += value * value;
   }
+
+  var I = Math.sqrt(
+    (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements + this._constSQR
+  );
 
   switch (units) {
     case 'mA': return I * 1000;
