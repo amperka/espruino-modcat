@@ -88,10 +88,10 @@ HC05.prototype.command = function(cmd, callback) {
   }
 
   this._commandTimeout = setTimeout(function() {
-    var commandsInterwal = setInterval(function(){
+    var commandsInterval = setInterval(function(){
       var currentCommand = self._commandList.shift();
       if (currentCommand === undefined) {
-        clearInterval(commandsInterwal);
+        clearInterval(commandsInterval);
       } else {
         self._kPin.write(1);
         self.writeln(currentCommand);
