@@ -4,22 +4,18 @@ var HC05 = function(opts) {
   }
   this._serial = opts.serial || Serial3;
   this._speed = opts.speed || 9600;
-  this._kPin = opts.kPin || undefined;
-  this._lineend = opts.lineend || undefined;
-  this._lastData = getTime();
+  this._kPin = opts.kPin;
+  this._lineend = opts.lineend;
+  this._lastDataTime = getTime();
   this._serial.setup(this._speed);
-
   this._commandList = [];
-  this._commandTimeout = undefined;
-  this._commandCallback = undefined;
-
+  this._commandTimeout = null;
+  this._commandCallback = null;
   this._commandDelay = 1000;
-
   this._buffer = '';
   var self = this;
-
   this._serial.on('data', function(data) {
-    self._lastData = getTime();
+    self._lastDataTime = getTime();
     if (!self._lineend && !self._commandCallback) {
       self.emit('data', data);
       return;
@@ -36,10 +32,10 @@ var HC05 = function(opts) {
 
       if (self._commandCallback && lines[l] === 'OK') {
         self._kPin.write(0);
-        self._commandCallback = undefined;
+        self._commandCallback = null;
       } else if (self._commandCallback && lines[l].substr(0, 5) === 'ERROR') {
         self._commandCallback(new Error('Command error: ' + lines[l]));
-        self._commandCallback = undefined;
+        self._commandCallback = null;
         self._kPin.write(0);
       } else if (self._commandCallback) {
         self._commandCallback(lines[l]);
@@ -72,25 +68,23 @@ HC05.prototype.command = function(cmd, callback) {
   if (!this._kPin) {
     callback(new Error('kPin is not selected'));
   }
-
   this._commandList.push(cmd);
-
   this._buffer = '';
   var timeout = 0;
   var self = this;
   // Запускать выполнение команды можно только через секунду после старта
-  if (getTime() - this._lastData < 1) {
-    timeout = this._commandDelay + 1 - (getTime() - this._lastData) * 1000;
+  if (getTime() - this._lastDataTime < 1) {
+    timeout = this._commandDelay + 1 - (getTime() - this._lastDataTime) * 1000;
   }
 
-  if (this._commandTimeout !== undefined) {
+  if (this._commandTimeout !== null) {
     clearTimeout(this._commandTimeout);
   }
 
   this._commandTimeout = setTimeout(function() {
     var commandsInterval = setInterval(function(){
       var currentCommand = self._commandList.shift();
-      if (currentCommand === undefined) {
+      if (currentCommand === null) {
         clearInterval(commandsInterval);
       } else {
         self._kPin.write(1);
@@ -98,7 +92,7 @@ HC05.prototype.command = function(cmd, callback) {
         self._commandCallback = callback;
       }
     },self._commandDelay);
-    self._commandTimeout = undefined;
+    self._commandTimeout = null;
   }, timeout);
 };
 
