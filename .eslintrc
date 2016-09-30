@@ -99,7 +99,6 @@
     "Int16Array": false,
     "Int32Array": false,
     "Float32Array": false,
-    "Float64Array": false,
-    "Serial3": false
+    "Float64Array": false
   }
 }
