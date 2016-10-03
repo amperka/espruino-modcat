@@ -5,7 +5,7 @@ var HC05 = function(opts) {
   this._serial = opts.serial || Serial3;
   this._speed = opts.speed || 9600;
   this._kPin = opts.kPin;
-  this._lineend = opts.lineend;
+  this._lineEnding = opts.lineEnding;
   this._lastDataTime = getTime();
   this._serial.setup(this._speed);
   this._commandList = [];
@@ -16,12 +16,12 @@ var HC05 = function(opts) {
   var self = this;
   this._serial.on('data', function(data) {
     self._lastDataTime = getTime();
-    if (!self._lineend && !self._commandCallback) {
+    if (!self._lineEnding && !self._commandCallback) {
       self.emit('data', data);
       return;
     }
     self._buffer += data;
-    var delimiter = self._lineend;
+    var delimiter = self._lineEnding;
     if (self._commandCallback) {
       delimiter = '\r\n';
     }
@@ -52,13 +52,13 @@ var HC05 = function(opts) {
   });
 };
 
-HC05.prototype.write = function(data) {
+HC05.prototype.print = function(data) {
   this._serial.print(data);
 };
 
-HC05.prototype.writeln = function(data) {
-  if (this._lineend) {
-    this._serial.print(data + this._lineend);
+HC05.prototype.println = function(data) {
+  if (this._lineEnding) {
+    this._serial.print(data + this._lineEnding);
   } else {
     this._serial.println(data);
   }
@@ -84,11 +84,11 @@ HC05.prototype.command = function(cmd, callback) {
   this._commandTimeout = setTimeout(function() {
     var commandsInterval = setInterval(function(){
       var currentCommand = self._commandList.shift();
-      if (currentCommand === null) {
+      if (currentCommand === undefined) {
         clearInterval(commandsInterval);
       } else {
         self._kPin.write(1);
-        self.writeln(currentCommand);
+        self.println(currentCommand);
         self._commandCallback = callback;
       }
     },self._commandDelay);
