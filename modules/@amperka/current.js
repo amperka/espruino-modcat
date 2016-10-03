@@ -37,6 +37,9 @@ ACS712.prototype.readEffective = function(period, units) {
   }
 
 
+  // Исходная формула — действующее значение переменного тока в интегральном виде.
+  // Преобразована для дискретного вида, и упрощена по свойству дистрибутивности
+  // умножения.
   var I = Math.sqrt(
     (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements + this._constSQR
   );
