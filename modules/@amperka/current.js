@@ -36,6 +36,7 @@ ACS712.prototype.readEffective = function(period, units) {
     sqrSum += value * value;
   }
 
+
   var I = Math.sqrt(
     (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements + this._constSQR
   );
