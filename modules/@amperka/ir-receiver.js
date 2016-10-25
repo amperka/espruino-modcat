@@ -2,11 +2,20 @@ var C = {
   REPEAT_CODE: 1
 };
 
-var Receiver = function(pin) {
+var Receiver = function(pin, opts) {
   this._pin = pin;
   this._currentCode = 0;
   this._lastCode = 0;
   this._timeoutID = null;
+
+  opts = opts || {};
+  this._controller = opts.controller || 'amperka';
+  this.keys = null;
+  if (this._controller === 'amperka') {
+    this.keys = require('@amperka/ir-remote-controller');
+  } else {
+    this.keys = opts.keys;
+  }
 
   this._pin.mode('input_pullup');
   this._watch();
@@ -56,6 +65,6 @@ Receiver.prototype._complete = function() {
   this._currentCode = 0;
 };
 
-exports.connect = function(pin) {
-  return new Receiver(pin);
+exports.connect = function(pin, opts) {
+  return new Receiver(pin, opts);
 };
