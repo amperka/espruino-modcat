@@ -18,7 +18,7 @@ var HC05 = function(opts) {
     self._lastDataTime = getTime();
     if (!self._lineEnding && !self._commandCallback) {
       self.emit('data', data);
-      return;
+      return null;
     }
     self._buffer += data;
     var delimiter = self._lineEnding;
