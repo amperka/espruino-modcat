@@ -18,7 +18,7 @@ var HC05 = function(opts) {
     self._lastDataTime = getTime();
     if (!self._lineEnding && !self._commandCallback) {
       self.emit('data', data);
-      return;
+      return null;
     }
     self._buffer += data;
     var delimiter = self._lineEnding;
@@ -97,7 +97,7 @@ HC05.prototype.command = function(cmd, callback) {
 };
 
 HC05.prototype.read = function(param, callback) {
-  param = param.toUpperCase();
+  param = (param || '').toUpperCase();
   var cmd = 'AT+';
   switch (param) {
     case 'VERSION':
@@ -111,7 +111,7 @@ HC05.prototype.read = function(param, callback) {
       break;
     default:
       callback(new Error('ERROR IN COMMAND'));
-      return;
+      return null;
   }
   this.command(cmd, function(data){
     callback(data);
@@ -119,7 +119,7 @@ HC05.prototype.read = function(param, callback) {
 };
 
 HC05.prototype.firmware = function(callback) {
-  return this.read('VERSION', callback);
+  this.read('VERSION', callback);
 };
 
 HC05.prototype.speed = function(baud, callback) {
@@ -132,25 +132,26 @@ HC05.prototype.speed = function(baud, callback) {
     case 115200:
       break;
     default:
-      return callback(new Error('WRONG BAUD RATE'));
+      callback(new Error('WRONG BAUD RATE'));
+      return null;
   }
   print('AT+UART=' + baud + ',0,0');
-  return this.command('AT+UART=' + baud + ',0,0', callback);
+  this.command('AT+UART=' + baud + ',0,0', callback);
 };
 
 HC05.prototype.name = function(name, callback) {
   if (name && name!=='') {
-    return this.command('AT+NAME=' + name, callback);
+    this.command('AT+NAME=' + name, callback);
   } else {
-    return callback(new Error('WRONG NAME'));
+    callback(new Error('WRONG NAME'));
   }
 };
 
 HC05.prototype.password = function(pinCode, callback) {
   if (pinCode && pinCode!=='') {
-    return this.command('AT+PSWD=' + pinCode, callback);
+    this.command('AT+PSWD=' + pinCode, callback);
   } else {
-    return callback(new Error('WRONG PASSWORD'));
+    callback(new Error('WRONG PASSWORD'));
   }
 };
 
@@ -167,9 +168,10 @@ HC05.prototype.mode = function(role, callback) {
       roleVal = '2';
       break;
     default:
-      return callback(new Error('WRONG ROLE'));
+      callback(new Error('WRONG ROLE'));
+      return null;
   }
-  return this.command('AT+ROLE=' + roleVal, callback);
+  this.command('AT+ROLE=' + roleVal, callback);
 };
 
 HC05.prototype.connect = function(address, pinCode, callback) {
@@ -178,9 +180,9 @@ HC05.prototype.connect = function(address, pinCode, callback) {
     this.mode('master');      // now we can connect to remote device
     this.password(pinCode);   // set the remote device password
     this.command('AT+CMODE=0'); // connect by address only
-    return this.command('AT+LINK='+address.replace(':',','), callback);
+    this.command('AT+LINK='+address.replace(':',','), callback);
   } else {
-    return callback(new Error('WRONG ADDRESS'));
+    callback(new Error('WRONG ADDRESS'));
   }
 };
 
