@@ -75,18 +75,44 @@ var regAddr = {
 var VL6180X = function(opts) {
 
   opts = opts || {};
-  // this._irqPin = opts.irqPin;
+  this._irqPin = opts.irqPin;
   this._i2c = opts.i2c;
   this._address = 0x29;
   this._scaling = 0;
   this._ptpOffset = 0;
   this._scalerValues = new Uint16Array([0, 253, 127, 84]);
 
-  console.log('regAddr.length:', Object.keys(regAddr).length);
-
   this._init();
   if (!opts.notDefault) {
     this._configureDefault();
+  }
+
+  this._waitForRange = false;
+  this._waitForRangeCallback = null;
+  this._waitForALS = false;
+  this._waitForALSCallback = null;
+
+  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true, edge: 'rising'});
+};
+
+VL6180X.prototype._handleIrq = function() {
+  console.log('_handleIrq');
+  if (this._waitForRange) {
+    this._waitForRange = false;
+    var range = this._read8bit(regAddr.RESULT__RANGE_VAL);
+    this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
+    if (this._waitForRangeCallback) {
+      this._waitForRangeCallback(false, range);
+    }
+  } else if (this._waitForALS) {
+    this._waitForALS = false;
+    var ambient = this._read16bit(regAddr.RESULT__ALS_VAL);
+    this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
+    if (this._waitForALSCallback) {
+      // convert raw data to lux according to datasheet (section 2.13.4)
+      ambient = 0.32 * ambient / 1.01;
+      this._waitForALSCallback(false, ambient);
+    }
   }
 };
 
@@ -189,7 +215,7 @@ VL6180X.prototype._read16bit = function(reg) {
     (reg & 0xFF)
   );
   var data = this._i2c.readFrom(this._address, 2);
-  return data[0] << 8 + data[1];
+  return (data[0] << 8) + data[1];
 };
 
 VL6180X.prototype._read32bit = function(reg) {
@@ -198,7 +224,7 @@ VL6180X.prototype._read32bit = function(reg) {
     (reg & 0xFF)
   );
   var data = this._i2c.readFrom(this._address, 4);
-  return data[0] << 24 + data[1] << 16 + data[2] << 8 + data[3];
+  return (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
 };
 
 VL6180X.prototype.setAddress = function(newAddr) {
@@ -267,15 +293,43 @@ VL6180X.prototype.setScaling = function(newScaling) {
 };
 
 // Performs a single-shot ranging measurement
-VL6180X.prototype.readRangeSingle = function(callback, timeout) {
+VL6180X.prototype.range = function(callback) {
   this._write8bit(regAddr.SYSRANGE__START, 0x01);
-  return this.readRangeContinuous(callback, timeout);
+  this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
+  return this.readRangeContinuous(callback);
 };
 
 // Performs a single-shot ambient light measurement
-VL6180X.prototype.readAmbientSingle = function(callback, timeout) {
+VL6180X.prototype.ambient = function(callback) {
+  this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
   this._write8bit(regAddr.SYSALS__START, 0x01);
-  return this.readAmbientContinuous(callback, timeout);
+  return this.readAmbientContinuous(callback);
+};
+
+// Returns a range reading when continuous mode is activated
+// (readRangeSingle() also calls this function after starting a single-shot
+// range measurement)
+VL6180X.prototype.readRangeContinuous = function(callback) {
+  this._waitForRange = true;
+  this._waitForRangeCallback = callback;
+  // this._read8bit(regAddr.RESULT__INTERRUPT_STATUS_GPIO);
+  // console.log('readRangeContinuous', this._waitForRangeCallback);
+};
+
+// Returns an ambient light reading when continuous mode is activated
+// (readAmbientSingle() also calls this function after starting a single-shot
+// ambient light measurement)
+VL6180X.prototype.readAmbientContinuous = function(callback) {
+  this._waitForALS = true;
+  this._waitForALSCallback = callback;
+};
+
+exports.connect = function(opts) {
+  return new VL6180X(opts);
+};
+
+exports.registers = function() {
+  return regAddr;
 };
 
 // Starts continuous ranging measurements with the given period in ms
@@ -288,80 +342,37 @@ VL6180X.prototype.startRangeContinuous = function(period) {
   this._write8bit(regAddr.SYSRANGE__START, 0x03);
 };
 
-// Starts continuous ambient light measurements with the given period in ms
-// (10 ms resolution; defaults to 500 ms if not specified).
-VL6180X.prototype.startAmbientContinuous = function(period) {
-  var periodReg = (period / 10) - 1;
-  periodReg = E.clip(periodReg, 0, 254);
+// // Starts continuous ambient light measurements with the given period in ms
+// // (10 ms resolution; defaults to 500 ms if not specified).
+// VL6180X.prototype.startAmbientContinuous = function(period) {
+//   var periodReg = (period / 10) - 1;
+//   periodReg = E.clip(periodReg, 0, 254);
 
-  this._write8bit(regAddr.SYSALS__INTERMEASUREMENT_PERIOD, periodReg);
-  this._write8bit(regAddr.SYSALS__START, 0x03);
-};
+//   this._write8bit(regAddr.SYSALS__INTERMEASUREMENT_PERIOD, periodReg);
+//   this._write8bit(regAddr.SYSALS__START, 0x03);
+// };
 
-// Starts continuous interleaved measurements with the given period in ms
-// (10 ms resolution; defaults to 500 ms if not specified). In this mode, each
-// ambient light measurement is immediately followed by a range measurement.
-//
-// The datasheet recommends using this mode instead of running "range and ALS
-// continuous modes simultaneously (i.e. asynchronously)".
-VL6180X.prototype.startInterleavedContinuous = function(period) {
-  var periodReg = (period / 10) - 1;
-  periodReg = E.clip(periodReg, 0, 254);
+// // Starts continuous interleaved measurements with the given period in ms
+// // (10 ms resolution; defaults to 500 ms if not specified). In this mode, each
+// // ambient light measurement is immediately followed by a range measurement.
+// //
+// // The datasheet recommends using this mode instead of running "range and ALS
+// // continuous modes simultaneously (i.e. asynchronously)".
+// VL6180X.prototype.startInterleavedContinuous = function(period) {
+//   var periodReg = (period / 10) - 1;
+//   periodReg = E.clip(periodReg, 0, 254);
 
-  this._write8bit(regAddr.INTERLEAVED_MODE__ENABLE, 1);
-  this._write8bit(regAddr.SYSALS__INTERMEASUREMENT_PERIOD, periodReg);
-  this._write8bit(regAddr.SYSALS__START, 0x03);
-};
+//   this._write8bit(regAddr.INTERLEAVED_MODE__ENABLE, 1);
+//   this._write8bit(regAddr.SYSALS__INTERMEASUREMENT_PERIOD, periodReg);
+//   this._write8bit(regAddr.SYSALS__START, 0x03);
+// };
 
-// Stops continuous mode. This will actually start a single measurement of range
-// and/or ambient light if continuous mode is not active, so it's a good idea to
-// wait a few hundred ms after calling this function to let that complete
-// before starting continuous mode again or taking a reading.
-VL6180X.prototype.stopContinuous = function() {
-  this._write8bit(regAddr.SYSRANGE__START, 0x01);
-  this._write8bit(regAddr.SYSALS__START, 0x01);
-  this._write8bit(regAddr.INTERLEAVED_MODE__ENABLE, 0);
-};
-
-// Returns a range reading when continuous mode is activated
-// (readRangeSingle() also calls this function after starting a single-shot
-// range measurement)
-VL6180X.prototype.readRangeContinuous = function(callback, timeout) {
-  timeout = timeout || 100;
-  var self = this;
-  setTimeout(function() {
-    if ((self._read8bit(regAddr.RESULT__INTERRUPT_STATUS_GPIO) & 0x04) === 0) {
-      return callback({msg: 'timeout error'}, 255);
-    } else {
-      var range = self._read8bit(regAddr.RESULT__RANGE_VAL);
-      self._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
-      callback(false, range);
-    }
-  }, timeout);
-
-};
-
-// Returns an ambient light reading when continuous mode is activated
-// (readAmbientSingle() also calls this function after starting a single-shot
-// ambient light measurement)
-VL6180X.prototype.readAmbientContinuous = function(callback, timeout) {
-  timeout = timeout || 500;
-  var self = this;
-  setTimeout(function() {
-    if ((self._read8bit(regAddr.RESULT__INTERRUPT_STATUS_GPIO) & 0x20) === 0) {
-      return callback({msg: 'timeout error'}, 0);
-    } else {
-      var ambient = self._read16bit(regAddr.RESULT__ALS_VAL);
-      self._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
-      callback(false, ambient);
-    }
-  }, timeout);
-};
-
-exports.connect = function(opts) {
-  return new VL6180X(opts);
-};
-
-exports.registers = function() {
-  return regAddr;
-};
+// // Stops continuous mode. This will actually start a single measurement of range
+// // and/or ambient light if continuous mode is not active, so it's a good idea to
+// // wait a few hundred ms after calling this function to let that complete
+// // before starting continuous mode again or taking a reading.
+// VL6180X.prototype.stopContinuous = function() {
+//   this._write8bit(regAddr.SYSRANGE__START, 0x01);
+//   this._write8bit(regAddr.SYSALS__START, 0x01);
+//   this._write8bit(regAddr.INTERLEAVED_MODE__ENABLE, 0);
+// };
