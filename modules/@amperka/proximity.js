@@ -96,7 +96,6 @@ var VL6180X = function(opts) {
 };
 
 VL6180X.prototype._handleIrq = function() {
-  console.log('_handleIrq');
   if (this._waitForRange) {
     this._waitForRange = false;
     var range = this._read8bit(regAddr.RESULT__RANGE_VAL);
@@ -296,30 +295,14 @@ VL6180X.prototype.setScaling = function(newScaling) {
 VL6180X.prototype.range = function(callback) {
   this._write8bit(regAddr.SYSRANGE__START, 0x01);
   this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
-  return this.readRangeContinuous(callback);
+  this._waitForRange = true;
+  this._waitForRangeCallback = callback;
 };
 
 // Performs a single-shot ambient light measurement
 VL6180X.prototype.ambient = function(callback) {
   this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
   this._write8bit(regAddr.SYSALS__START, 0x01);
-  return this.readAmbientContinuous(callback);
-};
-
-// Returns a range reading when continuous mode is activated
-// (readRangeSingle() also calls this function after starting a single-shot
-// range measurement)
-VL6180X.prototype.readRangeContinuous = function(callback) {
-  this._waitForRange = true;
-  this._waitForRangeCallback = callback;
-  // this._read8bit(regAddr.RESULT__INTERRUPT_STATUS_GPIO);
-  // console.log('readRangeContinuous', this._waitForRangeCallback);
-};
-
-// Returns an ambient light reading when continuous mode is activated
-// (readAmbientSingle() also calls this function after starting a single-shot
-// ambient light measurement)
-VL6180X.prototype.readAmbientContinuous = function(callback) {
   this._waitForALS = true;
   this._waitForALSCallback = callback;
 };
@@ -332,15 +315,15 @@ exports.registers = function() {
   return regAddr;
 };
 
-// Starts continuous ranging measurements with the given period in ms
-// (10 ms resolution; defaults to 100 ms if not specified).
-VL6180X.prototype.startRangeContinuous = function(period) {
-  var periodReg = (period / 10) - 1;
-  periodReg = E.clip(periodReg, 0, 254);
+// // Starts continuous ranging measurements with the given period in ms
+// // (10 ms resolution; defaults to 100 ms if not specified).
+// VL6180X.prototype.startRangeContinuous = function(period) {
+//   var periodReg = (period / 10) - 1;
+//   periodReg = E.clip(periodReg, 0, 254);
 
-  this._write8bit(regAddr.SYSRANGE__INTERMEASUREMENT_PERIOD, periodReg);
-  this._write8bit(regAddr.SYSRANGE__START, 0x03);
-};
+//   this._write8bit(regAddr.SYSRANGE__INTERMEASUREMENT_PERIOD, periodReg);
+//   this._write8bit(regAddr.SYSRANGE__START, 0x03);
+// };
 
 // // Starts continuous ambient light measurements with the given period in ms
 // // (10 ms resolution; defaults to 500 ms if not specified).
