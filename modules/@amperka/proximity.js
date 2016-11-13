@@ -101,16 +101,24 @@ VL6180X.prototype._handleIrq = function() {
     var range = this._read8bit(regAddr.RESULT__RANGE_VAL);
     this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
     if (this._waitForRangeCallback) {
-      this._waitForRangeCallback(false, range);
+      if (range === 255) {
+        this._waitForRangeCallback({msg: 'out of range'}, range);
+      } else {
+        this._waitForRangeCallback(false, range);
+      }
     }
   } else if (this._waitForALS) {
     this._waitForALS = false;
     var ambient = this._read16bit(regAddr.RESULT__ALS_VAL);
     this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
     if (this._waitForALSCallback) {
-      // convert raw data to lux according to datasheet (section 2.13.4)
-      ambient = 0.32 * ambient / 1.01;
-      this._waitForALSCallback(false, ambient);
+      if (ambient === 0) {
+        this._waitForRangeCallback({msg: 'out of range'}, ambient);
+      } else {
+        // convert raw data to lux according to datasheet (section 2.13.4)
+        ambient = 0.32 * ambient / 1.01;
+        this._waitForALSCallback(false, ambient);
+      }
     }
   }
 };
