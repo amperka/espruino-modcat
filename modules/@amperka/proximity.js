@@ -75,8 +75,18 @@ var regAddr = {
 var VL6180X = function(opts) {
 
   opts = opts || {};
-  this._irqPin = opts.irqPin;
-  this._i2c = opts.i2c;
+  if (opts.irqPin) {
+    this._irqPin = opts.irqPin;
+  } else {
+    print('ERROR: you have setup irqPin');
+    return;
+  }
+  if (opts.i2c) {
+    this._i2c = opts.i2c;
+  } else {
+    print('ERROR: you have setup I2C');
+    return;
+  }
   this._address = 0x29;
   this._scaling = 0;
   this._ptpOffset = 0;
@@ -87,12 +97,12 @@ var VL6180X = function(opts) {
     this._configureDefault();
   }
 
+  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true, edge: 'rising'});
+
   this._waitForRange = false;
   this._waitForRangeCallback = null;
   this._waitForALS = false;
   this._waitForALSCallback = null;
-
-  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true, edge: 'rising'});
 };
 
 VL6180X.prototype._handleIrq = function() {
@@ -323,6 +333,7 @@ exports.registers = function() {
   return regAddr;
 };
 
+// // // TODO
 // // Starts continuous ranging measurements with the given period in ms
 // // (10 ms resolution; defaults to 100 ms if not specified).
 // VL6180X.prototype.startRangeContinuous = function(period) {
