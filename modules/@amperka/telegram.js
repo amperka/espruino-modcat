@@ -64,6 +64,44 @@ Telegram.prototype._event = function(eventName, params, eventType) {
   }
 };
 
+Telegram.prototype.sendMessage = function(chat_id, text, payload) {
+  // payload === {reply, markup, notify}
+  var params = {
+    'chat_id': chat_id,
+    // 'text': encodeURIComponent(text) || '',
+    'text': text || ''
+  };
+  if (payload) {
+    if (payload.reply) {
+      params.reply_to_message_id = payload.reply;
+    }
+    if (payload.markup) {
+      print('I SEND BUTTONS');
+      params.reply_markup = payload.markup; // it should be JSON object returned from ~bot.keyboard(bla bla)
+    }
+    if (payload.notify) {
+      params.disable_notification = !!(payload.notify);
+    }
+  }
+  print('do "send message"');
+  this._callFunction.push({
+    method: 'sendMessage',
+    query: params
+  });
+};
+
+Telegram.prototype.answerCallback = function(callbackQueryId, text, showAlert) {
+  print('do "answerCallback"');
+  this._callFunction.push({
+    method: 'answerCallbackQuery',
+    query: {
+      callback_query_id: callbackQueryId,
+      show_alert: !!showAlert,
+      text: text
+    }
+  });
+};
+
 Telegram.prototype._messageEvent = function(params) {
   if (params.entities) {
     if (params.entities[0].type === 'bot_command') {
@@ -134,17 +172,23 @@ Telegram.prototype._update = function() {
 Telegram.prototype._imready = function() {
   if (this._callFunction.length > 0) {
     var task = this._callFunction[0];
+    print('add func:', task.method);
     this._callFunction.splice(0, 1);
+    var self = this;
     if (task.method === 'getUpdates') {
-      var self = this;
+      // var self = this;
       this._updateTimeout = setTimeout(function() {
         this._updateTimeout = undefined;
         self._request(task.method, task.query, task.callback);
       }, this._polling.interval);
     } else {
-      this._request(task.method, task.query, task.callback);
+      // var self = this;
+      setTimeout(function() {
+        self._request(task.method, task.query, task.callback);
+      }, 100);
     }
   } else {
+    print('this._callFunction.length === 0');
     this._update();
     this._imready();
   }
@@ -152,6 +196,7 @@ Telegram.prototype._imready = function() {
 
 Telegram.prototype._request = function(method, query, callback) {
   var content = JSON.stringify(query);
+  print('I MAKE REQUEST!');
   var url = {
     host: 'api.telegram.org',
     port: 443,
