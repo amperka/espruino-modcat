@@ -1,3 +1,4 @@
+
 var Telegram = function(opts) {
   if (opts.token) {
     this._token = opts.token;
@@ -57,32 +58,97 @@ Telegram.prototype.on = function(types, callback) {
   }
 };
 
-Telegram.prototype._event = function(eventName, params, eventType) {
-  print('EVENT ', eventName);
-  if (this._events[eventName]) {
-    this._events[eventName](params, eventType ? {type: eventType} : undefined);
+Telegram.prototype.button = function(type, text) {
+  if (type ==='contact') {
+    return {'text': text, 'request_contact': true};
+  } else {
+    return {'text': text, 'request_location': true};
   }
 };
 
-Telegram.prototype.sendMessage = function(chat_id, text, payload) {
-  // payload === {reply, markup, notify}
-  var params = {
-    'chat_id': chat_id,
-    // 'text': encodeURIComponent(text) || '',
-    'text': text || ''
+Telegram.prototype.keyboard = function(arrayOfButtons, opts) {
+  opts = opts || {};
+  var keyboard = {
+    'keyboard': arrayOfButtons,
+    'one_time_keyboard': !!opts.once,
+    'resize_keyboard': !!opts.resize,
+    'selective': !!opts.selective
   };
+  return JSON.stringify(keyboard);
+};
+
+Telegram.prototype.inlineButton = function(text, opt) {
+  opt = opt || {};
+  var markup = {'text': text};
+  if (opt.url) {
+    markup.url = opt.url;
+  }
+  if (opt.inline || opt.inline === '') {
+    markup.switch_inline_query = opt.inline; // eslint-disable-line camelcase
+  }
+  if (opt.callback) {
+    markup.callback_data = String(opt.callback); // eslint-disable-line camelcase
+  }
+  return markup;
+};
+
+Telegram.prototype.inlineKeyboard = function(arrayOfButtons) {
+  return JSON.stringify({'inline_keyboard': arrayOfButtons});
+};
+
+Telegram.prototype.sendLocation = function(chatId, coordinates, payload) {
+  // chat_id, [latitude, longitude], {reply, markup, notify}
+  var params = {
+    'chat_id': chatId,
+    'latitude': coordinates[0] || 0,
+    'longitude': coordinates[1] || 0
+  };
+  params = this._addPreparedPayload(payload, params);
+  print('do "send location"');
+  this._callFunction.push({
+    method: 'sendLocation',
+    query: params
+  });
+};
+
+Telegram.prototype._event = function(eventName, params, eventType) {
+  print('EVENT ', eventName);
+  if (this._events[eventName]) {
+    this._events[eventName](params, {type: eventType || eventName});
+  }
+};
+
+Telegram.prototype._addPreparedPayload = function(payload, dest) {
+  // payload === {reply, markup, notify}
   if (payload) {
     if (payload.reply) {
-      params.reply_to_message_id = payload.reply;
+      dest.reply_to_message_id = payload.reply; // eslint-disable-line camelcase
     }
     if (payload.markup) {
-      print('I SEND BUTTONS');
-      params.reply_markup = payload.markup; // it should be JSON object returned from ~bot.keyboard(bla bla)
+      if (payload.markup === 'hide' || payload.markup === false) {
+        // Hide keyboard
+        dest.reply_markup = JSON.stringify({hide_keyboard: true}); // eslint-disable-line camelcase
+      } else if (payload.markup === 'reply') {
+        // Fore reply
+        dest.reply_markup = JSON.stringify({force_reply: true}); // eslint-disable-line camelcase
+      } else {
+        // JSON keyboard
+        dest.reply_markup = payload.markup; // eslint-disable-line camelcase
+      }
     }
     if (payload.notify) {
-      params.disable_notification = !!(payload.notify);
+      dest.disable_notification = !!(payload.notify); // eslint-disable-line camelcase
     }
   }
+  return dest;
+};
+
+Telegram.prototype.sendMessage = function(chatId, text, payload) {
+  var params = {
+    'chat_id': chatId,
+    'text': text || ''
+  };
+  params = this._addPreparedPayload(payload, params);
   print('do "send message"');
   this._callFunction.push({
     method: 'sendMessage',
@@ -95,8 +161,8 @@ Telegram.prototype.answerCallback = function(callbackQueryId, text, showAlert) {
   this._callFunction.push({
     method: 'answerCallbackQuery',
     query: {
-      callback_query_id: callbackQueryId,
-      show_alert: !!showAlert,
+      callback_query_id: callbackQueryId, // eslint-disable-line camelcase
+      show_alert: !!showAlert, // eslint-disable-line camelcase
       text: text
     }
   });
@@ -115,22 +181,23 @@ Telegram.prototype._messageEvent = function(params) {
     // entities: [ { type: 'bot_command', offset: 0, length: 15 } ] }
   }
   if (params.contact) {
-    this._event('contact', params, 'contact');
+    this._event('contact', params);
   }
   if (params.location) {
-    this._event('location', params, 'location');
+    this._event('location', params);
   }
-  this._event('text', params, 'text');
+  this._event('text', params);
   this._event('*', params, 'text');
 };
 
 Telegram.prototype._parseUpdate = function(response) {
   // print('Telegram.prototype._parseUpdate');
-  if (response) {
+  if (response && response.result) {
     if (this._connected === false) {
       this._connected = true;
       this._event('connect');
     }
+    this._event('update', response.result, 'callbackQuery');
     if (response.result.length > 0) {
       this._lastUpdate = response.result[0].update_id + 1;
       var data;
@@ -138,7 +205,7 @@ Telegram.prototype._parseUpdate = function(response) {
         data = response.result[0].callback_query;
         response = null;
         process.memory();
-        this._event('callbackQuery', data, 'callbackQuery');
+        this._event('callbackQuery', data);
       } else if (response.result[0].message) {
         data = response.result[0].message;
         response = null;
