@@ -104,7 +104,7 @@ Telegram.prototype.sendLocation = function(chatId, coordinates, payload) {
     'longitude': coordinates[1] || 0
   };
   params = this._addPreparedPayload(payload, params);
-  print('do "send location"');
+  // print('do "send location"');
   this._callFunction.push({
     method: 'sendLocation',
     query: params
@@ -112,7 +112,7 @@ Telegram.prototype.sendLocation = function(chatId, coordinates, payload) {
 };
 
 Telegram.prototype._event = function(eventName, params, eventType) {
-  print('EVENT ', eventName);
+  // print('EVENT ', eventName);
   if (this._events[eventName]) {
     this._events[eventName](params, {type: eventType || eventName});
   }
@@ -149,7 +149,7 @@ Telegram.prototype.sendMessage = function(chatId, text, payload) {
     'text': text || ''
   };
   params = this._addPreparedPayload(payload, params);
-  print('do "send message"');
+  // print('do "send message"');
   this._callFunction.push({
     method: 'sendMessage',
     query: params
@@ -157,7 +157,7 @@ Telegram.prototype.sendMessage = function(chatId, text, payload) {
 };
 
 Telegram.prototype.answerCallback = function(callbackQueryId, text, showAlert) {
-  print('do "answerCallback"');
+  // print('do "answerCallback"');
   this._callFunction.push({
     method: 'answerCallbackQuery',
     query: {
@@ -174,7 +174,7 @@ Telegram.prototype._messageEvent = function(params) {
       var indexA = params.entities[0].offset;
       var indexB = indexA + params.entities[0].length;
       var cmd = params.text.substring(indexA, indexB);
-      print('it is a bot command: ', cmd);
+      // print('it is a bot command: ', cmd);
       this._event(cmd, params, 'command');
       this._event('/*', params, 'command');
     }
@@ -239,7 +239,7 @@ Telegram.prototype._update = function() {
 Telegram.prototype._imready = function() {
   if (this._callFunction.length > 0) {
     var task = this._callFunction[0];
-    print('add func:', task.method);
+    // print('add func:', task.method);
     this._callFunction.splice(0, 1);
     var self = this;
     if (task.method === 'getUpdates') {
@@ -255,7 +255,7 @@ Telegram.prototype._imready = function() {
       }, 100);
     }
   } else {
-    print('this._callFunction.length === 0');
+    // print('this._callFunction.length === 0');
     this._update();
     this._imready();
   }
@@ -263,7 +263,7 @@ Telegram.prototype._imready = function() {
 
 Telegram.prototype._request = function(method, query, callback) {
   var content = JSON.stringify(query);
-  print('I MAKE REQUEST!');
+  // print('I MAKE REQUEST!');
   var url = {
     host: 'api.telegram.org',
     port: 443,
@@ -275,29 +275,24 @@ Telegram.prototype._request = function(method, query, callback) {
       'Content-Length': content.length
     }
   };
-  try {
-    var self = this;
-    this._http.request(url, function(res) {
-      var response = '';
-      res.on('data', function(d) {
-        response += d;
-      });
-      res.on('close', function() {
-        // print(response);
-        var json = JSON.parse(response);
-        response = '';
-        if (callback) {
-          if (self._doUpdateLoop) {
-            callback(json);
-          }
+  var self = this;
+  this._http.request(url, function(res) {
+    var response = '';
+    res.on('data', function(d) {
+      response += d;
+    });
+    res.on('close', function() {
+      // print(response);
+      var json = JSON.parse(response);
+      response = '';
+      if (callback) {
+        if (self._doUpdateLoop) {
+          callback(json);
         }
-        self._imready();
-      });
-    }).end(content);
-  } catch (e) {
-    print('I found error!');
-    print(e);
-  }
+      }
+      self._imready();
+    });
+  }).end(content);
 };
 
 exports.create = function(opts) {
