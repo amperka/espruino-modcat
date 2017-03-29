@@ -34,7 +34,6 @@ var Drum = function(pin, interval, delay, limit, serial, channel, note, size_con
 	this.delay = false;
 	this.note=note;
 	this.serial=serial;
-	this.output_type=output_type;
 	this.channel=channel;
 	this.obj={pin:this._pin,limit:this.limit,delay:this.delay,Time:this.Time,bit:this.bit,_delay:this._delay,note:this.note,serial:this.serial,channel:this.channel,size_const:this.size_const}
 	setInterval(function(obj) {
