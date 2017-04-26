@@ -22,7 +22,7 @@ Dweetio.prototype._request = function(query, callback) {
 Dweetio.prototype.send = function(data, callback) {
   var a = [];
   for (var prop in data) {
-    a.push(prop+'='+data[prop]);
+    a.push(encodeURIComponent(prop)+'='+encodeURIComponent(data[prop]));
   }
   this._request(a.join('&'), callback);
 };
