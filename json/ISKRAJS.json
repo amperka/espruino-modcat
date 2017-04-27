@@ -1,6 +1,6 @@
 {
  "info": {
-  "binary_version": "1v91.193", 
+  "binary_version": "1v92.194", 
   "variables": 5450, 
   "binaries_url_base": "http://js.amperka.ru/binaries/", 
   "link": [
@@ -9,7 +9,7 @@
   "default_busy_pin_indicator": "B7", 
   "default_console": "EV_SERIAL2", 
   "bootloader": 1, 
-  "binary_url": "http://js.amperka.ru/binaries/espruino_1v91.193_iskrajs.bin", 
+  "binary_url": "http://js.amperka.ru/binaries/espruino_1v92.194_iskrajs.bin", 
   "thumb_url": "http://js.amperka.ru/img/ISKRAJS_thumb.jpg", 
   "builtin_modules": [
    "Flash", 
@@ -19,13 +19,32 @@
    "http", 
    "NetworkJS", 
    "WIZnet", 
-   "crypto"
+   "crypto", 
+   "neopixel"
   ], 
   "name": "Iskra.js", 
   "images_url_base": "http://js.amperka.ru/img/", 
-  "image_url": "http://js.amperka.ru/img/ISKRAJS.jpg", 
+  "binary_name": "espruino_%v_iskrajs.bin", 
+  "build": {
+   "libraries": [
+    "USB_HID", 
+    "NET", 
+    "GRAPHICS", 
+    "FILESYSTEM", 
+    "WIZNET", 
+    "CRYPTO", 
+    "NEOPIXEL", 
+    "TLS"
+   ], 
+   "makefile": [
+    "DEFINES+=-DUSE_USB_OTG_FS=1", 
+    "STLIB=STM32F405xx", 
+    "PRECOMPILED_OBJS+=$(ROOT)/targetlibs/stm32f4/lib/startup_stm32f40_41xxx.o"
+   ], 
+   "optimizeflags": "-Os -std=c11"
+  }, 
   "json_url": "http://js.amperka.ru/json/ISKRAJS.json", 
-  "binary_name": "espruino_%v_iskrajs.bin"
+  "image_url": "http://js.amperka.ru/img/ISKRAJS.jpg"
  }, 
  "pins": [
   {
