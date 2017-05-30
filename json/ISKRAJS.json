@@ -1,6 +1,6 @@
 {
  "info": {
-  "binary_version": "1v92.193", 
+  "binary_version": "1v92.194", 
   "variables": 5450, 
   "binaries_url_base": "http://localhost:3001/binaries/", 
   "link": [
@@ -9,8 +9,8 @@
   "default_busy_pin_indicator": "B7", 
   "default_console": "EV_SERIAL2", 
   "bootloader": 1, 
-  "binary_url": "http://localhost:3001/binaries/espruino_1v92.193_iskrajs.bin", 
-  "thumb_url": "http://localhost:3001/img/ISKRAJS_thumb.jpg", 
+  "binary_url": "http://js.amperka.ru/binaries/espruino_1v92.194_iskrajs.bin", 
+  "thumb_url": "http://js.amperka.ru/img/ISKRAJS_thumb.jpg", 
   "builtin_modules": [
    "Flash", 
    "fs", 
@@ -43,7 +43,7 @@
    ], 
    "optimizeflags": "-Os -std=c11"
   }, 
-  "json_url": "http://localhost:3001/json/ISKRAJS.json", 
+  "json_url": "http://js.amperka.ru/json/ISKRAJS.json", 
   "image_url": "http://js.amperka.ru/img/ISKRAJS.jpg"
  }, 
  "pins": [
