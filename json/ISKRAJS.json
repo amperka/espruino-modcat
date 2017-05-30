@@ -2,7 +2,7 @@
  "info": {
   "binary_version": "1v92.194", 
   "variables": 5450, 
-  "binaries_url_base": "http://localhost:3001/binaries/", 
+  "binaries_url_base": "http://js.amperka.ru/binaries/", 
   "link": [
    "http://amperka.ru/product/iskra-js"
   ], 
