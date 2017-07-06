@@ -71,6 +71,13 @@ Stepper.prototype.rotate = function(steps, callback) {
   }, 1000 / this._pps);
 };
 
+Stepper.prototype.pps = function(pps) {
+	if(pps){
+	this._pps = pps || {};
+    }
+	return this;
+};
+
 /**
  * Экспорт функции создания объекта Stepper
  * @param {object} pins - объект со свойствами step, direction, enable типа Pin
