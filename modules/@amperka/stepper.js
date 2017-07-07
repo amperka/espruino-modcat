@@ -58,7 +58,7 @@ Stepper.prototype.rotate = function(steps, callback) {
   }
 
   var self = this;
-  this._intervalId = setInterval(function(){
+  this._intervalId = setInterval(function() {
     if (steps > 0){
       digitalPulse(self._pins.step, 1, 1);
       steps--;
@@ -72,10 +72,10 @@ Stepper.prototype.rotate = function(steps, callback) {
 };
 
 Stepper.prototype.pps = function(pps) {
-	if(pps){
-	this._pps = pps || {};
-    }
-	return this;
+  if (pps) {
+    this._pps = pps || 20;
+  }
+  return this;
 };
 
 /**
