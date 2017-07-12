@@ -25,19 +25,18 @@ var Stepper = function(pins, opts) {
  * @param {float} power - Скважность ШИМ от 0 до 1
  */
 Stepper.prototype.hold = function(power) {
+  
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
   }
 
-  if (!power) {
+  if (typeof(power) === 'undefined') {
     power = this._holdPower;
   }
 
   analogWrite(this._pins.enable, power);
 };
-
-
 /**
  * Проворачивает вал на step шагов, после чего выполняет callback.
  * @param {number} steps - количество шагов. При отрицательном значении происходит движение назад
@@ -58,7 +57,7 @@ Stepper.prototype.rotate = function(steps, callback) {
   }
 
   var self = this;
-  this._intervalId = setInterval(function(){
+  this._intervalId = setInterval(function() {
     if (steps > 0){
       digitalPulse(self._pins.step, 1, 1);
       steps--;
@@ -69,6 +68,24 @@ Stepper.prototype.rotate = function(steps, callback) {
       }
     }
   }, 1000 / this._pps);
+};
+
+/**
+ * Регулирует количество шагов в секунду
+ */
+Stepper.prototype.pps = function(pps) {
+  if (pps === undefined) return this._pps;
+  this._pps = pps;
+  return this;
+};
+
+/**
+ * Переустанавливает значение удержания вала заданное при инициализации
+ */
+Stepper.prototype.holdPower = function(holdPower) {
+  if (holdPower === undefined) return this._holdPower;
+  this._holdPower = holdPower;
+  return this;
 };
 
 /**
