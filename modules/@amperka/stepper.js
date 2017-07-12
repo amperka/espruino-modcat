@@ -77,7 +77,16 @@ Stepper.prototype.pps = function(pps) {
   if (pps === undefined) return this._pps;
   this._pps = pps;
   return this;
-}
+};
+
+/**
+ * Переустанавливает значение удержания вала заданное при инициализации
+ */
+Stepper.prototype.holdPower = function(holdPower) {
+  if (holdPower === undefined) return this._holdPower;
+  this._holdPower = holdPower;
+  return this;
+};
 
 /**
  * Экспорт функции создания объекта Stepper
