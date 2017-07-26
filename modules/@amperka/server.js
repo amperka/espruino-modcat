@@ -11,6 +11,7 @@ Server.prototype.on = function(types, callback) {
     types = [types];
   }
   for (var t in types) {
+    console.log(t);
     if (!this._events[types[t]]) {
       this._events[types[t]] = callback;
     }
@@ -28,7 +29,12 @@ Server.prototype._onPageRequest = function(req, res) {
 
 Server.prototype._event = function(eventName, req, res) {
   if (this._events[eventName]) {
-    res.send = function(content) {
+    res.send = function(content, headers) {
+      if (headers === undefined) {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+      } else {
+        res.writeHead(200, headers);
+      }
       res.write(content);
     };
     this._events[eventName](req, res);

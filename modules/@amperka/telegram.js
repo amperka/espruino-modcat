@@ -76,18 +76,20 @@ Telegram.prototype.keyboard = function(arrayOfButtons, opts) {
 };
 
 Telegram.prototype.inlineButton = function(text, opt) {
+  /* eslint-disable camelcase */
   opt = opt || {};
   var markup = {'text': text};
   if (opt.url) {
     markup.url = opt.url;
   }
   if (opt.inline || opt.inline === '') {
-    markup.switch_inline_query = opt.inline; // eslint-disable-line camelcase
+    markup.switch_inline_query = opt.inline;
   }
   if (opt.callback) {
-    markup.callback_data = String(opt.callback); // eslint-disable-line camelcase
+    markup.callback_data = String(opt.callback);
   }
   return markup;
+  /* eslint-enable camelcase */
 };
 
 Telegram.prototype.inlineKeyboard = function(arrayOfButtons) {
@@ -114,28 +116,26 @@ Telegram.prototype._event = function(eventName, params, eventType) {
 };
 
 Telegram.prototype._addPreparedPayload = function(payload, dest) {
-  // payload === {reply, markup, notify}
+  /* eslint-disable camelcase */
   if (payload) {
     if (payload.reply) {
-      dest.reply_to_message_id = payload.reply; // eslint-disable-line camelcase
+      dest.reply_to_message_id = payload.reply;
     }
     if (payload.markup) {
       if (payload.markup === 'hide' || payload.markup === false) {
-        // Hide keyboard
-        dest.reply_markup = JSON.stringify({hide_keyboard: true}); // eslint-disable-line camelcase
+        dest.reply_markup = JSON.stringify({hide_keyboard: true});
       } else if (payload.markup === 'reply') {
-        // Fore reply
-        dest.reply_markup = JSON.stringify({force_reply: true}); // eslint-disable-line camelcase
+        dest.reply_markup = JSON.stringify({force_reply: true});
       } else {
-        // JSON keyboard
-        dest.reply_markup = payload.markup; // eslint-disable-line camelcase
+        dest.reply_markup = payload.markup;
       }
     }
     if (payload.notify) {
-      dest.disable_notification = !!(payload.notify); // eslint-disable-line camelcase
+      dest.disable_notification = !!(payload.notify);
     }
   }
   return dest;
+  /* eslint-enable camelcase */
 };
 
 Telegram.prototype.sendMessage = function(chatId, text, payload) {
@@ -144,7 +144,6 @@ Telegram.prototype.sendMessage = function(chatId, text, payload) {
     'text': text || ''
   };
   params = this._addPreparedPayload(payload, params);
-  // print('do "send message"');
   this._callFunction.push({
     method: 'sendMessage',
     query: params
@@ -152,7 +151,6 @@ Telegram.prototype.sendMessage = function(chatId, text, payload) {
 };
 
 Telegram.prototype.answerCallback = function(callbackQueryId, text, showAlert) {
-  // print('do "answerCallback"');
   this._callFunction.push({
     method: 'answerCallbackQuery',
     query: {
@@ -226,21 +224,17 @@ Telegram.prototype._update = function() {
 Telegram.prototype._imready = function() {
   if (this._callFunction.length > 0) {
     var task = this._callFunction[0];
-    // print('add func:', task.method);
     this._callFunction.splice(0, 1);
     var self = this;
     process.memory();
     if (task.method === 'getUpdates') {
-      // var self = this;
       this._updateTimeout = setTimeout(function() {
         this._updateTimeout = undefined;
         setTimeout(function() {
           self._request(task.method, task.query, task.callback);
         }, 100);
-        // self._request(task.method, task.query, task.callback);
       }, this._polling.interval);
     } else {
-      // var self = this;
       setTimeout(function() {
         self._request(task.method, task.query, task.callback);
       }, 100);
@@ -267,13 +261,11 @@ Telegram.prototype._request = function(method, query, callback) {
   var self = this;
   try {
     var request = this._http.request(url, function(res) {
-      // print(E.getErrorFlags());
       var response = '';
       res.on('data', function(d) {
         response += d;
       });
       res.on('close', function() {
-        //  print(response);
         var json = JSON.parse(response);
         response = '';
         if (callback) {

@@ -23,7 +23,7 @@ CardReader.prototype.pipe = function(source, destination, options) {
 };
 
 CardReader.prototype.readRandomFile = function(path) {
-  var files = this.readDir(path);
+  var files = this._fs.readdirSync(path);
   var idx = Math.floor(Math.random() * files.length);
   if (path[path.length-1] !== '/' && path[path.length-1] !== '\\') {
     path += '/';
@@ -47,7 +47,7 @@ CardReader.prototype.MIME = function(fileName) {
 };
 
 CardReader.prototype.readDir = function(path) {
-  var files = this._fs.readdir(path);
+  var files = this._fs.readdirSync(path);
   for (var i = files.length - 1; i >= 0; i--) {
     if (files[i] === '..' || files[i] === '.') {
       files.splice(i, 1);
