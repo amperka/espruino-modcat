@@ -312,6 +312,13 @@ var ESP8266 = {
 
 
 exports.setup = function(usart, connectedCallback) {
+
+  if (typeof usart === 'function') {
+    connectedCallback = usart;
+    usart = PrimarySerial;
+    usart.setup(115200);
+  }
+
   ESP8266.at = at = require('AT').connect(usart);
   require('NetworkJS').create(netCallbacks);
 
