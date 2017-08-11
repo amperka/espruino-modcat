@@ -68,7 +68,7 @@ Expander.prototype._writeCmd = function(command) {
 };
 
 Expander.prototype._read16Bit = function() {
-  var result = -1;
+  var result = 0;
   var data = new Uint8Array(2);
   data = this._i2c.readFrom(this._ADDRESS, 2);
   result = data[0];
@@ -156,7 +156,7 @@ Expander.prototype.reset = function() {
 
 Expander.prototype.getUID = function() {
   this._writeCmd(IOcommand.WHO_AM_I);
-  var result = 0xffffffff;
+  var result = 0;
   var data = new Uint8Array(4);
   data = this._i2c.readFrom(this._ADDRESS, 4);
   for (var i = 0; i < 3; ++i) {
