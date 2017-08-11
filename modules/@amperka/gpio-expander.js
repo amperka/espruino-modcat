@@ -77,18 +77,6 @@ Expander.prototype._read16Bit = function() {
   return result;
 };
 
-Expander.prototype._read32Bit = function() {
-  var result = 0xffffffff;
-  var data = new Uint8Array(4);
-  data = this._i2c.readFrom(this._ADDRESS, 4);
-  for (var i = 0; i < 3; ++i) {
-    result = data[i];
-    result <<= 8;
-  }
-  result |= data[3];
-  return result;
-};
-
 Expander.prototype.digitalWritePort = function(value) {
   this._writeCmd16BitData(IOcommand.DIGITAL_WRITE_HIGH, value);
   this._writeCmd16BitData(IOcommand.DIGITAL_WRITE_LOW, ~value);
@@ -134,6 +122,11 @@ Expander.prototype.analogWrite = function(pin, pulseWidth) {
   this._writeCmdPin16Val(IOcommand.ANALOG_WRITE, pin, val);
 };
 
+Expander.prototype.servoWrite = function(pin, angle) {
+  var val = Math.floor(angle * 43.69); // === angle / 1500 * 65535
+  this._writeCmdPin16Val(IOcommand.ANALOG_WRITE, pin, val);
+};
+
 Expander.prototype.analogRead = function(pin) {
   this._writeCmdPin(IOcommand.ANALOG_READ, pin);
   return this._read16Bit() / 4092;
@@ -163,7 +156,15 @@ Expander.prototype.reset = function() {
 
 Expander.prototype.getUID = function() {
   this._writeCmd(IOcommand.WHO_AM_I);
-  return this._read32Bit();
+  var result = 0xffffffff;
+  var data = new Uint8Array(4);
+  data = this._i2c.readFrom(this._ADDRESS, 4);
+  for (var i = 0; i < 3; ++i) {
+    result = data[i];
+    result <<= 8;
+  }
+  result |= data[3];
+  return result;
 };
 
 exports.connect = function(opts) {
