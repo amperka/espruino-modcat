@@ -24,7 +24,11 @@ CardReader.prototype.pipe = function(source, destination, options) {
 
 CardReader.prototype.readRandomFile = function(path) {
   var files = this._fs.readdirSync(path);
-  var idx = Math.floor(Math.random() * files.length);
+  var fileCount = files.length;
+  if (files[0] === '.') fileCount--;
+  if (files[1] === '..') fileCount--;
+  var idx = Math.floor(Math.random() * fileCount) + files.length - fileCount;
+  print(idx);
   if (path[path.length-1] !== '/' && path[path.length-1] !== '\\') {
     path += '/';
   }
