@@ -28,7 +28,6 @@ CardReader.prototype.readRandomFile = function(path) {
   if (files[0] === '.') fileCount--;
   if (files[1] === '..') fileCount--;
   var idx = Math.floor(Math.random() * fileCount) + files.length - fileCount;
-  print(idx);
   if (path[path.length-1] !== '/' && path[path.length-1] !== '\\') {
     path += '/';
   }
