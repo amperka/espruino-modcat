@@ -54,6 +54,7 @@ QuadDisplay.prototype.display = function(str, alignLeft) {
 };
 
 QuadDisplay.prototype.marquee = function(str, speed) {
+  speed = speed || 300;
   if (this._intervalID) {
     this._intervalID = clearInterval(this._intervalID);
     this._shift = 0;
