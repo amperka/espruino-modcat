@@ -25,8 +25,8 @@ var QuadDisplay = function(opts) {
   this._shift = 0;
 };
 
-QuadDisplay.prototype.display = function(str, alignLeft) {
-  alignLeft = alignLeft || 1;
+QuadDisplay.prototype.display = function(str, alignRight) {
+  alignRight = alignRight || false;
   var s = str.toString();
   this._data = [];
   var d = -1;
@@ -45,7 +45,7 @@ QuadDisplay.prototype.display = function(str, alignLeft) {
     }
   }
 
-  if (alignLeft) {
+  if (alignRight) {
     this.frame(0);
   } else {
     this.frame(this._data.length - 4);
@@ -59,7 +59,7 @@ QuadDisplay.prototype.marquee = function(str, speed) {
     this._intervalID = clearInterval(this._intervalID);
     this._shift = 0;
   }
-  this.display('   '+str+'   ', true);
+  this.display('   '+str+'   ', false);
   var self = this;
   this._intervalID = setInterval(function() {
     self._shift++;
