@@ -23,15 +23,15 @@ var QuadDisplay = function(opts) {
   }
   this._intervalID = null;
   this._shift = 0;
+  this.display('    ');
 };
 
 QuadDisplay.prototype.display = function(str, alignRight) {
   alignRight = alignRight || false;
   var s = str.toString();
   this._data = [];
-  var d = -1;
 
-  for (var i = 0; i < s.length; i++) {
+  for (var i = 0, d = -1; i < s.length; i++) {
     if (s[i] !== '.') {
       d++;
       this._data[d] = SYMBOLS[s[i]];
@@ -46,15 +46,21 @@ QuadDisplay.prototype.display = function(str, alignRight) {
   }
 
   if (alignRight) {
-    this.frame(0);
+    if (this._data.length < 4) {
+      this._data = [].fill(SYMBOLS[' '], 0, 4 - this._data.length).concat(this._data);
+    }
+    this.frame(this._data.length - 4);    
   } else {
-    this.frame(this._data.length - 4);
+    if (this._data.length < 4) {
+      this._data = this._data.concat([].fill(SYMBOLS[' '], 0, 4 - this._data.length))
+    }
+    this.frame(0);
   }
   
 };
 
-QuadDisplay.prototype.marquee = function(str, speed) {
-  speed = speed || 300;
+QuadDisplay.prototype.marquee = function(str, period) {
+  period = period || 300;
   if (this._intervalID) {
     this._intervalID = clearInterval(this._intervalID);
     this._shift = 0;
@@ -67,10 +73,11 @@ QuadDisplay.prototype.marquee = function(str, speed) {
       self._shift = 0;
     }
     self.frame.call(self, self._shift);
-  }, speed);
+  }, period);
 };
 
 QuadDisplay.prototype.frame = function(shift) {
+  this._shift = shift;
   if (this._shift < 0) {
     this._shift = 0;
   }
