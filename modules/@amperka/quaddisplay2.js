@@ -36,6 +36,7 @@ QuadDisplay.prototype.display = function(str, alignRight) {
       d++;
       this._data[d] = SYMBOLS[s[i]];
     } else {
+      // prevent dot-dot and space-dot collapsing
       if (d !== -1 && (this._data[d] !== 0xFE && this._data[d] !== 0xFF)) {
         this._data[d] &= 0xFE;
       } else {
