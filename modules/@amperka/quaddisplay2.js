@@ -16,6 +16,7 @@ var QuadDisplay = function(opts) {
   if (typeof opts === 'number') {
     SPI2.setup({mosi: B15, miso: B14, sck: B13});
     this._spi = SPI2;
+    this._cs = opts;
   } else {
     opts = opts || {};
     this._spi = opts.spi;
