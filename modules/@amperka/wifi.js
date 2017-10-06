@@ -36,7 +36,7 @@ var netCallbacks = {
         // throw new Error('No free sockets');
         self.emit('err', 'No free sockets');
         //TODO - it,s realy hardfix
-        return 0;
+        return null;
       }
       socks[sckt] = 'Wait';
       sockData[sckt] = '';
