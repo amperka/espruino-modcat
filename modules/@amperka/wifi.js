@@ -35,6 +35,8 @@ var netCallbacks = {
       if (sckt>=MAXSOCKETS) {
         // throw new Error('No free sockets');
         self.emit('err', 'No free sockets');
+        //TODO - it,s realy hardfix
+        return 0;
       }
       socks[sckt] = 'Wait';
       sockData[sckt] = '';
