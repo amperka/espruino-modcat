@@ -224,7 +224,7 @@ Telegram.prototype._update = function() {
 Telegram.prototype._imready = function() {
   if (this._callFunction.length > 0) {
     var task = this._callFunction[0];
-    this._callFunction.splice(0, 1);
+    this._callFunction.shift(); // this._callFunction.splice(0, 1);
     var self = this;
     process.memory();
     if (task.method === 'getUpdates') {
