@@ -35,6 +35,7 @@ var netCallbacks = {
       if (sckt>=MAXSOCKETS) {
         // throw new Error('No free sockets');
         self.emit('err', 'No free sockets');
+        return null;
       }
       socks[sckt] = 'Wait';
       sockData[sckt] = '';
@@ -134,7 +135,6 @@ var netCallbacks = {
         }
         socks[sckt]=true;
       } else {
-        // print(d);
         socks[sckt]=undefined; // uh-oh. Error.
         at.unregister('> ');
       }
@@ -144,7 +144,6 @@ var netCallbacks = {
     return data.length;
   }
 };
-
 
 // Handle +IPD input data from ESP8266
 function ipdHandler(line) {
@@ -176,20 +175,15 @@ var ESP8266 = {
   },
   // initialise the ESP8266
   'init': function(callback) {
-    print('ATE0');
     at.cmd('ATE0\r\n',1000, function cb(d) {// turn off echo
       if (d === 'ATE0') {
-        print('skip ATE0');
         return cb;
       }
       if (d === 'OK') {
-        print('ATE0 -> OK');
-        print('AT+CIPMUX=1');
         at.cmd('AT+CIPMUX=1\r\n', 1000, function(d) {// turn on multiple sockets
           if (d !== 'OK') {
             callback('CIPMUX failed: '+(d?d:'Timeout'));
           } else {
-            print('AT+CIPMUX -> OK');
             callback(null);
           }
         });
@@ -199,7 +193,6 @@ var ESP8266 = {
     });
   },
   'reset': function(callback) {
-    print('RESET');
     at.cmd('\r\nAT+RST\r\n', 10000, function cb(d) {
       // console.log('>>>>>'+JSON.stringify(d));
       // 'ready' for 0.25, 'Ready.' for 0.50
@@ -213,10 +206,8 @@ var ESP8266 = {
         }, 5000);
       } else {
         if (d===undefined) {
-          // print('!!!!BRANCH d===undefined');
           callback('No "ready" after AT+RST');
         } else {
-          // print('!!!!BRANCH return cb;');
           return cb;
         }
       }
@@ -229,25 +220,18 @@ var ESP8266 = {
     });
   },
   'connect': function(ssid, key, callback) {
-    print('AT+CWMODE=1');
     at.cmd('AT+CWMODE=1\r\n', 1000, function(cwm) {
-      print('cwm:', cwm);
       if (cwm !== 'no change' && cwm !== 'OK') {
         callback('CWMODE failed: '+(cwm?cwm:'Timeout'));
       } else {
-        print('AT+CWMODE -> OK');
         at.cmd('AT+CWJAP='+JSON.stringify(ssid)+','+JSON.stringify(key)+'\r\n', 20000, function cb(d) {
           if (['WIFI DISCONNECT','WIFI CONNECTED','WIFI GOT IP','+CWJAP:1'].indexOf(d)>=0) {
-            print('wifi changing, return cb');
             return cb;
-          } else {
-            print('wifi no changing, skip return cb');
           }
 
           if (d !== 'OK') {
             setTimeout(callback, 0, 'WiFi connect failed: '+(d?d:'Timeout'));
           } else {
-            print('AT+CWJAP -> OK');
             setTimeout(callback, 0, null);
           }
         });
@@ -340,7 +324,7 @@ exports.setup = function(usart, connectedCallback) {
     usart.setup(115200);
   }
 
-  ESP8266.at = at = require('@amperka/AT').connect(usart);
+  ESP8266.at = at = require('AT').connect(usart);
   require('NetworkJS').create(netCallbacks);
 
   netCallbacks.on('err', function(e) {
@@ -349,11 +333,7 @@ exports.setup = function(usart, connectedCallback) {
 
   at.register('+IPD', ipdHandler);
 
-  // at.debug();
-  setTimeout(function() {
-    print('ESP8266.reset(connectedCallback);');
-    ESP8266.reset(connectedCallback);
-  }, 1000);
+  ESP8266.reset(connectedCallback);
 
   return ESP8266;
 };
