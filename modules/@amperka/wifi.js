@@ -35,7 +35,6 @@ var netCallbacks = {
       if (sckt>=MAXSOCKETS) {
         // throw new Error('No free sockets');
         self.emit('err', 'No free sockets');
-        //TODO - it,s realy hardfix
         return null;
       }
       socks[sckt] = 'Wait';
@@ -146,7 +145,6 @@ var netCallbacks = {
   }
 };
 
-
 // Handle +IPD input data from ESP8266
 function ipdHandler(line) {
   var colon = line.indexOf(':');
@@ -202,6 +200,10 @@ var ESP8266 = {
         setTimeout(function() {
           ESP8266.init(callback);
         }, 1000);
+      } else if (d === 'jump to run user1 @ 1000') {
+        setTimeout(function() {
+          ESP8266.init(callback);
+        }, 5000);
       } else {
         if (d===undefined) {
           callback('No "ready" after AT+RST');
@@ -226,10 +228,11 @@ var ESP8266 = {
           if (['WIFI DISCONNECT','WIFI CONNECTED','WIFI GOT IP','+CWJAP:1'].indexOf(d)>=0) {
             return cb;
           }
+
           if (d !== 'OK') {
             setTimeout(callback, 0, 'WiFi connect failed: '+(d?d:'Timeout'));
           } else {
-            setTimeout(callback,0,null);
+            setTimeout(callback, 0, null);
           }
         });
       }
