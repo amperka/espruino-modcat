@@ -28,6 +28,14 @@ Rtc.prototype._bcdToDec = function(val) {
   return Math.floor(val / 16) * 10 + (val % 16);
 };
 
+Rtc.prototype._leadZero = function(val) {
+  if (val < 10) {
+    return '0'+val;
+  } else {
+    return ''+val;
+  }
+};
+
 Rtc.prototype.setTime = function(time) {
   if (time instanceof Date) {
     this._time = time;
@@ -77,9 +85,9 @@ Rtc.prototype.getTime = function(unit) {
       res = Math.ceil(res.getTime() / 1000);
       break;
     case 'iso':
-      res = res.getFullYear() + '-' + res.getMonth() + 1 +
-         '-' + res.getDay() + 'T' + res.getHours() +
-         ':' + res.getMinutes() + ':' + res.getSeconds();
+      res = res.getFullYear() + '-' + this._leadZero(res.getMonth() + 1) +
+         '-' + this._leadZero(res.getDate()) + 'T' + this._leadZero(res.getHours()) +
+         ':' + this._leadZero(res.getMinutes()) + ':' + this._leadZero(res.getSeconds());
       break;
     default: break;
   }
