@@ -42,7 +42,7 @@ Rtc.prototype.setTime = function(time) {
   } else if (time instanceof Object){
     this._time = new Date(
       time.year,
-      time.month,
+      time.month-1,
       time.day,
       time.hour,
       time.minute,
