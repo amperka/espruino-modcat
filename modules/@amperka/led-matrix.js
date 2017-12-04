@@ -100,7 +100,7 @@ Matrix.prototype.read = function() {
 
 Matrix.prototype.print = function(byteArray) {
   for (var x = 0; x < 8; ++x) {
-    this.pixels[x] = byteArray[x];
+    this.pixels[x] = E.reverseByte(byteArray[x]);
     this.writeReg(0x01 + x, this.pixels[x]);
   }
   this.update();
