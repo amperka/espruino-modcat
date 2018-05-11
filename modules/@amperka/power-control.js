@@ -82,7 +82,7 @@ Power.prototype.pulse = function(onTime, offTime) {
   }
 };
 
-Power.prototype.analogWrite = function(value) {
+Power.prototype.power = function(value) {
   if (arguments.length === 0) {
     return this._brightness;
   }
