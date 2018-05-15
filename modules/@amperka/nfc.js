@@ -8,7 +8,7 @@ var PN532 = function(connect) {
 
   this._packetBuffer = new Uint8Array(48);
   this._imWaitingFor = new Array();
-  this._maxPage = 48;
+  this._maxPage = 231;
 
   this._PREAMBLE = 0x00;
   this._STARTCODE2 = 0xFF;
