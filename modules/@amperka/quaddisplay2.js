@@ -17,10 +17,12 @@ var QuadDisplay = function(opts) {
     SPI2.setup({mosi: B15, miso: B14, sck: B13});
     this._spi = SPI2;
     this._cs = opts;
+	this._cs.mode('output');
   } else {
     opts = opts || {};
     this._spi = opts.spi;
     this._cs = opts.cs;
+	this._cs.mode('output');
   }
   this._intervalID = null;
   this._shift = 0;
@@ -86,7 +88,9 @@ QuadDisplay.prototype.frame = function(shift) {
   if (this._shift > this._data.length - 4) {
     this._shift = this._data.length;
   }
+  digitalWrite(this._cs,1);
   this._spi.send(this._data.slice(this._shift, this._shift + 4), this._cs);
+  digitalWrite(this._cs,0);
 };
 
 exports.connect = function(opts) {
