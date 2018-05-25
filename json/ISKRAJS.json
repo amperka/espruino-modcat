@@ -1,6 +1,6 @@
 {
  "info": {
-  "binary_version": "1v92.194", 
+  "binary_version": "1v96.43", 
   "variables": 5450, 
   "binaries_url_base": "http://js.amperka.ru/binaries/", 
   "link": [
@@ -9,12 +9,14 @@
   "default_busy_pin_indicator": "B7", 
   "default_console": "EV_SERIAL2", 
   "bootloader": 1, 
-  "binary_url": "http://js.amperka.ru/binaries/espruino_1v92.194_iskrajs.bin", 
+  "binary_url": "http://js.amperka.ru/binaries/espruino_1v96.43_iskrajs.bin", 
   "thumb_url": "http://js.amperka.ru/img/ISKRAJS_thumb.jpg", 
   "builtin_modules": [
    "Flash", 
+   "Storage", 
    "fs", 
    "net", 
+   "dgram", 
    "tls", 
    "http", 
    "NetworkJS", 
