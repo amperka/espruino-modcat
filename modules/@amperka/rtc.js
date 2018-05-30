@@ -1,7 +1,12 @@
 // Инициализация класса
 var Rtc = function(i2c) {
   this._time = undefined;
-  this._i2c = i2c || PrimaryI2C;
+  if (i2c) {
+    this._i2c = i2c;
+  } else {
+    PrimaryI2C.setup({sda: SDA, scl: SCL, bitrate: 100000});
+    this._i2c = PrimaryI2C;
+  }
   this._address = 0x68;
   this.start();
 };
