@@ -1,7 +1,7 @@
 var Power = function(pin) {
   this._pin = pin;
   this._on = false;
-  this._brightness = 1.0;
+  this._duty = 1.0;
 
   this._blinkTimeoutID = null;
   this._blinkOnTime = 0;
@@ -84,18 +84,18 @@ Power.prototype.pulse = function(onTime, offTime) {
 
 Power.prototype.power = function(value) {
   if (arguments.length === 0) {
-    return this._brightness;
+    return this._duty;
   }
 
   value = Math.max(0.0, Math.min(value, 1.0));
-  this._brightness = value;
+  this._duty = value;
   this._update();
 
   return this;
 };
 
 Power.prototype._update = function() {
-  var b = this._brightness;
+  var b = this._duty;
   if (b > 0 && b < 1.0) {
     analogWrite(this._pin, b * b * b * this._on, {freq: 100});
   } else {
