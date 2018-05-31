@@ -1,4 +1,3 @@
-
 // TODO: extract to library
 function lerp(k, from, to) {
   return from + k * (to - from);
@@ -45,8 +44,7 @@ Animation.prototype.queue = function(transition) {
   if (transition.from === undefined) {
     transition.from = this._queue[this._queue.length - 1].to || 0;
   }
-  var trans = extend(
-    {}, this._queue[this._queue.length - 1], transition || {});
+  var trans = extend({}, this._queue[this._queue.length - 1], transition || {});
   this._queue.push(trans);
   return this;
 };
@@ -109,7 +107,7 @@ Animation.prototype._update = function() {
   var qlast = this._queue.length - 1;
   var qi = this._reversed ? (qlast - this._qi) : this._qi;
   phase += dphase;
-
+  var animationComplited = false;
   var qiChanged = false;
   if (phase > 1) {
     // phase overflow
@@ -124,6 +122,7 @@ Animation.prototype._update = function() {
     } else {
       // animation completed
       phase = 1;
+      animationComplited = true;
       this._clearInterval();
     }
   }
@@ -139,6 +138,10 @@ Animation.prototype._update = function() {
 
   var val = lerp(this._phase, trans.from, trans.to);
   this.emit('update', val);
+  if (animationComplited){
+    this._phase = this._reversed ? 1 : 0;
+    this._qi = this._reversed ? this._queue.length - 1 : 0;
+  }
 };
 
 exports.create = function(transition) {
