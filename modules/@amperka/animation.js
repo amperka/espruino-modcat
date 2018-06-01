@@ -107,7 +107,7 @@ Animation.prototype._update = function() {
   var qlast = this._queue.length - 1;
   var qi = this._reversed ? (qlast - this._qi) : this._qi;
   phase += dphase;
-  var animationComplited = false;
+  var animationCompleted = false;
   var qiChanged = false;
   if (phase > 1) {
     // phase overflow
@@ -122,7 +122,7 @@ Animation.prototype._update = function() {
     } else {
       // animation completed
       phase = 1;
-      animationComplited = true;
+      animationCompleted = true;
       this._clearInterval();
     }
   }
@@ -138,7 +138,7 @@ Animation.prototype._update = function() {
 
   var val = lerp(this._phase, trans.from, trans.to);
   this.emit('update', val);
-  if (animationComplited){
+  if (animationCompleted){
     this._phase = this._reversed ? 1 : 0;
     this._qi = this._reversed ? this._queue.length - 1 : 0;
   }
