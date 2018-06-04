@@ -243,7 +243,7 @@ var type = function(txt, sendSpeed, callback) {
 var pressedKeys = [0, 0, 0, 0, 0, 0, 0, 0];
 
 var chooseKey = function(keyChanger, opts) {
-  let chrCode;
+  var chrCode;
   if (opts in MODIFY) {
     keyChanger([MODIFY[opts], 0]);
   } else {
