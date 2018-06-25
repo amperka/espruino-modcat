@@ -24,26 +24,26 @@ var X_fet = function(opts) {
 };
 
 X_fet.prototype.turnOn = function(pin, numMod) {
-  this._numMod = numMod || 0;
+  numMod |= 0;
   this._mask = this._getMask(pin);
   this._clearBlink(pin, numMod);
-  this._valuePins[this._valuePins.length - this._numMod - 1] |= this._mask;
+  this._valuePins[this._valuePins.length - numMod - 1] |= this._mask;
   this._spi.send(this._valuePins, this._cs);
 };
 
 X_fet.prototype.turnOff = function(pin, numMod) {
-  this._numMod = numMod || 0;
+  numMod |= 0;
   this._mask = this._getMask(pin);
-  this._clearBlink(pin, numMod);
-  this._valuePins[this._valuePins.length - this._numMod - 1] &= ~this._mask;
+  this._clearBlink(pin, this._numMod);
+  this._valuePins[this._valuePins.length - numMod - 1] &= ~this._mask;
   this._spi.send(this._valuePins, this._cs);
 };
 
 X_fet.prototype.toggle = function(pin, numMod) {
-  t0his._numMod = numMod || 0;
+  numMod |= 0;
   this._mask = this._getMask(pin);
   this._clearBlink(pin, numMod);
-  this._valuePins[this._valuePins.length - this._numMod - 1] ^= this._mask;
+  this._valuePins[this._valuePins.length - numMod - 1] ^= this._mask;
   this._spi.send(this._valuePins, this._cs);
 };
 
@@ -60,12 +60,12 @@ X_fet.prototype._setAllpins = function(value, numMod) {
   if (Array.isArray(numMod)) {
     for (var i = 0; i < numMod.length; i++) {
       this._clearAllBlink(i);
-      this._valuePins[this._valuePins.length - this._numMod[i] - 1] = value;
+      this._valuePins[this._valuePins.length - numMod[i] - 1] = value;
     }
   } else if (typeof numMod === 'number') {
-    this._numMod = numMod || 0;
+    numMod |= 0;
     this._clearAllBlink(numMod);
-    this._valuePins[this._valuePins.length - this._numMod - 1] = value;
+    this._valuePins[this._valuePins.length - numMod - 1] = value;
   } else {
     for (var i = 0; i < this._qtyMod; i++) {
       this._clearAllBlink(i);
@@ -118,8 +118,8 @@ X_fet.prototype._blinkPin = function(pin, numMod, onTime, offTime) {
 
 X_fet.prototype._isOn = function(pin, numMod) {
   var mask = 1 << pin;
-  this._numMod = numMod || 0;
-  if ((this._valuePins[this._valuePins.length - this._numMod - 1] & mask) > 0) {
+  numMod |= 0;
+  if ((this._valuePins[this._valuePins.length - numMod - 1] & mask) > 0) {
     return true;
   } else {
     return false;
@@ -172,9 +172,9 @@ X_fet.prototype._blinkOff = function(pin, numMod) {
 };
 
 X_fet.prototype._update = function(pin, numMod) {
-  this._numMod = numMod || 0;
+  numMod |= 0;
   this._mask = this._getMask(pin);
-  this._valuePins[this._valuePins.length - this._numMod - 1] ^= this._mask;
+  this._valuePins[this._valuePins.length - numMod - 1] ^= this._mask;
   this._spi.send(this._valuePins, this._cs);
 };
 
