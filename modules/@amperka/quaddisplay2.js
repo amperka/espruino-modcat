@@ -51,16 +51,16 @@ QuadDisplay.prototype.display = function(str, alignRight) {
 
   if (alignRight) {
     if (this._data.length < 4) {
-      this._data = [].fill(SYMBOLS[' '], 0, 4 - this._data.length).concat(this._data);
+      this._data = new Array(4 - this._data.length).fill(SYMBOLS[' '], 0).concat(this._data);
     }
-    this.frame(this._data.length - 4);    
+    this.frame(this._data.length - 4);
   } else {
     if (this._data.length < 4) {
-      this._data = this._data.concat([].fill(SYMBOLS[' '], 0, 4 - this._data.length))
+      this._data = this._data.concat(new Array(4 - this._data.length).fill(SYMBOLS[' '], 0));
     }
     this.frame(0);
   }
-  
+
 };
 
 QuadDisplay.prototype.marquee = function(str, period) {
