@@ -3,18 +3,9 @@ function TroykaMeteoSensor(opts) {
   var _i2c = opts.i2c || PrimaryI2C;
   var _address = opts.address || 0x44;
   var _repeatability = opts.repeatability || 'HIGH';
-  var _clockStretching = opts.clockStretching || 'ON';
 
   this.setRepeatability = function(value) {
     _repeatability = value;
-  };
-
-  this.clockStretchingOn = function() {
-    _clockStretching = "ON"
-  };
-
-  this.clockStretchingOff = function() {
-    _clockStretching = "OFF"
   };
 
   this.reset = function() {
@@ -30,53 +21,55 @@ function TroykaMeteoSensor(opts) {
   };
 
   this.read = function(callback) {
-    if (_clockStretching == 'ON') {
-      switch (_repeatability) {
-        case 'HIGH':
+
+    switch (_repeatability) {
+      case 'HIGH':
+        try {
           _i2c.writeTo(_address, [0x2C, 0x06]);
-          break;
-        case 'MEDIUM':
+        } catch (e) {
+          callback(new Error('I2C write error'), undefined);
+        }
+        break;
+      case 'MEDIUM':
+        try {
           _i2c.writeTo(_address, [0x2C, 0x0D]);
-          break;
-        case 'LOW':
+        } catch (e) {
+          callback(new Error('I2C write error'), undefined);
+        }
+        break;
+      case 'LOW':
+        try {
           _i2c.writeTo(_address, [0x2C, 0x10]);
-          break;
-        default:
+        } catch (e) {
+          callback(new Error('I2C write error'), undefined);
+        }
+        break;
+      default:
+        try {
           _i2c.writeTo(_address, [0x2C, 0x06]);
-      }
-    } else {
-      switch (_repeatability) {
-        case 'HIGH':
-          _i2c.writeTo(_address, [0x24, 0x00]);
-          break;
-        case 'MEDIUM':
-          _i2c.writeTo(_address, [0x24, 0x0B]);
-          break;
-        case 'LOW':
-          _i2c.writeTo(_address, [0x24, 0x16]);
-          break;
-        default:
-          _i2c.writeTo(_address, [0x24, 0x00]);
-      }
+        } catch (e) {
+          callback(new Error('I2C write error'), undefined);
+        }
     }
-    var data = _i2c.readFrom(_address, 6);
-    if (data[2] != _checkCRC8(data, 0, 2) || data[5] != _checkCRC8(data, 3, 5)) {
-      callback(new Error('checksum error'), {
-        tempC: -1,
-        tempF: -1,
-        tempK: -1,
-      })
-    } else {
-      var tmpC = ((((data[0] * 256.0) + data[1]) * 175.0) / 65535.0) - 45.0;
-      var tmpF = (tmpC * 9.0 / 5.0) + 32.0;
-      var tmpK = tmpC + 273.15;
-      var hum = ((((data[3] * 256.0) + data[4]) * 100.0) / 65535.0);
-      callback(null, {
-        tempC: tmpC,
-        tempF: tmpF,
-        tempK: tmpK,
-        humidity: hum
-      })
+
+    try {
+      var data = _i2c.readFrom(_address, 6);
+      if (data[2] != _checkCRC8(data, 0, 2) || data[5] != _checkCRC8(data, 3, 5)) {
+        callback(new Error('checksum error'), undefined);
+      } else {
+        var tmpC = ((((data[0] * 256.0) + data[1]) * 175.0) / 65535.0) - 45.0;
+        var tmpF = (tmpC * 9.0 / 5.0) + 32.0;
+        var tmpK = tmpC + 273.15;
+        var hum = ((((data[3] * 256.0) + data[4]) * 100.0) / 65535.0);
+        callback(null, {
+          tempC: tmpC,
+          tempF: tmpF,
+          tempK: tmpK,
+          humidity: hum
+        });
+      }
+    } catch (e) {
+      callback(new Error('I2C read error', undefined));
     }
   };
 
@@ -102,7 +95,7 @@ function TroykaMeteoSensor(opts) {
     ];
 
     for (var i = num; i < len; i++) {
-      crc = table[(crc ^ data[i]) % 256]
+      crc = table[(crc ^ data[i]) % 256];
     }
     return crc;
   };
