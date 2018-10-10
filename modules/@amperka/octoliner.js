@@ -52,12 +52,10 @@ Octoliner.prototype.mapLine = function(binaryLine) {
   var avg = 0;
   var weight = [4, 3, 2, 1, -1, -2, -3, -4];
   if (Array.isArray(binaryLine)) {
-    console.log(binaryLine);
     for (var i = 0; i < 8; i++) {
       if (binaryLine[i]) {
         sum += binaryLine[i];
         avg += binaryLine[i] * weight[i];
-        console.log(sum);
       }
     }
     if (sum != 0) {
@@ -74,6 +72,10 @@ Octoliner.prototype.mapLine = function(binaryLine) {
     }
     return this.mapLine(this._lineState);
   }
+};
+
+Octoliner.prototype.reset = function(){
+  this.expander.reset();
 };
 
 exports.connect = function(opts) {
