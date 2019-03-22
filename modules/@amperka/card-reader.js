@@ -1,6 +1,4 @@
-
-
-var CardReader = function(opts) {
+﻿var CardReader = function(opts) {
   this._fs = require('fs');
   if (typeof opts === 'number') {
     SPI2.setup({mosi: B15, miso: B14, sck: B13});
@@ -8,6 +6,10 @@ var CardReader = function(opts) {
   } else {
     E.connectSDCard(opts.spi, opts.cs);
   }
+  // Некоторые модели SD-карт начинают рагировать только со
+  // второго запроса. Делаем холостой перебор корневой директории,
+  // чтобы “прогреть” карту в таких случаях
+  this._fs.readdirSync();
 };
 
 CardReader.prototype.isDirectory = function(fileName) {
