@@ -7,7 +7,7 @@ var PN532 = function(connect) {
   this._i2c = connect.i2c;
 
   this._packetBuffer = new Uint8Array(48);
-  this._imWaitingFor = new Array();
+  this._imWaitingFor = [];
   this._maxPage = 231;
 
   this._PREAMBLE = 0x00;

@@ -10,11 +10,9 @@ var Dweetio = function(name) {
 
 Dweetio.prototype._request = function(query, callback) {
   this._http.get(this._url + '?' + query, function(res) {
-    var r = '';
-    res.on('data', function(d) {
-      r += d;
-    });
-    res.on('close', callback);
+    var d = '';
+    res.on('data', function(data) { d += data; });
+    res.on('close', function() { callback(d); });
   });
 };
 

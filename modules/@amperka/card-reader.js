@@ -1,4 +1,4 @@
-﻿var CardReader = function(opts) {
+var CardReader = function(opts) {
   this._fs = require('fs');
   if (typeof opts === 'number') {
     SPI2.setup({mosi: B15, miso: B14, sck: B13});

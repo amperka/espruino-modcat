@@ -183,7 +183,7 @@ Sim900r.prototype.smsSend = function(phone, text, callback) {
  */
 Sim900r.prototype.smsList = function(callback) {
   var self = this;
-  this.cmd('AT+CMGF=1', function(error, data) {
+  this.cmd('AT+CMGF=1', function(error) {
     if (!error) {
       this.cmd('AT+CMGL="ALL",1', function(error, data){
         if (!error) {
@@ -220,7 +220,7 @@ Sim900r.prototype.smsRead = function(index, callback) {
 /**
  * Удаление СМС с SIM-карты
  */
-Sim900r.prototype.smsDelete = function(index, callback) {
+Sim900r.prototype.smsDelete = function(index) {
   var command = 'AT+CMGD=' + index;
   if (index === 'all') {
     command = 'AT+CMGD=0,4';
@@ -342,7 +342,7 @@ Sim900r.prototype.getCallerID = function(callback) {
 
 
 Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
-  var data = fLine.split('\"');
+  var data = fLine.split('"');
   var indexData = data[0].split(': ');
   var message = {
     index: index || indexData[1],

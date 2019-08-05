@@ -264,11 +264,11 @@ var chooseKey = function(keyChanger, opts) {
   }
 }
 
-var press = function(opts, callback) {
+var press = function(opts) {
   chooseKey(changePressedKeys, opts);
 }
 
-var release = function(opts, callback) {
+var release = function(opts) {
   chooseKey(changeReleasedKeys, opts);
 }
 
@@ -281,10 +281,11 @@ var changePressedKeys = function(opts) {
 
   var modifiers = pressedKeys[0];
   var changeFlag = false;
+  var i;
   if (Array.isArray(opts)) {
     // We've got an array of modifiers + key itself.
     // First combine modifiers
-    for (var i = 0; i < opts.length - 1; ++i) {
+    for (i = 0; i < opts.length - 1; ++i) {
       modifiers |= opts[i];
     }
     // Then extract last element as a key
@@ -295,7 +296,7 @@ var changePressedKeys = function(opts) {
   // Protect from undefined
   opts = opts || 0;
 
-  for (var i = 2; i < 8; i++) {
+  for (i = 2; i < 8; i++) {
     if (pressedKeys[i] === opts) {
       changeFlag = true;
       break;
@@ -307,7 +308,7 @@ var changePressedKeys = function(opts) {
     if (pressedKeys[0] !== modifiers) {
       pressedKeys[0] = modifiers;
     }
-    for (var i = 2; i < 8; i++) {
+    for (i = 2; i < 8; i++) {
       if (pressedKeys[i] === 0x00) {
         pressedKeys[i] = opts;
         break;

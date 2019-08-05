@@ -9,11 +9,11 @@ var netCallbacks = {
     /* Create a socket and return its index, host is a string, port is an integer.
     If host isn't defined, create a server socket */
     var sckt;
+    var self = this;
     if (host===undefined) {
       sckt = MAXSOCKETS;
       socks[sckt] = 'Wait';
       sockData[sckt] = '';
-      var self = this;
       at.cmd('AT+CIPSERVER=1,'+port+'\r\n', 10000, function(d) {
         if (d==='OK') {
           socks[sckt] = true;
@@ -27,7 +27,6 @@ var netCallbacks = {
       });
       return MAXSOCKETS;
     } else {
-      var self = this;
       sckt = 0;
       while (socks[sckt]!==undefined) {
         sckt++; // find free socket
@@ -67,17 +66,15 @@ var netCallbacks = {
     } else if (socks[sckt]!==undefined) {
       // socket may already have been closed (eg. received 0,CLOSE)
       // we need to a different command if we're closing a server
-      at.cmd(((sckt===MAXSOCKETS) ? 'AT+CIPSERVER=0' : ('AT+CIPCLOSE='+sckt))+'\r\n',1000, function(d) {
+      at.cmd(((sckt===MAXSOCKETS) ? 'AT+CIPSERVER=0' : ('AT+CIPCLOSE='+sckt))+'\r\n',1000, function() {
         socks[sckt] = undefined;
       });
     }
   },
   /* Accept the connection on the server socket. Returns socket number or -1 if no connection */
-  accept: function(sckt) {
-    // console.log('Accept',sckt);
+  accept: function() {
     for (var i=0; i<MAXSOCKETS; i++) {
       if (sockData[i] && socks[i]===undefined) {
-        // console.log('Socket accept '+i,JSON.stringify(sockData[i]),socks[i]);
         socks[i] = true;
         return i;
       }

@@ -76,6 +76,7 @@ QuadDisplay.prototype.marquee = function(str, period) {
     if (self._shift > self._data.length - 4) {
       self._shift = 0;
     }
+    // eslint-disable-next-line
     self.frame.call(self, self._shift);
   }, period);
 };

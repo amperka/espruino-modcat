@@ -25,21 +25,19 @@ QuadDisplay.prototype.display = function(str, align){
         chr = SYMBOLS[s[i]] || 0xFF;
         break;
     }
+    if (!(dot && chr === null)) {
+      if (dot){
+        chr &= 0xFE;
+      }
 
-    if (dot && chr === null){
-      continue;
+      for (var j=8; j; j--){
+        this.buffer[index*16+(8-j)*2] = (chr & 1) ? 0.0001 : 0.015;
+        this.buffer[index*16+(8-j)*2+1] = (chr & 1) ? 0.030 : 0.060;
+        chr = chr >> 1;
+      }
+      dot = false;
+      index++;
     }
-    if (dot){
-      chr &= 0xFE;
-    }
-
-    for (var j=8; j; j--){
-      this.buffer[index*16+(8-j)*2] = (chr & 1) ? 0.0001 : 0.015;
-      this.buffer[index*16+(8-j)*2+1] = (chr & 1) ? 0.030 : 0.060;
-      chr = chr >> 1;
-    }
-    dot = false;
-    index++;
   }
 
   this.buffer[64] = 0.060;
@@ -55,10 +53,9 @@ QuadDisplay.prototype.marquee = function(_str, _opts){
     loop = opts.loop || false,
     str = _str.toString(),
     x = -3, _x,
-    interval,
     chunk;
 
-  interval = setInterval(function(){
+  var interval = setInterval(function(){
     _x = -1;
     while (x !== _x){
       _x = x;

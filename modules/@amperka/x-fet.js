@@ -73,9 +73,9 @@ X_fet.prototype.turnAllOn = function(numMod) {
 };
 
 X_fet.prototype._setAllpins = function(value, numMod) {
-
+  var i;
   if (Array.isArray(numMod)) {
-    for (var i = 0; i < numMod.length; i++) {
+    for (i = 0; i < numMod.length; i++) {
       this._clearAllBlink(i);
       this._valuePins[this._valuePins.length - numMod[i] - 1] = value;
     }
@@ -84,7 +84,7 @@ X_fet.prototype._setAllpins = function(value, numMod) {
     this._clearAllBlink(numMod);
     this._valuePins[this._valuePins.length - numMod - 1] = value;
   } else {
-    for (var i = 0; i < this._qtyMod; i++) {
+    for (i = 0; i < this._qtyMod; i++) {
       this._clearAllBlink(i);
       this._valuePins[this._valuePins.length - i - 1] = value;
     }
@@ -113,7 +113,7 @@ X_fet.prototype.blink = function(pin, numMod, onTime, offTime) {
     }
   } else {
     this._blinkPin(pin, numMod, onTime, offTime);
-  };
+  }
 };
 
 X_fet.prototype._blinkPin = function(pin, numMod, onTime, offTime) {
