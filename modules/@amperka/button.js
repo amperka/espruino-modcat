@@ -2,13 +2,13 @@ var Button = function(pin, opts) {
   opts = opts || {};
   this._pin = pin;
 
-  this._normalSignal = (opts.normalSignal === 0) ? 0 : 1;
+  this._normalSignal = opts.normalSignal === 0 ? 0 : 1;
   this._pin.mode(this._normalSignal ? 'input_pullup' : 'input_pulldown');
 
   this._holdTime = opts.holdTime || 1;
   this._holdTimeoutID = null;
 
-  var debounce = (opts.debounce === undefined) ? 10 : opts.debounce;
+  var debounce = opts.debounce === undefined ? 10 : opts.debounce;
   setWatch(this._onChange.bind(this), this._pin, {
     repeat: true,
     edge: 'both',
@@ -26,7 +26,7 @@ Button.prototype.isPressed = function() {
 };
 
 Button.prototype._onChange = function(e) {
-  var pressed = (this._normalSignal === 0) ? e.state : !e.state;
+  var pressed = this._normalSignal === 0 ? e.state : !e.state;
   var self = this;
 
   if (this._holdTime && pressed) {

@@ -11,9 +11,15 @@ var RS485 = function(opts) {
 
 RS485.prototype.on = function(event, callback) {
   switch (event) {
-    case 'data': this._serial.on('data', callback); break;
-    case 'parity': this._serial.on('parity', callback); break;
-    case 'framing': this._serial.on('framing', callback); break;
+    case 'data':
+      this._serial.on('data', callback);
+      break;
+    case 'parity':
+      this._serial.on('parity', callback);
+      break;
+    case 'framing':
+      this._serial.on('framing', callback);
+      break;
   }
 };
 

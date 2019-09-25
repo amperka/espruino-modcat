@@ -2,7 +2,7 @@
 var LIS3MDL = function(i2c, address) {
   this._i2c = i2c;
   this._sensitivity = 1 / 6842;
-  address === undefined ? this._address = 0x1C : this._address = address;
+  address === undefined ? (this._address = 0x1c) : (this._address = address);
 };
 
 // Метод записывает данные data в регистр reg
@@ -65,18 +65,18 @@ LIS3MDL.prototype.init = function(opts) {
 LIS3MDL.prototype._getRaw = function() {
   var data = this.read(0x28, 6);
   var result = {
-    'x': data[0] | (data[1] << 8),
-    'y': data[2] | (data[3] << 8),
-    'z': data[4] | (data[5] << 8)
+    x: data[0] | (data[1] << 8),
+    y: data[2] | (data[3] << 8),
+    z: data[4] | (data[5] << 8)
   };
   if (result.x >= 32767) {
-    result.x -= 0xFFFF;
+    result.x -= 0xffff;
   }
   if (result.y >= 32767) {
-    result.y -= 0xFFFF;
+    result.y -= 0xffff;
   }
   if (result.z >= 32767) {
-    result.z -= 0xFFFF;
+    result.z -= 0xffff;
   }
   return result;
 };
@@ -95,7 +95,7 @@ LIS3MDL.prototype.get = function(units) {
 
 // Метод возвращает идентификатор устройства
 LIS3MDL.prototype.whoAmI = function() {
-  return this.read(0x0F)[0];
+  return this.read(0x0f)[0];
 };
 
 // Экспортируем класс

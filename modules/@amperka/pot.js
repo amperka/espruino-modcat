@@ -1,4 +1,3 @@
-
 var Pot = function(pin) {
   this._pin = pin;
   pin.mode('analog');

@@ -25,17 +25,21 @@ var Sim900r = function(options) {
    * Настройка триггера пина статуса
    */
   pinMode(this._statusPin, 'input_pulldown');
-  setWatch(function(e) {
-    if (e.state === true) {
-      self.emit('powerOn');
-    } else {
-      self.emit('powerOff');
+  setWatch(
+    function(e) {
+      if (e.state === true) {
+        self.emit('powerOn');
+      } else {
+        self.emit('powerOff');
+      }
+    },
+    this._statusPin,
+    {
+      repeat: true,
+      edge: 'both',
+      debounce: 10
     }
-  }, this._statusPin, {
-    repeat: true,
-    edge: 'both',
-    debounce: 10
-  });
+  );
 
   /**
    * При поступлении данные на порт, суммируем их в буффер
@@ -71,7 +75,7 @@ Sim900r.prototype._onDataLine = function(line) {
       this.emit('busy');
       break;
     case '+CUSD':
-      this.emit('ussd',data[1]);
+      this.emit('ussd', data[1]);
       break;
     case '+CMTI':
       var index = parseInt(data[1].split(',')[1]);
@@ -154,7 +158,7 @@ Sim900r.prototype.cmd = function(command, callback) {
     callback(new Error('powerOff'));
   } else if (!this._currentCommandResponse) {
     if (!callback) {
-      callback = function() { };
+      callback = function() {};
     }
     this._currentCommand = command.toUpperCase();
     this._currentCommandData = [];
@@ -183,13 +187,13 @@ Sim900r.prototype.smsSend = function(phone, text, callback) {
  */
 Sim900r.prototype.smsList = function(callback) {
   var self = this;
-  this.cmd('AT+CMGF=1', function(error, data) {
+  this.cmd('AT+CMGF=1', function(error) {
     if (!error) {
-      this.cmd('AT+CMGL="ALL",1', function(error, data){
+      this.cmd('AT+CMGL="ALL",1', function(error, data) {
         if (!error) {
           var smsList = [];
-          for (var s=0; s<data.length; s = s+2) {
-            var sms = self.parseSMS(data[s], data[s+1]);
+          for (var s = 0; s < data.length; s = s + 2) {
+            var sms = self.parseSMS(data[s], data[s + 1]);
             smsList.push(sms);
           }
           callback(undefined, smsList);
@@ -220,7 +224,7 @@ Sim900r.prototype.smsRead = function(index, callback) {
 /**
  * Удаление СМС с SIM-карты
  */
-Sim900r.prototype.smsDelete = function(index, callback) {
+Sim900r.prototype.smsDelete = function(index) {
   var command = 'AT+CMGD=' + index;
   if (index === 'all') {
     command = 'AT+CMGD=0,4';
@@ -229,7 +233,6 @@ Sim900r.prototype.smsDelete = function(index, callback) {
     print(err, result);
   });
 };
-
 
 /**
  * Набор номера
@@ -252,17 +255,12 @@ Sim900r.prototype.cancel = function(callback) {
   this.cmd('ATH0', callback);
 };
 
-
-
-
-
 /**
  * Отправка USSD команды
  */
 Sim900r.prototype.ussd = function(phone, callback) {
-  this.cmd('AT+CUSD=1,"'+phone+'"', callback);
+  this.cmd('AT+CUSD=1,"' + phone + '"', callback);
 };
-
 
 /**
  * Оператор SIM-карты
@@ -291,8 +289,6 @@ Sim900r.prototype.netStatus = function(callback) {
 Sim900r.prototype.netQuality = function(callback) {
   this.cmd('AT+CSQ', callback);
 };
-
-
 
 Sim900r.prototype.getImei = function(callback) {
   this.cmd('AT+GSN', function(data) {
@@ -325,7 +321,7 @@ Sim900r.prototype.getTime = function(callback) {
 
 Sim900r.prototype.setTime = function(dt, callback) {
   var date = this.parseDateToSimDate(dt);
-  this.cmd('AT+CCLK="'+date+'"', callback);
+  this.cmd('AT+CCLK="' + date + '"', callback);
 };
 
 Sim900r.prototype.setCallerID = function(val, callback) {
@@ -340,9 +336,8 @@ Sim900r.prototype.getCallerID = function(callback) {
  * Методы обработки ответов
  */
 
-
 Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
-  var data = fLine.split('\"');
+  var data = fLine.split('"');
   var indexData = data[0].split(': ');
   var message = {
     index: index || indexData[1],
@@ -364,20 +359,28 @@ Sim900r.prototype.parsePhone = function(phone) {
 };
 
 Sim900r.prototype.parseDateToSimDate = function(dt) {
-  var year = (dt.getFullYear()+'').substr(-2);
-  var month = ('0' + dt.getMonth()).substr(-2,2);
-  var day = ('0' + dt.getDate()).substr(-2,2);
-  var hh = ('0' + dt.getHours()).substr(-2,2);
-  var mm = ('0' + dt.getMinutes()).substr(-2,2);
-  var ss = ('0' + dt.getSeconds()).substr(-2,2);
-  var date = year+'/'+month+'/'+day+','+hh+':'+mm+':'+ss+'+00';
+  var year = (dt.getFullYear() + '').substr(-2);
+  var month = ('0' + dt.getMonth()).substr(-2, 2);
+  var day = ('0' + dt.getDate()).substr(-2, 2);
+  var hh = ('0' + dt.getHours()).substr(-2, 2);
+  var mm = ('0' + dt.getMinutes()).substr(-2, 2);
+  var ss = ('0' + dt.getSeconds()).substr(-2, 2);
+  var date =
+    year + '/' + month + '/' + day + ',' + hh + ':' + mm + ':' + ss + '+00';
   return date;
 };
 
 Sim900r.prototype.parseSimDateToDate = function(dt) {
   // 00/01/01,07:51:29+00
-  var date = '20'+dt.substr(0,2)+'-'+dt.substr(3,2)+'-'+dt.substr(6,2)+'T';
-  date += dt.substr(9,2)+':'+dt.substr(12,2)+':'+dt.substr(15,2);
+  var date =
+    '20' +
+    dt.substr(0, 2) +
+    '-' +
+    dt.substr(3, 2) +
+    '-' +
+    dt.substr(6, 2) +
+    'T';
+  date += dt.substr(9, 2) + ':' + dt.substr(12, 2) + ':' + dt.substr(15, 2);
   return new Date(Date.parse(date));
 };
 
@@ -394,7 +397,7 @@ Sim900r.prototype.parsePhoneToPDU = function(phone) {
     phone.push('F');
   }
 
-  for (var c = 0; c < (phone.length / 2); c++) {
+  for (var c = 0; c < phone.length / 2; c++) {
     var tmp = phone[c * 2];
     phone[c * 2] = phone[c * 2 + 1];
     phone[c * 2 + 1] = tmp;
@@ -402,7 +405,6 @@ Sim900r.prototype.parsePhoneToPDU = function(phone) {
 
   return phone;
 };
-
 
 exports.connect = function(_uart, _powerPin, _statusPin) {
   return new Sim900r(_uart, _powerPin, _statusPin);

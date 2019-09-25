@@ -1,5 +1,4 @@
 var PN532 = function(connect) {
-
   connect = connect || {};
 
   this._irqPin = connect.irqPin;
@@ -7,27 +6,26 @@ var PN532 = function(connect) {
   this._i2c = connect.i2c;
 
   this._packetBuffer = new Uint8Array(48);
-  this._imWaitingFor = new Array();
+  this._imWaitingFor = [];
   this._maxPage = 231;
 
   this._PREAMBLE = 0x00;
-  this._STARTCODE2 = 0xFF;
+  this._STARTCODE2 = 0xff;
   this._POSTAMBLE = 0x00;
-  this._HOSTTOPN532 = 0xD4;
+  this._HOSTTOPN532 = 0xd4;
   this._COMMAND_GETFIRMWAREVERSION = 0x02;
   this._COMMAND_SAMCONFIGURATION = 0x14;
-  this._COMMAND_INLISTPASSIVETARGET = 0x4A;
+  this._COMMAND_INLISTPASSIVETARGET = 0x4a;
   this._COMMAND_INDATAEXCHANGE = 0x40;
   this._SPI_DATAWRITE = 0x01;
   this._SPI_DATAREAD = 0x03;
-  this._MIFARE_ULTRALIGHT_CMD_WRITE = 0xA2;
+  this._MIFARE_ULTRALIGHT_CMD_WRITE = 0xa2;
   this._MIFARE_CMD_READ = 0x30;
   this._PN532_I2C_ADDRESS = 0x48 >> 1;
 };
 
 PN532.prototype.wakeUp = function(callback) {
-
-  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true});
+  setWatch(this._handleIrq.bind(this), this._irqPin, { repeat: true });
 
   this._packetBuffer[0] = this._COMMAND_GETFIRMWAREVERSION;
   this._sendCommandCheckAck(this._packetBuffer, 1);
@@ -55,8 +53,8 @@ PN532.prototype._sendCommandCheckAck = function(cmd, cmdlen) {
     this._HOSTTOPN532
   ];
   var checksum = new Uint8Array(1);
-  checksum[0] = this._PREAMBLE + this._PREAMBLE
-            + this._STARTCODE2 + this._HOSTTOPN532;
+  checksum[0] =
+    this._PREAMBLE + this._PREAMBLE + this._STARTCODE2 + this._HOSTTOPN532;
 
   for (var i = 0; i < cmdlen - 1; i++) {
     toSend.push(cmd[i]);
@@ -97,7 +95,7 @@ PN532.prototype.listen = function() {
 PN532.prototype._listenACK = function() {
   this._packetBuffer = this._read(20);
   if (this._packetBuffer[8] !== 1) {
-    this.emit('tag', {success: false});
+    this.emit('tag', { success: false });
     return;
   }
   var ATQA = this._packetBuffer[10];
@@ -105,9 +103,9 @@ PN532.prototype._listenACK = function() {
   ATQA |= this._packetBuffer[11];
   var uid = new Array(this._packetBuffer[13]);
   for (var i = 0; i < this._packetBuffer[13]; i++) {
-    uid[i] = this._packetBuffer[14+i];
+    uid[i] = this._packetBuffer[14 + i];
   }
-  this.emit('tag', false, {uid: uid, ATQA: ATQA});
+  this.emit('tag', false, { uid: uid, ATQA: ATQA });
 };
 
 PN532.prototype.readPage = function(page, callback) {
@@ -118,9 +116,9 @@ PN532.prototype.readPage = function(page, callback) {
     return;
   }
   this._packetBuffer[0] = this._COMMAND_INDATAEXCHANGE;
-  this._packetBuffer[1] = 1;               // Card number
+  this._packetBuffer[1] = 1; // Card number
   this._packetBuffer[2] = this._MIFARE_CMD_READ; // Mifare Read command = 0x30
-  this._packetBuffer[3] = page;            // Page Number (0..63 in most cases)
+  this._packetBuffer[3] = page; // Page Number (0..63 in most cases)
 
   this._sendCommandCheckAck(this._packetBuffer, 4);
   var waitFor = this._readPageACK.bind(this, callback);
@@ -172,13 +170,13 @@ PN532.prototype._writePageACK = function(callback) {
 PN532.prototype._read = function(length) {
   var buffer = new Uint8Array(length);
   buffer.fill(this._SPI_DATAREAD);
-  var data = this._i2c.readFrom(this._PN532_I2C_ADDRESS, length+1);
+  var data = this._i2c.readFrom(this._PN532_I2C_ADDRESS, length + 1);
   return data;
 };
 
 PN532.prototype._readACK = function() {
   var ackBuff = this._read(6);
-  var pn532ack = new Uint8Array([0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00]);
+  var pn532ack = new Uint8Array([0x00, 0x00, 0xff, 0x00, 0xff, 0x00]);
   return pn532ack === ackBuff;
 };
 

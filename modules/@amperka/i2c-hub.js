@@ -1,12 +1,12 @@
 function TroykaI2CHub(opts) {
-  opts = opts || {}
+  opts = opts || {};
   var _channel = 0;
   var _address = opts.address || 0x70;
   var _i2c = opts.i2c || PrimaryI2C;
   var _enableMask = 0x08;
 
   this.setBusChannel = function(channel) {
-    if ((channel < 0) || (channel >= 8)) {
+    if (channel < 0 || channel >= 8) {
       return;
     }
     _channel = channel;

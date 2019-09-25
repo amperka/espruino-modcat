@@ -1,4 +1,3 @@
-
 var Animation = function(opts) {
   opts = opts || {};
   this._high = opts.high || 0;

@@ -1,0 +1,52 @@
+# External environment variables:
+# GCLOUD_SERVICE_KEY - The gcloud service key
+# GOOGLE_COMPUTE_ZONE - The Google compute zone to connect
+# GOOGLE_PROJECT_ID - The Google project ID to connect
+# GCS_BUCKET - target GCS bucket
+
+version: 2.1
+executors:
+  gcloud: { docker: [image: google/cloud-sdk:slim] }
+  node: { docker: [image: circleci/node:10-stretch] }
+orbs:
+  gcp-cli: circleci/gcp-cli@1.8.2
+
+jobs:
+  verify-and-build:
+    executor: node
+    environment: { NODE_ENV: development }
+    steps:
+      - checkout
+      - restore_cache: { keys: [v1-node_modules] }
+      - run: yarn install --non-interactive
+      - save_cache:
+          key: v1-node_modules-{{ epoch }}
+          paths: [node_modules]
+      - run:
+          name: Lint
+          command: yarn verify
+      - run:
+          name: Build
+          command: yarn build
+      - persist_to_workspace: { root: ./, paths: [binaries, json, modules] }
+
+  publish:
+    executor: gcloud
+    steps:
+      - attach_workspace: { at: dist }
+      - gcp-cli/initialize
+      - run:
+          name: Publish
+          command: |
+            gsutil -m rsync -r -d dist/binaries gs://$GCS_BUCKET/binaries
+            gsutil -m rsync -r -d dist/json     gs://$GCS_BUCKET/json
+            gsutil -m rsync -r -d dist/modules  gs://$GCS_BUCKET/modules
+
+workflows:
+  version: 2
+  verify-build-publish:
+    jobs:
+      - verify-and-build
+      - publish:
+          requires: [verify-and-build]
+          filters: { branches: { only: [master] } }

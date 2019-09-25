@@ -1,108 +1,168 @@
-var QuadDisplay = function(pin){
+var QuadDisplay = function(pin) {
     this.pin = pin;
     this.buffer = Array(67);
   },
   SYMBOLS;
 
-QuadDisplay.prototype.display = function(str, align){
-  var s = str.toString(), chr = 0, index = 0, dot = false;
+QuadDisplay.prototype.display = function(str, align) {
+  var s = str.toString(),
+    chr = 0,
+    index = 0,
+    dot = false;
 
-  s = align ? (_pad(s) + s) : (s + _pad(s));
+  s = align ? _pad(s) + s : s + _pad(s);
 
-  for (var i=0, l=s.length; i<l; i++){
+  for (var i = 0, l = s.length; i < l; i++) {
     switch (s[i]) {
       case '.':
         chr = null;
         dot = true;
         break;
       case '&':
-        chr = ~(1 << (s[++i]|0 || 0));
+        chr = ~(1 << (s[++i] | 0 || 0));
         break;
       case '%':
         chr = ~parseInt(s[++i] + s[++i], 16);
         break;
       default:
-        chr = SYMBOLS[s[i]] || 0xFF;
+        chr = SYMBOLS[s[i]] || 0xff;
         break;
     }
+    if (!(dot && chr === null)) {
+      if (dot) {
+        chr &= 0xfe;
+      }
 
-    if (dot && chr === null){
-      continue;
+      for (var j = 8; j; j--) {
+        this.buffer[index * 16 + (8 - j) * 2] = chr & 1 ? 0.0001 : 0.015;
+        this.buffer[index * 16 + (8 - j) * 2 + 1] = chr & 1 ? 0.03 : 0.06;
+        chr = chr >> 1;
+      }
+      dot = false;
+      index++;
     }
-    if (dot){
-      chr &= 0xFE;
-    }
-
-    for (var j=8; j; j--){
-      this.buffer[index*16+(8-j)*2] = (chr & 1) ? 0.0001 : 0.015;
-      this.buffer[index*16+(8-j)*2+1] = (chr & 1) ? 0.030 : 0.060;
-      chr = chr >> 1;
-    }
-    dot = false;
-    index++;
   }
 
-  this.buffer[64] = 0.060;
+  this.buffer[64] = 0.06;
   this.buffer[65] = 0.3;
   this.buffer[66] = 0;
   digitalPulse(this.pin, 0, this.buffer);
 };
 
-QuadDisplay.prototype.marquee = function(_str, _opts){
+QuadDisplay.prototype.marquee = function(_str, _opts) {
   var opts = _opts || {},
     callback = opts.callback || null,
     speed = opts.speed || 500,
     loop = opts.loop || false,
     str = _str.toString(),
-    x = -3, _x,
-    interval,
+    x = -3,
+    _x,
     chunk;
 
-  interval = setInterval(function(){
-    _x = -1;
-    while (x !== _x){
-      _x = x;
-      if (str[x] === '.'){
-        x++;
+  var interval = setInterval(
+    function() {
+      _x = -1;
+      while (x !== _x) {
+        _x = x;
+        if (str[x] === '.') {
+          x++;
+        }
+        if (str[x - 1] === '&') {
+          x++;
+        }
+        if (str[x - 2] === '%') {
+          x++;
+        }
+        if (str[x - 1] === '%') {
+          x += 2;
+        }
       }
-      if (str[x-1] === '&'){
-        x++;
-      }
-      if (str[x-2] === '%'){
-        x++;
-      }
-      if (str[x-1] === '%'){
-        x+=2;
-      }
-    }
 
-    chunk = _slice(str, x++);
-    this.display(chunk, x <= 0);
-    if (_pad(chunk).length > 3) {
-      if (callback){
-        callback(interval);
+      chunk = _slice(str, x++);
+      this.display(chunk, x <= 0);
+      if (_pad(chunk).length > 3) {
+        if (callback) {
+          callback(interval);
+        }
+        if (loop) {
+          x = -3;
+        } else {
+          clearInterval(interval);
+        }
       }
-      if (loop){
-        x = -3;
-      } else {
-        clearInterval(interval);
-      }
-    }
-  }.bind(this), speed);
+    }.bind(this),
+    speed
+  );
 };
 
 SYMBOLS = {
-  ' ': 255, '-': 253, '^': 127, '_': 239, '*': 57,
-  '0': 3, '1': 159, '2': 37, '3': 13, '4': 153, '5': 73, '6': 65,
-  '7': 31, '8': 1, '9': 9,
-  'A': 17, 'a': 5, 'B': 1, 'b': 193, 'C': 99, 'c': 229, 'D': 133,
-  'd': 133, 'E': 97, 'e': 97, 'F': 113, 'f': 113, 'G': 67, 'g': 67,
-  'H': 145, 'h': 209, 'I': 159, 'i': 159, 'J': 143, 'j': 143, 'K': 145,
-  'k': 209, 'L': 227, 'l': 227, 'M': 97, 'm': 97, 'N': 213, 'n': 213,
-  'O': 3, 'o': 197, 'P': 49, 'p': 49, 'Q': 25, 'q': 25, 'R': 245,
-  'r': 245, 'S': 73, 's': 73, 'T': 225, 't': 225, 'U': 131, 'u': 199,
-  'V': 131, 'v': 199, 'W': 131, 'w': 199, 'X': 145, 'x': 209, 'Y': 137,
-  'y': 137, 'Z': 37,'z': 37
+  ' ': 255,
+  '-': 253,
+  '^': 127,
+  _: 239,
+  '*': 57,
+  '0': 3,
+  '1': 159,
+  '2': 37,
+  '3': 13,
+  '4': 153,
+  '5': 73,
+  '6': 65,
+  '7': 31,
+  '8': 1,
+  '9': 9,
+  A: 17,
+  a: 5,
+  B: 1,
+  b: 193,
+  C: 99,
+  c: 229,
+  D: 133,
+  d: 133,
+  E: 97,
+  e: 97,
+  F: 113,
+  f: 113,
+  G: 67,
+  g: 67,
+  H: 145,
+  h: 209,
+  I: 159,
+  i: 159,
+  J: 143,
+  j: 143,
+  K: 145,
+  k: 209,
+  L: 227,
+  l: 227,
+  M: 97,
+  m: 97,
+  N: 213,
+  n: 213,
+  O: 3,
+  o: 197,
+  P: 49,
+  p: 49,
+  Q: 25,
+  q: 25,
+  R: 245,
+  r: 245,
+  S: 73,
+  s: 73,
+  T: 225,
+  t: 225,
+  U: 131,
+  u: 199,
+  V: 131,
+  v: 199,
+  W: 131,
+  w: 199,
+  X: 145,
+  x: 209,
+  Y: 137,
+  y: 137,
+  Z: 37,
+  z: 37
 };
 
 /* {
@@ -175,28 +235,29 @@ SYMBOLS = {
   'z': 0b00100101
 } */
 
-function _slice(s, from){
-  var i = from, cnt = 0;
-  while (cnt < 4){
-    if (s[i] !== '.'){
+function _slice(s, from) {
+  var i = from,
+    cnt = 0;
+  while (cnt < 4) {
+    if (s[i] !== '.') {
       cnt++;
     }
-    i += (s[i] === '%') ? 3 : (s[i] === '&') ? 2 : 1;
+    i += s[i] === '%' ? 3 : s[i] === '&' ? 2 : 1;
   }
   return s.slice(Math.max(from, 0), i);
 }
 
-function _pad(s, pad){
+function _pad(s, pad) {
   var sl = pad || 5;
-  for (var i=0,l=s.length; i<l; i++) {
-    if (s[i] === '%'){
+  for (var i = 0, l = s.length; i < l; i++) {
+    if (s[i] === '%') {
       sl--;
-      i+=2;
+      i += 2;
     } else if (s[i] !== '.' && s[i] !== '&') {
       sl--;
     }
   }
-  return Array(sl<0 ? 0 : sl).join(' ');
+  return Array(sl < 0 ? 0 : sl).join(' ');
 }
 
 exports.connect = function(pin) {

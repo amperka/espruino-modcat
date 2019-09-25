@@ -2,6 +2,7 @@
 /*
  */
 E.setUSBHID({
+  // prettier-ignore
   reportDescriptor: [
     0x05, 0x01, // Usage Page (Generic Desktop),
     0x09, 0x06, // Usage (Keyboard),
@@ -95,26 +96,26 @@ var KEY = {
   9: 38,
   0: 39,
   ENTER: 40,
-  "\n": 40,
+  '\n': 40,
   ESC: 41,
   BACKSPACE: 42,
   TAB: 43,
-  "\t": 43,
+  '\t': 43,
   SPACE: 44,
-  " ": 44,
-  "-": 45,
-  "=": 46,
-  "[": 47,
-  "]": 48,
+  ' ': 44,
+  '-': 45,
+  '=': 46,
+  '[': 47,
+  ']': 48,
   //"\\" : 49, // minification problem here
   BACKSLASH: 49,
   NUMBER: 50,
-  ";": 51,
+  ';': 51,
   "'": 52,
-  "`": 53,
-  ",": 54,
-  ".": 55,
-  "/": 56,
+  '`': 53,
+  ',': 54,
+  '.': 55,
+  '/': 56,
   CAPS_LOCK: 57,
   F1: 58,
   F2: 59,
@@ -165,14 +166,14 @@ var SHIFT_KEYS = {
   '!': '1',
   '@': '2',
   '#': '3',
-  '$': '4',
+  $: '4',
   '%': '5',
   '^': '6',
   '&': '7',
   '*': '8',
   '(': '9',
   ')': '0',
-  '_': '-',
+  _: '-',
   '+': '=',
   '<': ',',
   '>': '.',
@@ -201,7 +202,7 @@ var tap = function(key, callback) {
     E.sendUSBHID([0, 0, 0, 0, 0, 0, 0, 0]);
     if (callback) setTimeout(callback, 10);
   }, 10);
-}
+};
 
 var type = function(txt, sendSpeed, callback) {
   var chr;
@@ -238,7 +239,7 @@ var type = function(txt, sendSpeed, callback) {
       txt = txt.substr(1);
     }
   }, timeForWait);
-}
+};
 
 var pressedKeys = [0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -262,29 +263,29 @@ var chooseKey = function(keyChanger, opts) {
       keyChanger('?');
     }
   }
-}
+};
 
-var press = function(opts, callback) {
+var press = function(opts) {
   chooseKey(changePressedKeys, opts);
-}
+};
 
-var release = function(opts, callback) {
+var release = function(opts) {
   chooseKey(changeReleasedKeys, opts);
-}
+};
 
 var releaseAll = function() {
   pressedKeys = [0, 0, 0, 0, 0, 0, 0, 0];
   E.sendUSBHID(pressedKeys);
-}
+};
 
 var changePressedKeys = function(opts) {
-
   var modifiers = pressedKeys[0];
   var changeFlag = false;
+  var i;
   if (Array.isArray(opts)) {
     // We've got an array of modifiers + key itself.
     // First combine modifiers
-    for (var i = 0; i < opts.length - 1; ++i) {
+    for (i = 0; i < opts.length - 1; ++i) {
       modifiers |= opts[i];
     }
     // Then extract last element as a key
@@ -295,19 +296,17 @@ var changePressedKeys = function(opts) {
   // Protect from undefined
   opts = opts || 0;
 
-  for (var i = 2; i < 8; i++) {
+  for (i = 2; i < 8; i++) {
     if (pressedKeys[i] === opts) {
       changeFlag = true;
       break;
     }
-
   }
   if (pressedKeys[0] !== modifiers || !changeFlag) {
-
     if (pressedKeys[0] !== modifiers) {
       pressedKeys[0] = modifiers;
     }
-    for (var i = 2; i < 8; i++) {
+    for (i = 2; i < 8; i++) {
       if (pressedKeys[i] === 0x00) {
         pressedKeys[i] = opts;
         break;
@@ -318,7 +317,7 @@ var changePressedKeys = function(opts) {
     }
     E.sendUSBHID(pressedKeys);
   }
-}
+};
 var changeReleasedKeys = function(opts) {
   var changeFlag = false;
   var modifiers = pressedKeys[0];
@@ -346,7 +345,7 @@ var changeReleasedKeys = function(opts) {
   if (changeFlag) {
     E.sendUSBHID(pressedKeys);
   }
-}
+};
 exports.KEY = KEY;
 exports.MODIFY = MODIFY;
 exports.tap = tap;

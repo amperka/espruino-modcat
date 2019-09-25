@@ -1,10 +1,53 @@
-
 var NOTES = [
   0,
-  262, 277, 294, 311, 330, 349, 370, 392, 415, 440, 466, 494,
-  523, 554, 587, 622, 659, 698, 740, 784, 831, 880, 932, 988,
-  1047, 1109, 1175, 1245, 1319, 1397, 1480, 1568, 1661, 1760, 1865, 1976,
-  2093, 2217, 2349, 2489, 2637, 2794, 2960, 3136, 3322, 3520, 3729, 3951
+  262,
+  277,
+  294,
+  311,
+  330,
+  349,
+  370,
+  392,
+  415,
+  440,
+  466,
+  494,
+  523,
+  554,
+  587,
+  622,
+  659,
+  698,
+  740,
+  784,
+  831,
+  880,
+  932,
+  988,
+  1047,
+  1109,
+  1175,
+  1245,
+  1319,
+  1397,
+  1480,
+  1568,
+  1661,
+  1760,
+  1865,
+  1976,
+  2093,
+  2217,
+  2349,
+  2489,
+  2637,
+  2794,
+  2960,
+  3136,
+  3322,
+  3520,
+  3729,
+  3951
 ];
 
 var PITCHES = {
@@ -46,14 +89,14 @@ Lexer.prototype.next = function() {
   }
 
   c = charAt(this._p);
-  if (c > 'a' && c < 'z' || c > 'A' && c < 'Z') {
+  if ((c > 'a' && c < 'z') || (c > 'A' && c < 'Z')) {
     // we've got a string token
     var token = '';
     do {
       token += c;
       ++this._p;
       c = charAt(this._p);
-    } while (c > 'a' && c < 'z' || c > 'A' && c < 'Z');
+    } while ((c > 'a' && c < 'z') || (c > 'A' && c < 'Z'));
 
     return token;
   }
@@ -114,7 +157,7 @@ Player.prototype.play = function(melody, noteCallback) {
   if (this._pin) {
     this._noteFunc = function(freq, duration) {
       if (freq) {
-        analogWrite(self._pin, 0.5, {freq: freq});
+        analogWrite(self._pin, 0.5, { freq: freq });
       } else {
         digitalWrite(self._pin, 0);
       }
@@ -165,9 +208,15 @@ Player.prototype._parseSettings = function() {
     }
 
     switch (key) {
-      case 'd': this._settings.noteValue = val; break;
-      case 'o': this._settings.octave = val; break;
-      case 'b': this._settings.bpm = val; break;
+      case 'd':
+        this._settings.noteValue = val;
+        break;
+      case 'o':
+        this._settings.octave = val;
+        break;
+      case 'b':
+        this._settings.bpm = val;
+        break;
       default:
         throw new Error('Unknown parameter ' + key);
     }
@@ -235,7 +284,8 @@ Player.prototype._parseAndPlay = function() {
     // end of play
     this._noteFunc(0, 0);
     // prevent adding void before function by minifier
-    var c = this._promise.resolve(); c;
+    var c = this._promise.resolve();
+    c;
     return;
   }
 
@@ -250,7 +300,8 @@ Player.prototype._parseAndPlay = function() {
 
   this._timeoutID = setTimeout(
     this._parseAndPlay.bind(this),
-    noteDuration * 1000);
+    noteDuration * 1000
+  );
 };
 
 Player.prototype.stop = function() {

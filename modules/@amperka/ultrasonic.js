@@ -1,10 +1,9 @@
-
 var C = {
   MAX_DISTANCE: 4,
   SOUND_SPEED: 340
 };
 
-C.MAX_ROUNDTRIP_MS = 1000 * C.MAX_DISTANCE * 2 / C.SOUND_SPEED;
+C.MAX_ROUNDTRIP_MS = (1000 * C.MAX_DISTANCE * 2) / C.SOUND_SPEED;
 
 function convertUnits(s, units) {
   if (units === undefined) {
@@ -12,20 +11,26 @@ function convertUnits(s, units) {
   }
 
   switch (units) {
-    case 'm': return s / 2 * C.SOUND_SPEED;
-    case 'cm': return s / 2 * C.SOUND_SPEED * 100;
-    case 'mm': return s / 2 * C.SOUND_SPEED * 1000;
-    case 's': return s;
-    case 'ms': return s * 1000;
-    case 'us': return s * 1000000;
+    case 'm':
+      return (s / 2) * C.SOUND_SPEED;
+    case 'cm':
+      return (s / 2) * C.SOUND_SPEED * 100;
+    case 'mm':
+      return (s / 2) * C.SOUND_SPEED * 1000;
+    case 's':
+      return s;
+    case 'ms':
+      return s * 1000;
+    case 'us':
+      return s * 1000000;
   }
 }
 
 /*
-*
-* Class Ultrasonic
-*
-*/
+ *
+ * Class Ultrasonic
+ *
+ */
 var Ultrasonic = function(pins) {
   this._trigPin = pins.trigPin;
   this._echoPin = pins.echoPin;
@@ -47,21 +52,29 @@ Ultrasonic.prototype.ping = function(cb, units) {
     return this;
   }
 
-  this._riseWatchID = setWatch(function(e) {
-    self._riseWatchID = null;
-    // Roundtrip is measured between the moment
-    // when echo line is set high and the moment
-    // when it is returned to low state
-    self._startTime = e.time;
-    self._fallWatchID = setWatch(function(e) {
-      self._fallWatchID = null;
-      clearTimeout(self._timeoutID); // cancel error handling
-      self._timeoutID = null;
-      var roundtripTime = e.time - self._startTime;
-      self._startTime = null;
-      cb(null, convertUnits(roundtripTime, units));
-    }, self._echoPin, {edge: 'falling'});
-  }, self._echoPin, {edge: 'rising'});
+  this._riseWatchID = setWatch(
+    function(e) {
+      self._riseWatchID = null;
+      // Roundtrip is measured between the moment
+      // when echo line is set high and the moment
+      // when it is returned to low state
+      self._startTime = e.time;
+      self._fallWatchID = setWatch(
+        function(e) {
+          self._fallWatchID = null;
+          clearTimeout(self._timeoutID); // cancel error handling
+          self._timeoutID = null;
+          var roundtripTime = e.time - self._startTime;
+          self._startTime = null;
+          cb(null, convertUnits(roundtripTime, units));
+        },
+        self._echoPin,
+        { edge: 'falling' }
+      );
+    },
+    self._echoPin,
+    { edge: 'rising' }
+  );
 
   // Timeout for the cases when we're not getting echo back
   self._timeoutID = setTimeout(function() {
@@ -87,10 +100,10 @@ Ultrasonic.prototype.ping = function(cb, units) {
 };
 
 /*
-*
-* module exports
-*
-*/
+ *
+ * module exports
+ *
+ */
 exports.connect = function(pins) {
   return new Ultrasonic(pins);
 };

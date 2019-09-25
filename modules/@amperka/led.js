@@ -48,7 +48,8 @@ Led.prototype._blinkOn = function() {
   this._update();
   this._blinkTimeoutID = setTimeout(
     this._blinkOff.bind(this),
-    this._blinkOnTime * 1000);
+    this._blinkOnTime * 1000
+  );
 };
 
 Led.prototype._blinkOff = function() {
@@ -58,16 +59,19 @@ Led.prototype._blinkOff = function() {
   if (this._blinkOffTime) {
     this._blinkTimeoutID = setTimeout(
       this._blinkOn.bind(this),
-      this._blinkOffTime * 1000);
+      this._blinkOffTime * 1000
+    );
   } else {
     this._blinkTimeoutID = null;
   }
 };
 
 Led.prototype.blink = function(onTime, offTime) {
-  if (this._blinkOnTime === onTime &&
-      this._blinkOffTime &&
-      this._blinkOffTime === offTime) {
+  if (
+    this._blinkOnTime === onTime &&
+    this._blinkOffTime &&
+    this._blinkOffTime === offTime
+  ) {
     return;
   }
 
@@ -97,7 +101,7 @@ Led.prototype.brightness = function(value) {
 Led.prototype._update = function() {
   var b = this._brightness;
   if (b > 0 && b < 1.0) {
-    analogWrite(this._pin, b * b * b * this._on, {freq: 100});
+    analogWrite(this._pin, b * b * b * this._on, { freq: 100 });
   } else {
     digitalWrite(this._pin, this._on);
   }

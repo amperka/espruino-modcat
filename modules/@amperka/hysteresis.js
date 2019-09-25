@@ -5,8 +5,8 @@ var C = {
 };
 
 var Hysteresis = function(opts) {
-  this._low = (opts.low !== undefined) ? opts.low : opts.high;
-  this._high = (opts.high !== undefined) ? opts.high : opts.low;
+  this._low = opts.low !== undefined ? opts.low : opts.high;
+  this._high = opts.high !== undefined ? opts.high : opts.low;
   this._lowLag = opts.lowLag || 0;
   this._highLag = opts.highLag || 0;
   this._lagStart = 0;
@@ -16,9 +16,7 @@ var Hysteresis = function(opts) {
 
 Hysteresis.prototype.push = function(val) {
   var newState =
-    val > this._high ? C.HIGH :
-    val < this._low ? C.LOW:
-    C.BETWEEN;
+    val > this._high ? C.HIGH : val < this._low ? C.LOW : C.BETWEEN;
 
   var t = getTime();
   var dt = t - this._lagStart;

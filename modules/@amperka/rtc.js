@@ -4,7 +4,7 @@ var Rtc = function(i2c) {
   if (i2c) {
     this._i2c = i2c;
   } else {
-    PrimaryI2C.setup({sda: SDA, scl: SCL, bitrate: 100000});
+    PrimaryI2C.setup({ sda: SDA, scl: SCL, bitrate: 100000 });
     this._i2c = PrimaryI2C;
   }
   this._address = 0x68;
@@ -35,19 +35,19 @@ Rtc.prototype._bcdToDec = function(val) {
 
 Rtc.prototype._leadZero = function(val) {
   if (val < 10) {
-    return '0'+val;
+    return '0' + val;
   } else {
-    return ''+val;
+    return '' + val;
   }
 };
 
 Rtc.prototype.setTime = function(time) {
   if (time instanceof Date) {
     this._time = time;
-  } else if (time instanceof Object){
+  } else if (time instanceof Object) {
     this._time = new Date(
       time.year,
-      time.month-1,
+      time.month - 1,
       time.day,
       time.hour,
       time.minute,
@@ -58,7 +58,7 @@ Rtc.prototype.setTime = function(time) {
   } else if (typeof time === 'string') {
     this._time = new Date(Date.parse(time));
   } else {
-    this._time = new Date(getTime()*1000);
+    this._time = new Date(getTime() * 1000);
   }
 
   var halt = this.read(0x00, 1)[0] >> 7;
@@ -90,11 +90,21 @@ Rtc.prototype.getTime = function(unit) {
       res = Math.ceil(res.getTime() / 1000);
       break;
     case 'iso':
-      res = res.getFullYear() + '-' + this._leadZero(res.getMonth() + 1) +
-         '-' + this._leadZero(res.getDate()) + 'T' + this._leadZero(res.getHours()) +
-         ':' + this._leadZero(res.getMinutes()) + ':' + this._leadZero(res.getSeconds());
+      res =
+        res.getFullYear() +
+        '-' +
+        this._leadZero(res.getMonth() + 1) +
+        '-' +
+        this._leadZero(res.getDate()) +
+        'T' +
+        this._leadZero(res.getHours()) +
+        ':' +
+        this._leadZero(res.getMinutes()) +
+        ':' +
+        this._leadZero(res.getSeconds());
       break;
-    default: break;
+    default:
+      break;
   }
   return res;
 };

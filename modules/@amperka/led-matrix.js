@@ -31,12 +31,11 @@ Matrix.prototype.analogInput = function(state) {
 };
 
 Matrix.prototype.equalizer = function(state) {
-  this.writeReg(0x0F, (!!state) << 6);
+  this.writeReg(0x0f, !!state << 6);
   return this;
 };
 
 Matrix.prototype.audioGain = function(value) {
-
   value = (E.clip(value, 0, 1) * 7).toFixed(0); // map [0.0 … 1.0] to [0 … 7]
   if (this._gain === value) {
     return this;
@@ -50,13 +49,12 @@ Matrix.prototype.audioGain = function(value) {
   }
   this._gainByte <<= 4;
 
-  this.writeReg(0x0D, this._gainByte | this._brightnessByte);
+  this.writeReg(0x0d, this._gainByte | this._brightnessByte);
 
   return this;
 };
 
 Matrix.prototype.brightness = function(value) {
-
   value = (E.clip(value, 0, 1) * 15).toFixed(0); // map [0.0 … 1.0] to [0 … 15]
   if (this._brightness === value) {
     return this;
@@ -74,7 +72,7 @@ Matrix.prototype.brightness = function(value) {
       this._brightnessByte = 0x00 + (this._brightness - 8); // 40 … 75 mA
     }
 
-    this.writeReg(0x0D, this._gainByte | this._brightnessByte);
+    this.writeReg(0x0d, this._gainByte | this._brightnessByte);
 
     if (this._powerAsBrightness) {
       this._powerAsBrightness = false;
@@ -109,7 +107,7 @@ Matrix.prototype.print = function(byteArray) {
 
 Matrix.prototype.write = function(x, y, state) {
   if (state) {
-    this.pixels[x] |= (1 << y);
+    this.pixels[x] |= 1 << y;
   } else {
     this.pixels[x] &= ~(1 << y);
   }
@@ -119,7 +117,7 @@ Matrix.prototype.write = function(x, y, state) {
 };
 
 Matrix.prototype.update = function() {
-  this.writeReg(0x0C, 0x00);
+  this.writeReg(0x0c, 0x00);
   return this;
 };
 

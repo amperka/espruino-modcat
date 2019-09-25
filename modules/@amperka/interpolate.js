@@ -1,4 +1,3 @@
-
 function lerp(k, from, to) {
   return from + k * (to - from);
 }

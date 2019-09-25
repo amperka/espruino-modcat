@@ -1,4 +1,3 @@
-
 var WaterFlow = function(pin, opts) {
   this._pin = pin;
 
@@ -19,7 +18,8 @@ var WaterFlow = function(pin, opts) {
 
   this._litresPerPulse = 1 / this._pulsesPerLitre;
   this._speedNumerator = this._litresPerPulse * this._avg;
-  this._updatePeriod = (60 * 1000) / (this._minimumSpeed * this._pulsesPerLitre);
+  this._updatePeriod =
+    (60 * 1000) / (this._minimumSpeed * this._pulsesPerLitre);
 
   this._avgArray = new Array(this._avg); // [litres per second]
   this._avgIterator = 0;
@@ -38,7 +38,6 @@ WaterFlow.prototype._watch = function() {
 };
 
 WaterFlow.prototype._average = function() {
-
   this._avgArray[this._avgIterator] = getTime();
 
   var last;
@@ -79,10 +78,14 @@ WaterFlow.prototype._onChange = function() {
 
 WaterFlow.prototype.volume = function(units) {
   switch (units) {
-    case 'l': return this._litres;
-    case 'cm^3': return this._litres * 1000;
-    case 'm^3': return this._litres / 1000;
-    default: return this._litres;
+    case 'l':
+      return this._litres;
+    case 'cm^3':
+      return this._litres * 1000;
+    case 'm^3':
+      return this._litres / 1000;
+    default:
+      return this._litres;
   }
 };
 
@@ -97,10 +100,14 @@ WaterFlow.prototype.reset = function() {
 
 WaterFlow.prototype.speed = function(units) {
   switch (units) {
-    case 'l/min': return this._speed * 60;
-    case 'cm^3/min': return this._speed * 60 * 1000;
-    case 'm^3/min': return this._speed * 60 / 1000;
-    default: return this._speed * 60;
+    case 'l/min':
+      return this._speed * 60;
+    case 'cm^3/min':
+      return this._speed * 60 * 1000;
+    case 'm^3/min':
+      return (this._speed * 60) / 1000;
+    default:
+      return this._speed * 60;
   }
 };
 

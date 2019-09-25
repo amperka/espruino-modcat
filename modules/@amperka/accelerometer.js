@@ -1,7 +1,7 @@
 // Инициализация класса
 var LIS331DLH = function(i2c, address) {
   this._i2c = i2c;
-  address === undefined ? this._address = 0x18 : this._address = address;
+  address === undefined ? (this._address = 0x18) : (this._address = address);
   this._sensitivity = 2 / 32767;
 };
 
@@ -77,15 +77,15 @@ LIS331DLH.prototype.read = function(units) {
     x: d[0] | (d[1] << 8),
     y: d[2] | (d[3] << 8),
     z: d[4] | (d[5] << 8)
-  }
+  };
   if (res.x >= 32767) {
-    res.x -=65536;
+    res.x -= 65536;
   }
   if (res.y >= 32767) {
-    res.y -=65536;
+    res.y -= 65536;
   }
   if (res.z >= 32767) {
-    res.z -=65536;
+    res.z -= 65536;
   }
 
   if (units === 'G') {
@@ -107,7 +107,7 @@ LIS331DLH.prototype.read = function(units) {
 
 // Метод возвращает идентификатор устройства
 LIS331DLH.prototype.whoAmI = function() {
-  return this.readI2C(0x0F)[0];
+  return this.readI2C(0x0f)[0];
 };
 
 // Экспортируем класс

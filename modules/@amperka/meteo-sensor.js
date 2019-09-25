@@ -9,11 +9,11 @@ function TroykaMeteoSensor(opts) {
   };
 
   this.reset = function() {
-    _i2c.writeTo(_address, [0x30, 0xA2]);
+    _i2c.writeTo(_address, [0x30, 0xa2]);
   };
 
   this.heaterOn = function() {
-    _i2c.writeTo(_address, [0x30, 0x6D]);
+    _i2c.writeTo(_address, [0x30, 0x6d]);
   };
 
   this.heaterOff = function() {
@@ -21,32 +21,31 @@ function TroykaMeteoSensor(opts) {
   };
 
   this.read = function(callback) {
-
     switch (_repeatability) {
       case 'HIGH':
         try {
-          _i2c.writeTo(_address, [0x2C, 0x06]);
+          _i2c.writeTo(_address, [0x2c, 0x06]);
         } catch (e) {
           callback(new Error('I2C write error'), undefined);
         }
         break;
       case 'MEDIUM':
         try {
-          _i2c.writeTo(_address, [0x2C, 0x0D]);
+          _i2c.writeTo(_address, [0x2c, 0x0d]);
         } catch (e) {
           callback(new Error('I2C write error'), undefined);
         }
         break;
       case 'LOW':
         try {
-          _i2c.writeTo(_address, [0x2C, 0x10]);
+          _i2c.writeTo(_address, [0x2c, 0x10]);
         } catch (e) {
           callback(new Error('I2C write error'), undefined);
         }
         break;
       default:
         try {
-          _i2c.writeTo(_address, [0x2C, 0x06]);
+          _i2c.writeTo(_address, [0x2c, 0x06]);
         } catch (e) {
           callback(new Error('I2C write error'), undefined);
         }
@@ -54,13 +53,16 @@ function TroykaMeteoSensor(opts) {
 
     try {
       var data = _i2c.readFrom(_address, 6);
-      if (data[2] != _checkCRC8(data, 0, 2) || data[5] != _checkCRC8(data, 3, 5)) {
+      if (
+        data[2] != _checkCRC8(data, 0, 2) ||
+        data[5] != _checkCRC8(data, 3, 5)
+      ) {
         callback(new Error('checksum error'), undefined);
       } else {
-        var tmpC = ((((data[0] * 256.0) + data[1]) * 175.0) / 65535.0) - 45.0;
-        var tmpF = (tmpC * 9.0 / 5.0) + 32.0;
+        var tmpC = ((data[0] * 256.0 + data[1]) * 175.0) / 65535.0 - 45.0;
+        var tmpF = (tmpC * 9.0) / 5.0 + 32.0;
         var tmpK = tmpC + 273.15;
-        var hum = ((((data[3] * 256.0) + data[4]) * 100.0) / 65535.0);
+        var hum = ((data[3] * 256.0 + data[4]) * 100.0) / 65535.0;
         callback(null, {
           tempC: tmpC,
           tempF: tmpF,
@@ -74,7 +76,8 @@ function TroykaMeteoSensor(opts) {
   };
 
   var _checkCRC8 = function(data, num, len) {
-    var crc = 0xFF
+    var crc = 0xff;
+    // prettier-ignore
     var table = [
       0, 49, 98, 83, 196, 245, 166, 151, 185, 136, 219, 234, 125, 76, 31, 46,
       67, 114, 33, 16, 135, 182, 229, 212, 250, 203, 152, 169, 62, 15, 92, 109,
@@ -103,4 +106,4 @@ function TroykaMeteoSensor(opts) {
 
 exports.connect = function(opts) {
   return new TroykaMeteoSensor(opts);
-}
+};

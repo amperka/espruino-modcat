@@ -10,17 +10,19 @@ var ACS712 = function(pin) {
 };
 
 ACS712.prototype.read = function(units) {
-
-  var value = analogRead(this._pin) * this._value2currentDivider + this._value2currentConst;
+  var value =
+    analogRead(this._pin) * this._value2currentDivider +
+    this._value2currentConst;
 
   switch (units) {
-    case 'mA': return value * 1000;
-    default: return value;
+    case 'mA':
+      return value * 1000;
+    default:
+      return value;
   }
 };
 
 ACS712.prototype.readEffective = function(period, units) {
-
   period = period || 0.04;
 
   var startTime = getTime();
@@ -36,19 +38,20 @@ ACS712.prototype.readEffective = function(period, units) {
     sqrSum += value * value;
   }
 
-
   // Исходная формула — действующее значение переменного тока в интегральном виде.
   // Преобразована для дискретного вида, и упрощена по свойству дистрибутивности
   // умножения.
   var I = Math.sqrt(
-    (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements + this._constSQR
+    (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements +
+      this._constSQR
   );
 
   switch (units) {
-    case 'mA': return I * 1000;
-    default: return I;
+    case 'mA':
+      return I * 1000;
+    default:
+      return I;
   }
-
 };
 
 exports.connect = function(pin) {

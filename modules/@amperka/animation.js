@@ -86,7 +86,8 @@ Animation.prototype._setInterval = function() {
   this._update();
   this._intervalID = setInterval(
     this._update.bind(this),
-    this._queue[this._qi].updateInterval * 1000);
+    this._queue[this._qi].updateInterval * 1000
+  );
 };
 
 Animation.prototype._clearInterval = function() {
@@ -103,9 +104,9 @@ Animation.prototype._update = function() {
 
   var trans = this._queue[this._qi];
   var dphase = dt / trans.duration;
-  var phase = this._reversed ? (1 - this._phase) : this._phase;
+  var phase = this._reversed ? 1 - this._phase : this._phase;
   var qlast = this._queue.length - 1;
-  var qi = this._reversed ? (qlast - this._qi) : this._qi;
+  var qi = this._reversed ? qlast - this._qi : this._qi;
   phase += dphase;
   var animationCompleted = false;
   var qiChanged = false;
@@ -127,18 +128,19 @@ Animation.prototype._update = function() {
     }
   }
 
-  this._phase = this._reversed ? (1 - phase) : phase;
-  this._qi = this._reversed ? (qlast - qi) : qi;
+  this._phase = this._reversed ? 1 - phase : phase;
+  this._qi = this._reversed ? qlast - qi : qi;
   if (qiChanged) {
     trans = this._queue[this._qi];
     changeInterval(
       this._intervalID,
-      this._queue[this._qi].updateInterval * 1000);
+      this._queue[this._qi].updateInterval * 1000
+    );
   }
 
   var val = lerp(this._phase, trans.from, trans.to);
   this.emit('update', val);
-  if (animationCompleted){
+  if (animationCompleted) {
     this._phase = this._reversed ? 1 : 0;
     this._qi = this._reversed ? this._queue.length - 1 : 0;
   }
