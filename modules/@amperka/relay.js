@@ -1,4 +1,3 @@
-
 var Relay = function(pin) {
   this._pin = pin;
   this._on = false;
@@ -57,17 +56,17 @@ Relay.prototype.blink = function(onTime, period) {
   this._blinkStop();
   var self = this;
   if (period) {
-    this._blinkTimeoutID = setInterval(function(){
+    this._blinkTimeoutID = setInterval(function() {
       self.toggle(true);
-      setTimeout(function(){
+      setTimeout(function() {
         self.toggle(false);
-      }, onTime*1000);
+      }, onTime * 1000);
     }, period * 1000);
   } else {
     this.toggle(true);
-    setTimeout(function(){
+    setTimeout(function() {
       self.toggle(false);
-    }, onTime*1000);
+    }, onTime * 1000);
   }
 };
 

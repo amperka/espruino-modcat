@@ -1,4 +1,3 @@
-
 var Maker = function(token, action) {
   this._token = token;
   this._action = action || 'amperka';
@@ -14,13 +13,10 @@ var Maker = function(token, action) {
 Maker.prototype.send = function(data, callback) {
   var a = [];
   for (var prop in data) {
-    a.push(prop+'='+encodeURIComponent(data[prop]));
+    a.push(prop + '=' + encodeURIComponent(data[prop]));
   }
 
-  this._http.get([
-    this._url,
-    a.join('&')
-  ].join('?'), function(res) {
+  this._http.get([this._url, a.join('&')].join('?'), function(res) {
     var r = '';
     res.on('data', function(d) {
       r += d;

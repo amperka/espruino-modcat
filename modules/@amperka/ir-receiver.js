@@ -22,10 +22,10 @@ var Receiver = function(pin, opts) {
 };
 
 Receiver.prototype._watch = function() {
-  setWatch(
-    this._onPulse.bind(this),
-    this._pin,
-    {repeat: true, edge: 'falling'});
+  setWatch(this._onPulse.bind(this), this._pin, {
+    repeat: true,
+    edge: 'falling'
+  });
 
   return this;
 };

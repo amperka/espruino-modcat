@@ -1,4 +1,3 @@
-
 var regAddr = {
   IDENTIFICATION__MODEL_ID: 0x000,
   IDENTIFICATION__MODEL_REV_MAJOR: 0x001,
@@ -19,61 +18,60 @@ var regAddr = {
 
   SYSRANGE__START: 0x018,
   SYSRANGE__THRESH_HIGH: 0x019,
-  SYSRANGE__THRESH_LOW: 0x01A,
-  SYSRANGE__INTERMEASUREMENT_PERIOD: 0x01B,
-  SYSRANGE__MAX_CONVERGENCE_TIME: 0x01C,
-  SYSRANGE__CROSSTALK_COMPENSATION_RATE: 0x01E, // 16-bit
+  SYSRANGE__THRESH_LOW: 0x01a,
+  SYSRANGE__INTERMEASUREMENT_PERIOD: 0x01b,
+  SYSRANGE__MAX_CONVERGENCE_TIME: 0x01c,
+  SYSRANGE__CROSSTALK_COMPENSATION_RATE: 0x01e, // 16-bit
   SYSRANGE__CROSSTALK_VALID_HEIGHT: 0x021,
   SYSRANGE__EARLY_CONVERGENCE_ESTIMATE: 0x022, // 16-bit
   SYSRANGE__PART_TO_PART_RANGE_OFFSET: 0x024,
   SYSRANGE__RANGE_IGNORE_VALID_HEIGHT: 0x025,
   SYSRANGE__RANGE_IGNORE_THRESHOLD: 0x026, // 16-bit
-  SYSRANGE__MAX_AMBIENT_LEVEL_MULT: 0x02C,
-  SYSRANGE__RANGE_CHECK_ENABLES: 0x02D,
-  SYSRANGE__VHV_RECALIBRATE: 0x02E,
+  SYSRANGE__MAX_AMBIENT_LEVEL_MULT: 0x02c,
+  SYSRANGE__RANGE_CHECK_ENABLES: 0x02d,
+  SYSRANGE__VHV_RECALIBRATE: 0x02e,
   SYSRANGE__VHV_REPEAT_RATE: 0x031,
 
   SYSALS__START: 0x038,
-  SYSALS__THRESH_HIGH: 0x03A,
-  SYSALS__THRESH_LOW: 0x03C,
-  SYSALS__INTERMEASUREMENT_PERIOD: 0x03E,
-  SYSALS__ANALOGUE_GAIN: 0x03F,
+  SYSALS__THRESH_HIGH: 0x03a,
+  SYSALS__THRESH_LOW: 0x03c,
+  SYSALS__INTERMEASUREMENT_PERIOD: 0x03e,
+  SYSALS__ANALOGUE_GAIN: 0x03f,
   SYSALS__INTEGRATION_PERIOD: 0x040,
 
-  RESULT__RANGE_STATUS: 0x04D,
-  RESULT__ALS_STATUS: 0x04E,
-  RESULT__INTERRUPT_STATUS_GPIO: 0x04F,
+  RESULT__RANGE_STATUS: 0x04d,
+  RESULT__ALS_STATUS: 0x04e,
+  RESULT__INTERRUPT_STATUS_GPIO: 0x04f,
   RESULT__ALS_VAL: 0x050, // 16-bit
   RESULT__HISTORY_BUFFER_0: 0x052, // 16-bit
   RESULT__HISTORY_BUFFER_1: 0x054, // 16-bit
   RESULT__HISTORY_BUFFER_2: 0x056, // 16-bit
   RESULT__HISTORY_BUFFER_3: 0x058, // 16-bit
-  RESULT__HISTORY_BUFFER_4: 0x05A, // 16-bit
-  RESULT__HISTORY_BUFFER_5: 0x05C, // 16-bit
-  RESULT__HISTORY_BUFFER_6: 0x05E, // 16-bit
+  RESULT__HISTORY_BUFFER_4: 0x05a, // 16-bit
+  RESULT__HISTORY_BUFFER_5: 0x05c, // 16-bit
+  RESULT__HISTORY_BUFFER_6: 0x05e, // 16-bit
   RESULT__HISTORY_BUFFER_7: 0x060, // 16-bit
   RESULT__RANGE_VAL: 0x062,
   RESULT__RANGE_RAW: 0x064,
   RESULT__RANGE_RETURN_RATE: 0x066, // 16-bit
   RESULT__RANGE_REFERENCE_RATE: 0x068, // 16-bit
-  RESULT__RANGE_RETURN_SIGNAL_COUNT: 0x06C, // 32-bit
+  RESULT__RANGE_RETURN_SIGNAL_COUNT: 0x06c, // 32-bit
   RESULT__RANGE_REFERENCE_SIGNAL_COUNT: 0x070, // 32-bit
   RESULT__RANGE_RETURN_AMB_COUNT: 0x074, // 32-bit
   RESULT__RANGE_REFERENCE_AMB_COUNT: 0x078, // 32-bit
-  RESULT__RANGE_RETURN_CONV_TIME: 0x07C, // 32-bit
+  RESULT__RANGE_RETURN_CONV_TIME: 0x07c, // 32-bit
   RESULT__RANGE_REFERENCE_CONV_TIME: 0x080, // 32-bit
 
   RANGE_SCALER: 0x096, // 16-bit - see STSW-IMG003 core/inc/vl6180x_def.h
 
-  READOUT__AVERAGING_SAMPLE_PERIOD: 0x10A,
+  READOUT__AVERAGING_SAMPLE_PERIOD: 0x10a,
   FIRMWARE__BOOTUP: 0x119,
   FIRMWARE__RESULT_SCALER: 0x120,
   I2C_SLAVE__DEVICE_ADDRESS: 0x212,
-  INTERLEAVED_MODE__ENABLE: 0x2A3
+  INTERLEAVED_MODE__ENABLE: 0x2a3
 };
 
 var VL6180X = function(opts) {
-
   opts = opts || {};
   if (opts.irqPin) {
     this._irqPin = opts.irqPin;
@@ -97,7 +95,10 @@ var VL6180X = function(opts) {
     this._configureDefault();
   }
 
-  setWatch(this._handleIrq.bind(this), this._irqPin, {repeat: true, edge: 'rising'});
+  setWatch(this._handleIrq.bind(this), this._irqPin, {
+    repeat: true,
+    edge: 'rising'
+  });
 
   this._waitForRange = false;
   this._waitForRangeCallback = null;
@@ -112,7 +113,7 @@ VL6180X.prototype._handleIrq = function() {
     this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
     if (this._waitForRangeCallback) {
       if (range === 255) {
-        this._waitForRangeCallback({msg: 'out of range'}, range);
+        this._waitForRangeCallback({ msg: 'out of range' }, range);
       } else {
         this._waitForRangeCallback(false, range);
       }
@@ -123,10 +124,10 @@ VL6180X.prototype._handleIrq = function() {
     this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
     if (this._waitForALSCallback) {
       if (ambient === 0) {
-        this._waitForRangeCallback({msg: 'out of range'}, ambient);
+        this._waitForRangeCallback({ msg: 'out of range' }, ambient);
       } else {
         // convert raw data to lux according to datasheet (section 2.13.4)
-        ambient = 0.32 * ambient / 1.01;
+        ambient = (0.32 * ambient) / 1.01;
         this._waitForALSCallback(false, ambient);
       }
     }
@@ -142,32 +143,32 @@ VL6180X.prototype._init = function() {
     this._write8bit(0x207, 0x01);
     this._write8bit(0x208, 0x01);
     this._write8bit(0x096, 0x00);
-    this._write8bit(0x097, 0xFD); // RANGE_SCALER = 253
-    this._write8bit(0x0E3, 0x00);
-    this._write8bit(0x0E4, 0x04);
-    this._write8bit(0x0E5, 0x02);
-    this._write8bit(0x0E6, 0x01);
-    this._write8bit(0x0E7, 0x03);
-    this._write8bit(0x0F5, 0x02);
-    this._write8bit(0x0D9, 0x05);
-    this._write8bit(0x0DB, 0xCE);
-    this._write8bit(0x0DC, 0x03);
-    this._write8bit(0x0DD, 0xF8);
-    this._write8bit(0x09F, 0x00);
-    this._write8bit(0x0A3, 0x3C);
-    this._write8bit(0x0B7, 0x00);
-    this._write8bit(0x0BB, 0x3C);
-    this._write8bit(0x0B2, 0x09);
-    this._write8bit(0x0CA, 0x09);
+    this._write8bit(0x097, 0xfd); // RANGE_SCALER = 253
+    this._write8bit(0x0e3, 0x00);
+    this._write8bit(0x0e4, 0x04);
+    this._write8bit(0x0e5, 0x02);
+    this._write8bit(0x0e6, 0x01);
+    this._write8bit(0x0e7, 0x03);
+    this._write8bit(0x0f5, 0x02);
+    this._write8bit(0x0d9, 0x05);
+    this._write8bit(0x0db, 0xce);
+    this._write8bit(0x0dc, 0x03);
+    this._write8bit(0x0dd, 0xf8);
+    this._write8bit(0x09f, 0x00);
+    this._write8bit(0x0a3, 0x3c);
+    this._write8bit(0x0b7, 0x00);
+    this._write8bit(0x0bb, 0x3c);
+    this._write8bit(0x0b2, 0x09);
+    this._write8bit(0x0ca, 0x09);
     this._write8bit(0x198, 0x01);
-    this._write8bit(0x1B0, 0x17);
-    this._write8bit(0x1AD, 0x00);
-    this._write8bit(0x0FF, 0x05);
+    this._write8bit(0x1b0, 0x17);
+    this._write8bit(0x1ad, 0x00);
+    this._write8bit(0x0ff, 0x05);
     this._write8bit(0x100, 0x05);
     this._write8bit(0x199, 0x05);
-    this._write8bit(0x1A6, 0x1B);
-    this._write8bit(0x1AC, 0x3E);
-    this._write8bit(0x1A7, 0x1F);
+    this._write8bit(0x1a6, 0x1b);
+    this._write8bit(0x1ac, 0x3e);
+    this._write8bit(0x1a7, 0x1f);
     this._write8bit(0x030, 0x00);
     this._write8bit(regAddr.SYSTEM__FRESH_OUT_OF_RESET, 0);
   } else {
@@ -190,62 +191,51 @@ VL6180X.prototype._init = function() {
 };
 
 VL6180X.prototype._write8bit = function(reg, val8bit) {
-  this._i2c.writeTo(this._address,
-    (reg >> 8 & 0xFF),
-    (reg & 0xFF),
-    val8bit
-  );
+  this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff, val8bit);
 };
 
 VL6180X.prototype._write16bit = function(reg, val16bit) {
-  this._i2c.writeTo(this._address,
-    (reg >> 8 & 0xFF),
-    (reg & 0xFF),
-    (val16bit >> 8 & 0xFF),
-    (val16bit & 0xFF)
+  this._i2c.writeTo(
+    this._address,
+    (reg >> 8) & 0xff,
+    reg & 0xff,
+    (val16bit >> 8) & 0xff,
+    val16bit & 0xff
   );
 };
 
 VL6180X.prototype._write32bit = function(reg, val32bit) {
-  this._i2c.writeTo(this._address,
-    (reg >> 8 & 0xFF),
-    (reg & 0xFF),
-    (val32bit >> 24 & 0xFF),
-    (val32bit >> 16 & 0xFF),
-    (val32bit >> 8 & 0xFF),
-    (val32bit & 0xFF)
+  this._i2c.writeTo(
+    this._address,
+    (reg >> 8) & 0xff,
+    reg & 0xff,
+    (val32bit >> 24) & 0xff,
+    (val32bit >> 16) & 0xff,
+    (val32bit >> 8) & 0xff,
+    val32bit & 0xff
   );
 };
 
 VL6180X.prototype._read8bit = function(reg) {
-  this._i2c.writeTo(this._address,
-    (reg >> 8 & 0xFF),
-    (reg & 0xFF)
-  );
+  this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff);
   var data = this._i2c.readFrom(this._address, 1);
   return data[0];
 };
 
 VL6180X.prototype._read16bit = function(reg) {
-  this._i2c.writeTo(this._address,
-    (reg >> 8 & 0xFF),
-    (reg & 0xFF)
-  );
+  this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff);
   var data = this._i2c.readFrom(this._address, 2);
   return (data[0] << 8) + data[1];
 };
 
 VL6180X.prototype._read32bit = function(reg) {
-  this._i2c.writeTo(this._address,
-    (reg >> 8 & 0xFF),
-    (reg & 0xFF)
-  );
+  this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff);
   var data = this._i2c.readFrom(this._address, 4);
   return (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
 };
 
 VL6180X.prototype.setAddress = function(newAddr) {
-  this._write8bit(regAddr.I2C_SLAVE__DEVICE_ADDRESS, newAddr & 0x7F);
+  this._write8bit(regAddr.I2C_SLAVE__DEVICE_ADDRESS, newAddr & 0x7f);
   this._address = newAddr;
 };
 
@@ -262,7 +252,7 @@ VL6180X.prototype._configureDefault = function() {
   this._write8bit(regAddr.SYSALS__ANALOGUE_GAIN, 0x46);
   // sysrange__vhv_repeat_rate = 255
   // (auto Very High Voltage temperature recalibration after every 255 range measurements)
-  this._write8bit(regAddr.SYSRANGE__VHV_REPEAT_RATE, 0xFF);
+  this._write8bit(regAddr.SYSRANGE__VHV_REPEAT_RATE, 0xff);
   // sysals__integration_period = 99 (100 ms)
 
   // AN4545 incorrectly recommends writing to register 0x040;
@@ -300,13 +290,22 @@ VL6180X.prototype.setScaling = function(newScaling) {
   this._scaling = newScaling;
   this._write16bit(regAddr.RANGE_SCALER, this._scalerValues[this._scaling]);
   // apply scaling on part-to-part offset
-  this._write8bit(regAddr.SYSRANGE__PART_TO_PART_RANGE_OFFSET, this._ptpOffset / this._scaling);
+  this._write8bit(
+    regAddr.SYSRANGE__PART_TO_PART_RANGE_OFFSET,
+    this._ptpOffset / this._scaling
+  );
   // apply scaling on CrossTalkValidHeight
-  this._write8bit(regAddr.SYSRANGE__CROSSTALK_VALID_HEIGHT, DefaultCrosstalkValidHeight / this._scaling);
+  this._write8bit(
+    regAddr.SYSRANGE__CROSSTALK_VALID_HEIGHT,
+    DefaultCrosstalkValidHeight / this._scaling
+  );
   // This function does not apply scaling to RANGE_IGNORE_VALID_HEIGHT.
   // enable early convergence estimate only at 1x scaling
   var rce = this._read8bit(regAddr.SYSRANGE__RANGE_CHECK_ENABLES);
-  this._write8bit(regAddr.SYSRANGE__RANGE_CHECK_ENABLES, (rce & 0xFE) | (this._scaling === 1));
+  this._write8bit(
+    regAddr.SYSRANGE__RANGE_CHECK_ENABLES,
+    (rce & 0xfe) | (this._scaling === 1)
+  );
 };
 
 // Performs a single-shot ranging measurement

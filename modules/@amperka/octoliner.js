@@ -8,7 +8,7 @@ var Octoliner = function(opts) {
     });
     opts.i2c = I2C1;
   }
-  this.expander = require("@amperka/gpio-expander").connect(opts);
+  this.expander = require('@amperka/gpio-expander').connect(opts);
   this.expander.pwmFreq(60000);
   this._sensePin = 0;
   this._ledBrightnessPin = 9;
@@ -49,8 +49,7 @@ Octoliner.prototype.getBinaryLine = function(treshold) {
   var result = 0;
   for (var i = 0; i < 8; ++i) {
     var value = this.analogRead(i);
-    if (treshold < value)
-      result |= 1 << i;
+    if (treshold < value) result |= 1 << i;
   }
   return result;
 };

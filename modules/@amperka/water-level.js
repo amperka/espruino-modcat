@@ -1,4 +1,3 @@
-
 var WaterLevel = function(pin, opts) {
   this._pin = pin;
 
@@ -6,7 +5,7 @@ var WaterLevel = function(pin, opts) {
 
   opts = opts || {};
 
-  this._mountedOnTop = (opts.mounted === 'onTop');
+  this._mountedOnTop = opts.mounted === 'onTop';
   this._debounce = opts.debounce ? opts.debounce * 1000 : 3000;
   this._toggleTimerID = null;
 

@@ -4,7 +4,7 @@ var Motor = function(opts) {
   this._phasePin = opts.phasePin;
   this._phasePin.mode('output');
   if (opts.freq) {
-    analogWrite(this._pwmPin, 0, {freq: opts.freq});
+    analogWrite(this._pwmPin, 0, { freq: opts.freq });
   }
 };
 

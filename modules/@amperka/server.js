@@ -1,4 +1,3 @@
-
 var http = require('http');
 
 var Server = function() {
@@ -31,7 +30,7 @@ Server.prototype._event = function(eventName, req, res) {
   if (this._events[eventName]) {
     res.send = function(content, headers) {
       if (headers === undefined) {
-        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.writeHead(200, { 'Content-Type': 'text/html' });
       } else {
         res.writeHead(200, headers);
       }

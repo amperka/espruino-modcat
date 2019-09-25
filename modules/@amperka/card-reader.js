@@ -1,7 +1,7 @@
 var CardReader = function(opts) {
   this._fs = require('fs');
   if (typeof opts === 'number') {
-    SPI2.setup({mosi: B15, miso: B14, sck: B13});
+    SPI2.setup({ mosi: B15, miso: B14, sck: B13 });
     E.connectSDCard(SPI2, opts);
   } else {
     E.connectSDCard(opts.spi, opts.cs);
@@ -21,7 +21,11 @@ CardReader.prototype.appendFile = function(fileName, data) {
 };
 
 CardReader.prototype.pipe = function(source, destination, options) {
-  return this._fs.pipe(source, destination, options);
+  return this._fs.pipe(
+    source,
+    destination,
+    options
+  );
 };
 
 CardReader.prototype.readRandomFile = function(path) {
@@ -30,7 +34,7 @@ CardReader.prototype.readRandomFile = function(path) {
   if (files[0] === '.') fileCount--;
   if (files[1] === '..') fileCount--;
   var idx = Math.floor(Math.random() * fileCount) + files.length - fileCount;
-  if (path[path.length-1] !== '/' && path[path.length-1] !== '\\') {
+  if (path[path.length - 1] !== '/' && path[path.length - 1] !== '\\') {
     path += '/';
   }
   return this._fs.readFile(path + files[idx]);
@@ -38,7 +42,7 @@ CardReader.prototype.readRandomFile = function(path) {
 
 CardReader.prototype.MIME = function(fileName) {
   var ext = fileName.split('.');
-  ext = ext[ext.length-1];
+  ext = ext[ext.length - 1];
   if (ext === 'html') {
     return 'text/html';
   }

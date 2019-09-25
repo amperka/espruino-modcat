@@ -12,9 +12,12 @@ Thermometer.prototype.read = function(units) {
   var v = val * E.getAnalogVRef();
 
   switch (units) {
-    case 'V': return v;
-    case 'mV': return 1000 * v;
-    case 'C': return v * 100 - 50;
+    case 'V':
+      return v;
+    case 'mV':
+      return 1000 * v;
+    case 'C':
+      return v * 100 - 50;
   }
 };
 

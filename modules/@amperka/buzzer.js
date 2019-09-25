@@ -1,4 +1,3 @@
-
 var Buzzer = function(pin) {
   this._pin = pin;
   this._on = false;
@@ -49,7 +48,8 @@ Buzzer.prototype._beepOn = function() {
   this._update();
   this._beepTimeoutID = setTimeout(
     this._beepOff.bind(this),
-    this._beepOnTime * 1000);
+    this._beepOnTime * 1000
+  );
 };
 
 Buzzer.prototype._beepOff = function() {
@@ -59,16 +59,19 @@ Buzzer.prototype._beepOff = function() {
   if (this._beepOffTime) {
     this._beepTimeoutID = setTimeout(
       this._beepOn.bind(this),
-      this._beepOffTime * 1000);
+      this._beepOffTime * 1000
+    );
   } else {
     this._beepTimeoutID = null;
   }
 };
 
 Buzzer.prototype.beep = function(onTime, offTime) {
-  if (this._beepOnTime === onTime &&
-      this._beepOffTime &&
-      this._beepOffTime === offTime) {
+  if (
+    this._beepOnTime === onTime &&
+    this._beepOffTime &&
+    this._beepOffTime === offTime
+  ) {
     return;
   }
 
@@ -95,7 +98,7 @@ Buzzer.prototype.frequency = function() {
 };
 
 Buzzer.prototype._update = function() {
-  analogWrite(this._pin, 0.5 * this._on, {freq: this._frequency});
+  analogWrite(this._pin, 0.5 * this._on, { freq: this._frequency });
 };
 
 exports.connect = function(pin) {

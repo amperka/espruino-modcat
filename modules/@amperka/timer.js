@@ -1,4 +1,3 @@
-
 var Timer = function(interval) {
   this._interval = interval;
   this._intervalID = null;
@@ -15,7 +14,8 @@ Timer.prototype.run = function() {
 
   this._intervalID = setInterval(
     this.emit.bind(this, 'tick'),
-    this._interval * 1000);
+    this._interval * 1000
+  );
 
   return this;
 };

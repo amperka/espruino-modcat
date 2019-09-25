@@ -25,13 +25,12 @@ var Stepper = function(pins, opts) {
  * @param {float} power - Скважность ШИМ от 0 до 1
  */
 Stepper.prototype.hold = function(power) {
-  
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
     this._intervalId = null;
   }
 
-  if (typeof(power) === 'undefined') {
+  if (typeof power === 'undefined') {
     power = this._holdPower;
   }
 
@@ -58,7 +57,7 @@ Stepper.prototype.rotate = function(steps, callback) {
 
   var self = this;
   this._intervalId = setInterval(function() {
-    if (steps > 0){
+    if (steps > 0) {
       digitalPulse(self._pins.step, 1, 1);
       steps--;
     } else {

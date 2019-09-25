@@ -33,8 +33,8 @@ Robot.prototype.stop = function() {
 
 Robot.prototype.go = function(opts) {
   opts = opts || {};
-  this._lSpeed = (opts.l === undefined) ? 0 : E.clip(opts.l, -1, 1);
-  this._rSpeed = (opts.r === undefined) ? 0 : E.clip(opts.r, -1, 1);
+  this._lSpeed = opts.l === undefined ? 0 : E.clip(opts.l, -1, 1);
+  this._rSpeed = opts.r === undefined ? 0 : E.clip(opts.r, -1, 1);
   if (this._speedIntervalID === null) {
     this._speedIntervalID = setInterval(this._updateSpeed.bind(this), 20);
   }
@@ -50,8 +50,10 @@ Robot.prototype.acceleration = function(acceleration) {
 
 Robot.prototype._updateSpeed = function() {
   var accel = this.acceleration();
-  this._lCurrentSpeed = accel * this._lSpeed + (1-accel) * this._lCurrentSpeed;
-  this._rCurrentSpeed = accel * this._rSpeed + (1-accel) * this._rCurrentSpeed;
+  this._lCurrentSpeed =
+    accel * this._lSpeed + (1 - accel) * this._lCurrentSpeed;
+  this._rCurrentSpeed =
+    accel * this._rSpeed + (1 - accel) * this._rCurrentSpeed;
   this.leftMotor.write(this._lCurrentSpeed);
   this.rightMotor.write(-this._rCurrentSpeed);
 };

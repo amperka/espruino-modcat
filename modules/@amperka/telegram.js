@@ -1,4 +1,3 @@
-
 var Telegram = function(opts) {
   if (opts.token) {
     this._token = opts.token;
@@ -57,20 +56,20 @@ Telegram.prototype.on = function(types, callback) {
 };
 
 Telegram.prototype.button = function(type, text) {
-  if (type ==='contact') {
-    return {'text': text, 'request_contact': true};
+  if (type === 'contact') {
+    return { text: text, request_contact: true };
   } else {
-    return {'text': text, 'request_location': true};
+    return { text: text, request_location: true };
   }
 };
 
 Telegram.prototype.keyboard = function(arrayOfButtons, opts) {
   opts = opts || {};
   var keyboard = {
-    'keyboard': arrayOfButtons,
-    'one_time_keyboard': !!opts.once,
-    'resize_keyboard': !!opts.resize,
-    'selective': !!opts.selective
+    keyboard: arrayOfButtons,
+    one_time_keyboard: !!opts.once,
+    resize_keyboard: !!opts.resize,
+    selective: !!opts.selective
   };
   return JSON.stringify(keyboard);
 };
@@ -78,7 +77,7 @@ Telegram.prototype.keyboard = function(arrayOfButtons, opts) {
 Telegram.prototype.inlineButton = function(text, opt) {
   /* eslint-disable camelcase */
   opt = opt || {};
-  var markup = {'text': text};
+  var markup = { text: text };
   if (opt.url) {
     markup.url = opt.url;
   }
@@ -93,14 +92,14 @@ Telegram.prototype.inlineButton = function(text, opt) {
 };
 
 Telegram.prototype.inlineKeyboard = function(arrayOfButtons) {
-  return JSON.stringify({'inline_keyboard': arrayOfButtons});
+  return JSON.stringify({ inline_keyboard: arrayOfButtons });
 };
 
 Telegram.prototype.sendLocation = function(chatId, coordinates, payload) {
   var params = {
-    'chat_id': chatId,
-    'latitude': coordinates[0] || 0,
-    'longitude': coordinates[1] || 0
+    chat_id: chatId,
+    latitude: coordinates[0] || 0,
+    longitude: coordinates[1] || 0
   };
   params = this._addPreparedPayload(payload, params);
   this._callFunction.push({
@@ -111,7 +110,7 @@ Telegram.prototype.sendLocation = function(chatId, coordinates, payload) {
 
 Telegram.prototype._event = function(eventName, params, eventType) {
   if (this._events[eventName]) {
-    this._events[eventName](params, {type: eventType || eventName});
+    this._events[eventName](params, { type: eventType || eventName });
   }
 };
 
@@ -123,15 +122,15 @@ Telegram.prototype._addPreparedPayload = function(payload, dest) {
     }
     if (payload.markup) {
       if (payload.markup === 'hide' || payload.markup === false) {
-        dest.reply_markup = JSON.stringify({hide_keyboard: true});
+        dest.reply_markup = JSON.stringify({ hide_keyboard: true });
       } else if (payload.markup === 'reply') {
-        dest.reply_markup = JSON.stringify({force_reply: true});
+        dest.reply_markup = JSON.stringify({ force_reply: true });
       } else {
         dest.reply_markup = payload.markup;
       }
     }
     if (payload.notify) {
-      dest.disable_notification = !!(payload.notify);
+      dest.disable_notification = !!payload.notify;
     }
   }
   return dest;
@@ -140,8 +139,8 @@ Telegram.prototype._addPreparedPayload = function(payload, dest) {
 
 Telegram.prototype.sendMessage = function(chatId, text, payload) {
   var params = {
-    'chat_id': chatId,
-    'text': text || ''
+    chat_id: chatId,
+    text: text || ''
   };
   params = this._addPreparedPayload(payload, params);
   this._callFunction.push({
@@ -250,7 +249,7 @@ Telegram.prototype._request = function(method, query, callback) {
   var url = {
     host: 'api.telegram.org',
     port: 443,
-    path: '/bot'+this._token+'/'+method,
+    path: '/bot' + this._token + '/' + method,
     method: 'POST',
     protocol: 'https:',
     headers: {

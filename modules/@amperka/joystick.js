@@ -6,13 +6,13 @@ var Joystick = function(pX, pY, pButton) {
 
 Joystick.prototype.get = function() {
   var data = {
-    'x': analogRead(this._pX),
-    'y': analogRead(this._pY),
-    'button': digitalRead(this._pButton)
+    x: analogRead(this._pX),
+    y: analogRead(this._pY),
+    button: digitalRead(this._pButton)
   };
   return data;
 };
 
-exports.connect = function(pX,pY, pButton) {
+exports.connect = function(pX, pY, pButton) {
   return new Joystick(pX, pY, pButton);
 };

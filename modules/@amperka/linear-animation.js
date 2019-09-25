@@ -1,4 +1,3 @@
-
 function lerp(k, from, to) {
   return from + k * (to - from);
 }
@@ -6,7 +5,7 @@ function lerp(k, from, to) {
 var Animation = function(opts) {
   opts = opts || {};
   this._from = opts.from || 0;
-  this._to = (opts.to === undefined) ? 1 : opts.to;
+  this._to = opts.to === undefined ? 1 : opts.to;
   this._period = opts.period || 1;
   this._updateInterval = opts.updateInterval || 0.01;
   this._intervalID = null;
@@ -48,7 +47,8 @@ Animation.prototype._setInterval = function() {
   this._update();
   this._intervalID = setInterval(
     this._update.bind(this),
-    this._updateInterval * 1000);
+    this._updateInterval * 1000
+  );
 };
 
 Animation.prototype._update = function() {

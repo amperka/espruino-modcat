@@ -1,24 +1,22 @@
-
 var IOcommand = {
-  WHO_AM_I: 0 // Отдали UID
-  , RESET: 1 // сброс
-  , CHANGE_I2C_ADDR: 2 // сменить I2C-адрес вручную
-  , SAVE_I2C_ADDR: 3 // Сохранить текущий адрес во флэш, чтобы стартовать при последующих включениях с него
-  , PORT_MODE_INPUT: 4 // настроили пины на вход
-  , PORT_MODE_PULLUP: 5 // .. вход с поддтяжкой вверх
-  , PORT_MODE_PULLDOWN: 6
-  , PORT_MODE_OUTPUT: 7 // .. на выход
-  , DIGITAL_READ: 8    // считали состояние виртуального порта
-  , DIGITAL_WRITE_HIGH: 9 // Выставили пины виртуального порта в высокий уровень
-  , DIGITAL_WRITE_LOW: 10 // .. в низкий уровень
-  , ANALOG_WRITE: 11 // Запустить ШИМ
-  , ANALOG_READ: 12 // Считать значениие с АЦП
-  , PWM_FREQ: 13 // установка частоты ШИМ (общая для всех PWM-пинов)
-  , ADC_SPEED: 14
+  WHO_AM_I: 0, // Отдали UID
+  RESET: 1, // сброс
+  CHANGE_I2C_ADDR: 2, // сменить I2C-адрес вручную
+  SAVE_I2C_ADDR: 3, // Сохранить текущий адрес во флэш, чтобы стартовать при последующих включениях с него
+  PORT_MODE_INPUT: 4, // настроили пины на вход
+  PORT_MODE_PULLUP: 5, // .. вход с поддтяжкой вверх
+  PORT_MODE_PULLDOWN: 6,
+  PORT_MODE_OUTPUT: 7, // .. на выход
+  DIGITAL_READ: 8, // считали состояние виртуального порта
+  DIGITAL_WRITE_HIGH: 9, // Выставили пины виртуального порта в высокий уровень
+  DIGITAL_WRITE_LOW: 10, // .. в низкий уровень
+  ANALOG_WRITE: 11, // Запустить ШИМ
+  ANALOG_READ: 12, // Считать значениие с АЦП
+  PWM_FREQ: 13, // установка частоты ШИМ (общая для всех PWM-пинов)
+  ADC_SPEED: 14
 };
 
 var Expander = function(connect) {
-
   connect = connect || {};
 
   this._i2c = connect.i2c;
@@ -26,44 +24,31 @@ var Expander = function(connect) {
 };
 
 Expander.prototype._writeCmdPin = function(command, pin) {
-  var send = new Uint8Array([
-    command,
-    pin
-  ], 0, 2);
+  var send = new Uint8Array([command, pin], 0, 2);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
 Expander.prototype._writeCmdPin16Val = function(command, pin, value) {
-  var send = new Uint8Array([
-    command,
-    pin,
-    (value >> 8) & 0xff,
-    value & 0xff
-  ], 0, 4);
+  var send = new Uint8Array(
+    [command, pin, (value >> 8) & 0xff, value & 0xff],
+    0,
+    4
+  );
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
 Expander.prototype._writeCmd16BitData = function(command, data) {
-  var send = new Uint8Array([
-    command,
-    (data >> 8) & 0xff,
-    data & 0xff
-  ], 0, 3);
+  var send = new Uint8Array([command, (data >> 8) & 0xff, data & 0xff], 0, 3);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
 Expander.prototype._writeCmd8BitData = function(command, data) {
-  var send = new Uint8Array([
-    command,
-    data
-  ], 0, 2);
+  var send = new Uint8Array([command, data], 0, 2);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
 Expander.prototype._writeCmd = function(command) {
-  var send = new Uint8Array([
-    command
-  ], 0, 1);
+  var send = new Uint8Array([command], 0, 1);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
@@ -99,7 +84,7 @@ Expander.prototype.digitalReadPort = function() {
 Expander.prototype.digitalRead = function(pin) {
   var result = this.digitalReadPort();
   if (result >= 0) {
-    result = ((result & (1 << pin)) ? 1 : 0);
+    result = result & (1 << pin) ? 1 : 0;
   }
   return result;
 };

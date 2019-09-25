@@ -29,7 +29,6 @@ var HC05 = function(opts) {
     self._buffer = lines[lines.length - 1];
 
     for (var l = 0; l < lines.length - 1; l++) {
-
       if (self._commandCallback && lines[l] === 'OK') {
         self._kPin.write(0);
         self._commandCallback = null;
@@ -82,7 +81,7 @@ HC05.prototype.command = function(cmd, callback) {
   }
 
   this._commandTimeout = setTimeout(function() {
-    var commandsInterval = setInterval(function(){
+    var commandsInterval = setInterval(function() {
       var currentCommand = self._commandList.shift();
       if (currentCommand === undefined) {
         clearInterval(commandsInterval);
@@ -91,7 +90,7 @@ HC05.prototype.command = function(cmd, callback) {
         self.println(currentCommand);
         self._commandCallback = callback;
       }
-    },self._commandDelay);
+    }, self._commandDelay);
     self._commandTimeout = null;
   }, timeout);
 };
@@ -113,7 +112,7 @@ HC05.prototype.read = function(param, callback) {
       callback(new Error('ERROR IN COMMAND'));
       return null;
   }
-  this.command(cmd, function(data){
+  this.command(cmd, function(data) {
     callback(data);
   });
 };
@@ -140,7 +139,7 @@ HC05.prototype.speed = function(baud, callback) {
 };
 
 HC05.prototype.name = function(name, callback) {
-  if (name && name!=='') {
+  if (name && name !== '') {
     this.command('AT+NAME=' + name, callback);
   } else {
     callback(new Error('WRONG NAME'));
@@ -148,7 +147,7 @@ HC05.prototype.name = function(name, callback) {
 };
 
 HC05.prototype.password = function(pinCode, callback) {
-  if (pinCode && pinCode!=='') {
+  if (pinCode && pinCode !== '') {
     this.command('AT+PSWD=' + pinCode, callback);
   } else {
     callback(new Error('WRONG PASSWORD'));
@@ -177,16 +176,16 @@ HC05.prototype.mode = function(role, callback) {
 HC05.prototype.connect = function(address, pinCode, callback) {
   if (address) {
     this.command('AT+RMAAD'); // delete all address from memory
-    this.mode('master');      // now we can connect to remote device
-    this.password(pinCode);   // set the remote device password
+    this.mode('master'); // now we can connect to remote device
+    this.password(pinCode); // set the remote device password
     this.command('AT+CMODE=0'); // connect by address only
-    this.command('AT+LINK='+address.replace(':',','), callback);
+    this.command('AT+LINK=' + address.replace(':', ','), callback);
   } else {
     callback(new Error('WRONG ADDRESS'));
   }
 };
 
-HC05.prototype.disconnect = function(callback){
+HC05.prototype.disconnect = function(callback) {
   this.command('AT+DISC', callback);
 };
 

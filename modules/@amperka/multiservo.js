@@ -24,8 +24,8 @@ var MultiServoDevice = function(i2c, address, pin, options) {
 
   this._period = 1000 / this._freq;
   this._valueStart = this._pulseMin * 1000;
-  var pulsDiff = (this._pulseMax - this._pulseMin);
-  this._valueStep = pulsDiff / (this._valueMax - this._valueMin) * 1000;
+  var pulsDiff = this._pulseMax - this._pulseMin;
+  this._valueStep = (pulsDiff / (this._valueMax - this._valueMin)) * 1000;
 };
 
 MultiServoDevice.prototype.write = function(value, units) {
@@ -44,7 +44,7 @@ MultiServoDevice.prototype.write = function(value, units) {
 
   us = Math.floor(us);
 
-  this._i2c.writeTo(this._address, [this._pin, us >> 8, us & 0xFF]);
+  this._i2c.writeTo(this._address, [this._pin, us >> 8, us & 0xff]);
 };
 
 var MultiServo = function(i2c, address) {
