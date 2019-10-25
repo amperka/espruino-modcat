@@ -8,7 +8,7 @@ var Pid = function(opts) {
   this._kp = opts.kp || 0;
   this._ki = opts.ki || 0;
   this._kd = opts.kd || 0;
-  this._ti = opts.ti || 8;  // tacts of integration
+  this._ti = opts.ti || 8; // tacts of integration
   this._outputMin = opts.outputMin === undefined ? -1 : opts.outputMin;
   this._outputMax = opts.outputMax === undefined ? 1 : opts.outputMax;
   this._intervalId = null;
@@ -28,9 +28,9 @@ Pid.prototype.setup = function(opts) {
   this._kd = opts.kd === undefined ? this._kd : opts.kd;
   this._ti = opts.ti === undefined ? this._ti : opts.ti;
   this._outputMin =
-      opts.outputMin === undefined ? this._outputMin : opts.outputMin;
+    opts.outputMin === undefined ? this._outputMin : opts.outputMin;
   this._outputMax =
-      opts.outputMax === undefined ? this._outputMax : opts.outputMax;
+    opts.outputMax === undefined ? this._outputMax : opts.outputMax;
   this._clearErrors();
 };
 
@@ -53,8 +53,10 @@ Pid.prototype.update = function(input) {
   this._sumError = (this._sumError * this._ti + error) / (this._ti + 1);
 
   return E.clip(
-      P * this._kp + I * this._ki + D * this._kd, 
-      this._outputMin, this._outputMax);
+    P * this._kp + I * this._ki + D * this._kd,
+    this._outputMin,
+    this._outputMax
+  );
 };
 
 Pid.prototype.run = function(repeat, interval) {
