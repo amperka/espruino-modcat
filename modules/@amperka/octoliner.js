@@ -12,19 +12,18 @@ var Octoliner = function(opts) {
   this.expander.pwmFreq(60000);
   this._sensePin = 0;
   this._ledBrightnessPin = 9;
+  this.expander.analogWrite(this._ledBrightnessPin, 1);
   this._sensorPinMap = [4, 5, 6, 8, 7, 3, 2, 1];
   this._lineState = [];
   this.setSensitivity(0.91);
-  this.setBrightness(1);
 };
 
 Octoliner.prototype.setSensitivity = function(sense) {
   this.expander.analogWrite(this._sensePin, sense);
 };
 
-Octoliner.prototype.setBrightness = function(brightness) {
-  this.expander.analogWrite(this._ledBrightnessPin, brightness);
-};
+// deprecated
+Octoliner.prototype.setBrightness = function(brightness) { };
 
 Octoliner.prototype.analogRead = function(sensor) {
   sensor &= 0x07;
