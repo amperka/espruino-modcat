@@ -37,10 +37,11 @@ Octoliner.prototype.analogReadAll = function (analogArray) {
   }
 }
 
-Octoliner.prototype.digitalRead = function (sensor) {
-  sensor &= 0x07;
-  return this.expander.digitalRead(this._sensorPinMap[sensor]);
-};
+Octoliner.prototype.digitalReadAll = function () {
+  var pattern = [0, 0, 0, 0, 0, 0, 0, 0];
+  this.analogReadAll(pattern);
+  return this.mapAnalogToPattern(pattern);
+}
 
 Octoliner.prototype.changeAddr = function (nAddr) {
   this.expander.changeAddr(nAddr);
@@ -102,9 +103,7 @@ Octoliner.prototype.defaultMapPatternToLine = function (pattern) {
 
 Octoliner.prototype.trackLine = function (argument) {
   if (!argument) { // no argument
-    var pattern = [0, 0, 0, 0, 0, 0, 0, 0];
-    this.analogReadAll(pattern);
-    return this.mapPatternToLine(this.mapAnalogToPattern(pattern));
+    return this.mapPatternToLine(this.digitalReadAll());
   } else if (Array.isArray(argument)) { // argument is analog array
     return this.mapPatternToLine(this.mapAnalogToPattern(argument));
   } else if (typeof (argument) === 'number') { // argument is pattern
