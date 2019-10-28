@@ -9,7 +9,7 @@ var Octoliner = function (opts) {
     opts.i2c = I2C1;
   }
   this.expander = require('@amperka/gpio-expander').connect(opts);
-  this.expander.pwmFreq(60000);
+  this.expander.pwmFreq(8000);
   this._sensePin = 0;
   this._ledBrightnessPin = 9;
   this.expander.analogWrite(this._ledBrightnessPin, 1);
