@@ -51,16 +51,6 @@ Octoliner.prototype.saveAddr = function () {
   this.expander.saveAddr();
 };
 
-Octoliner.prototype.getBinaryLine = function (treshold) {
-  treshold = treshold || 0.5;
-  var result = 0;
-  for (var i = 0; i < 8; ++i) {
-    var value = this.analogRead(i);
-    if (treshold < value) result |= 1 << i;
-  }
-  return result;
-};
-
 // deprecated
 Octoliner.prototype.mapLine = function (analogArray) {
   return this.trackLine(analogArray);
