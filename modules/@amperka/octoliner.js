@@ -61,33 +61,10 @@ Octoliner.prototype.getBinaryLine = function (treshold) {
   return result;
 };
 
-Octoliner.prototype.mapLine = function (Line) {
-  var sum = 0;
-  var avg = 0;
-  var weight = [4, 3, 2, 1, -1, -2, -3, -4];
-  var i;
-  if (Array.isArray(Line)) {
-    for (i = 0; i < 8; i++) {
-      sum += Line[i];
-      avg += Line[i] * weight[i];
-    }
-    if (sum != 0) {
-      return avg / sum / 4.0;
-    }
-    return 0;
-  } else {
-    this._lineState = [];
-    for (i = 0; i < 8; i++) {
-      var mask = 1 << i;
-      if (Line & mask) {
-        this._lineState[i] = 1;
-      } else {
-        this._lineState[i] = 0;
-      }
-    }
-    return this.mapLine(this._lineState);
-  }
-};
+// deprecated
+Octoliner.prototype.mapLine = function (analogArray) {
+  return this.trackLine(analogArray);
+}
 
 Octoliner.prototype.reset = function () {
   this.expander.reset();
