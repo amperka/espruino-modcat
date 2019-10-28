@@ -102,11 +102,13 @@ Octoliner.prototype.defaultMapPatternToLine = function(pattern) {
 
 Octoliner.prototype.trackLine = function(argument) {
   if(!argument) { // no argument
-  
-  } else if(typeof(argument) === 'array') { // analog array
-
-  } else if(typeof(argument) === 'number') { // pattern
-
+    var pattern = [0, 0, 0, 0, 0, 0, 0, 0];
+    this.analogReadAll(pattern);
+    return this.mapPatternToLine(this.mapAnalogToPattern(pattern));
+  } else if(Array.isArray(argument)) { // argument is analog array
+    return this.mapPatternToLine(this.mapAnalogToPattern(argument));
+  } else if(typeof(argument) === 'number') { // argument is pattern
+    return this.mapPatternToLine(argument);
   } else { return NaN; }
 }
 
