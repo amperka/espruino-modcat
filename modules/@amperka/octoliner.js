@@ -28,9 +28,14 @@ Octoliner.prototype.setSensitivity = function(sense) {
 Octoliner.prototype.setBrightness = function(brightness) { };
 
 Octoliner.prototype.analogRead = function(sensor) {
-  sensor &= 0x07;
-  return this.expander.analogRead(this._sensorPinMap[sensor]);
+  return this.expander.analogRead(this._sensorPinMap[sensor & 0x07]);
 };
+
+Octoliner.prototype.analogReadAll = function(analogArray) {
+  for(var i = 0; i < 8; i++) {
+    analogArray[i] = this.analogRead(_sensorPinMap[i]);
+  }
+}
 
 Octoliner.prototype.digitalRead = function(sensor) {
   sensor &= 0x07;
