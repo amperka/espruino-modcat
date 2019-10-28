@@ -94,7 +94,23 @@ Octoliner.prototype.reset = function () {
 };
 
 Octoliner.prototype.defaultMapAnalogToPattern = function (analogArray) {
-
+  var pattern = 0;
+  // search min and max values
+  var min = 32767;
+  var max = 0;
+  for (var i = 0; i < 8; i++) {
+      if (analogArray[i] < min)
+          min = analogArray[i];
+      if (analogArray[i] > max)
+          max = analogArray[i];
+  }
+  // calculate threshold level
+  var threshold = min + (max - min) / 2;
+  // create bit pattern
+  for (var i = 0; i < 8; i++) {
+      pattern = (pattern << 1) + ((analogArray[i] < threshold) ? 0 : 1);
+  }
+  return pattern;
 }
 
 Octoliner.prototype.defaultMapPatternToLine = function (pattern) {
