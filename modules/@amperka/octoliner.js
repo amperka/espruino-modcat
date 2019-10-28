@@ -1,4 +1,4 @@
-var Octoliner = function(opts) {
+var Octoliner = function (opts) {
   opts = opts || {};
   if (opts.i2c === undefined) {
     I2C1.setup({
@@ -20,37 +20,37 @@ var Octoliner = function(opts) {
   this.mapAnalogToPattern = this.defaultMapAnalogToPattern;
 };
 
-Octoliner.prototype.setSensitivity = function(sense) {
+Octoliner.prototype.setSensitivity = function (sense) {
   this.expander.analogWrite(this._sensePin, sense);
 };
 
 // deprecated
-Octoliner.prototype.setBrightness = function(brightness) { };
+Octoliner.prototype.setBrightness = function (brightness) {};
 
-Octoliner.prototype.analogRead = function(sensor) {
+Octoliner.prototype.analogRead = function (sensor) {
   return this.expander.analogRead(this._sensorPinMap[sensor & 0x07]);
 };
 
-Octoliner.prototype.analogReadAll = function(analogArray) {
-  for(var i = 0; i < 8; i++) {
+Octoliner.prototype.analogReadAll = function (analogArray) {
+  for (var i = 0; i < 8; i++) {
     analogArray[i] = this.analogRead(_sensorPinMap[i]);
   }
 }
 
-Octoliner.prototype.digitalRead = function(sensor) {
+Octoliner.prototype.digitalRead = function (sensor) {
   sensor &= 0x07;
   return this.expander.digitalRead(this._sensorPinMap[sensor]);
 };
 
-Octoliner.prototype.changeAddr = function(nAddr) {
+Octoliner.prototype.changeAddr = function (nAddr) {
   this.expander.changeAddr(nAddr);
 };
 
-Octoliner.prototype.saveAddr = function() {
+Octoliner.prototype.saveAddr = function () {
   this.expander.saveAddr();
 };
 
-Octoliner.prototype.getBinaryLine = function(treshold) {
+Octoliner.prototype.getBinaryLine = function (treshold) {
   treshold = treshold || 0.5;
   var result = 0;
   for (var i = 0; i < 8; ++i) {
@@ -60,7 +60,7 @@ Octoliner.prototype.getBinaryLine = function(treshold) {
   return result;
 };
 
-Octoliner.prototype.mapLine = function(Line) {
+Octoliner.prototype.mapLine = function (Line) {
   var sum = 0;
   var avg = 0;
   var weight = [4, 3, 2, 1, -1, -2, -3, -4];
@@ -88,30 +88,32 @@ Octoliner.prototype.mapLine = function(Line) {
   }
 };
 
-Octoliner.prototype.reset = function() {
+Octoliner.prototype.reset = function () {
   this.expander.reset();
 };
 
-Octoliner.prototype.defaultMapAnalogToPattern = function(analogArray) {
+Octoliner.prototype.defaultMapAnalogToPattern = function (analogArray) {
 
 }
 
-Octoliner.prototype.defaultMapPatternToLine = function(pattern) {
+Octoliner.prototype.defaultMapPatternToLine = function (pattern) {
 
 }
 
-Octoliner.prototype.trackLine = function(argument) {
-  if(!argument) { // no argument
+Octoliner.prototype.trackLine = function (argument) {
+  if (!argument) { // no argument
     var pattern = [0, 0, 0, 0, 0, 0, 0, 0];
     this.analogReadAll(pattern);
     return this.mapPatternToLine(this.mapAnalogToPattern(pattern));
-  } else if(Array.isArray(argument)) { // argument is analog array
+  } else if (Array.isArray(argument)) { // argument is analog array
     return this.mapPatternToLine(this.mapAnalogToPattern(argument));
-  } else if(typeof(argument) === 'number') { // argument is pattern
+  } else if (typeof (argument) === 'number') { // argument is pattern
     return this.mapPatternToLine(argument);
-  } else { return NaN; }
+  } else {
+    return NaN;
+  }
 }
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new Octoliner(opts);
 };
