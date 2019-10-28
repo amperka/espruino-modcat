@@ -88,11 +88,21 @@ Octoliner.prototype.reset = function() {
 };
 
 Octoliner.prototype.defaultMapAnalogToPattern = function(analogArray) {
-  
+
 }
 
 Octoliner.prototype.defaultMapPatternToLine = function(pattern) {
 
+}
+
+Octoliner.prototype.trackLine = function(argument) {
+  if(!argument) { // no argument
+  
+  } else if(typeof(argument) === 'array') { // analog array
+
+  } else if(typeof(argument) === 'number') { // pattern
+
+  } else { return NaN; }
 }
 
 exports.connect = function(opts) {
