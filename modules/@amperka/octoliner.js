@@ -16,6 +16,8 @@ var Octoliner = function(opts) {
   this._sensorPinMap = [4, 5, 6, 8, 7, 3, 2, 1];
   this._lineState = [];
   this.setSensitivity(0.91);
+  this.mapPatternToLine = this.defaultMapPatternToLine;
+  this.mapAnalogToPattern = this.defaultMapAnalogToPattern;
 };
 
 Octoliner.prototype.setSensitivity = function(sense) {
@@ -84,6 +86,14 @@ Octoliner.prototype.mapLine = function(Line) {
 Octoliner.prototype.reset = function() {
   this.expander.reset();
 };
+
+Octoliner.prototype.defaultMapAnalogToPattern = function(analogArray) {
+  
+}
+
+Octoliner.prototype.defaultMapPatternToLine = function(pattern) {
+
+}
 
 exports.connect = function(opts) {
   return new Octoliner(opts);
