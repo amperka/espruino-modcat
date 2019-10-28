@@ -98,7 +98,56 @@ Octoliner.prototype.defaultMapAnalogToPattern = function (analogArray) {
 }
 
 Octoliner.prototype.defaultMapPatternToLine = function (pattern) {
-
+  switch (pattern) {
+    case 0x18 /*0b00011000*/:
+      return 0;
+    case 0x10 /*0b00010000*/:
+      return 0.25;
+    case 0x38 /*0b00111000*/:
+      return 0.25;
+    case 0x08 /*0b00001000*/:
+      return -0.25;
+    case 0x1c /*0b00011100*/:
+      return -0.25;
+    case 0x30 /*0b00110000*/:
+      return 0.375;
+    case 0x0c /*0b00001100*/:
+      return -0.375;
+    case 0x20 /*0b00100000*/:
+      return 0.5;
+    case 0x70 /*0b01110000*/:
+      return 0.5;
+    case 0x04 /*0b00000100*/:
+      return -0.5;
+    case 0x0e /*0b00001110*/:
+      return -0.5;
+    case 0x60 /*0b01100000*/:
+      return 0.625;
+    case 0xe0 /*0b11100000*/:
+      return 0.625;
+    case 0x06 /*0b00000110*/:
+      return -0.625;
+    case 0x07 /*0b00000111*/:
+      return -0.625;
+    case 0x40 /*0b01000000*/:
+      return 0.75;
+    case 0xf0 /*0b11110000*/:
+      return 0.75;
+    case 0x02 /*0b00000010*/:
+      return -0.75;
+    case 0x0f /*0b00001111*/:
+      return -0.75;
+    case 0xc0 /*0b11000000*/:
+      return 0.875;
+    case 0x03 /*0b00000011*/:
+      return -0.875;
+    case 0x80 /*0b10000000*/:
+      return 1.0;
+    case 0x01 /*0b00000001*/:
+      return -1.0;
+    default:
+      return NaN;
+  }
 }
 
 Octoliner.prototype.trackLine = function (argument) {
