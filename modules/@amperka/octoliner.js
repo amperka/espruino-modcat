@@ -33,7 +33,7 @@ Octoliner.prototype.analogRead = function(sensor) {
 
 Octoliner.prototype.analogReadAll = function(analogArray) {
   for (var i = 0; i < 8; i++) {
-    analogArray[i] = this.analogRead(this._sensorPinMap[i]);
+    analogArray[i] = this.analogRead(i);
   }
 };
 
