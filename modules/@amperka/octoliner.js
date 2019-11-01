@@ -133,7 +133,7 @@ Octoliner.prototype.defaultMapPatternToLine = function(pattern) {
 };
 
 Octoliner.prototype.trackLine = function(argument) {
-  if (!argument) {
+  if (typeof argument === 'undefined') {
     // no argument
     return this.mapPatternToLine(this.digitalReadAll());
   } else if (Array.isArray(argument)) {
