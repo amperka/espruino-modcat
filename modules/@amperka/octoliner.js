@@ -31,16 +31,16 @@ Octoliner.prototype.analogRead = function(sensor) {
   return this.expander.analogRead(this._sensorPinMap[sensor & 0x07]);
 };
 
-Octoliner.prototype.analogReadAll = function(analogArray) {
+Octoliner.prototype.analogReadAll = function() {
+  var result = [0, 0, 0, 0, 0, 0, 0, 0];
   for (var i = 0; i < 8; i++) {
-    analogArray[i] = this.analogRead(i);
+    result[i] = this.analogRead(i);
   }
+  return result;
 };
 
 Octoliner.prototype.digitalReadAll = function() {
-  var pattern = [0, 0, 0, 0, 0, 0, 0, 0];
-  this.analogReadAll(pattern);
-  return this.mapAnalogToPattern(pattern);
+  return this.mapAnalogToPattern(this.analogReadAll());
 };
 
 Octoliner.prototype.changeAddr = function(nAddr) {
