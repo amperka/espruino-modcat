@@ -16,8 +16,6 @@ var Octoliner = function(opts) {
   this._sensorPinMap = [4, 5, 6, 8, 7, 3, 2, 1];
   this._lineState = [];
   this.setSensitivity(0.91);
-  this.mapPatternToLine = this.defaultMapPatternToLine;
-  this.mapAnalogToPattern = this.defaultMapAnalogToPattern;
 };
 
 Octoliner.prototype.setSensitivity = function(sense) {
@@ -60,7 +58,7 @@ Octoliner.prototype.reset = function() {
   this.expander.reset();
 };
 
-Octoliner.prototype.defaultMapAnalogToPattern = function(analogArray) {
+Octoliner.prototype.mapAnalogToPattern = function(analogArray) {
   var pattern = 0;
   // search min and max values
   var min = 32767;
@@ -79,7 +77,7 @@ Octoliner.prototype.defaultMapAnalogToPattern = function(analogArray) {
   return pattern;
 };
 
-Octoliner.prototype.defaultMapPatternToLine = function(pattern) {
+Octoliner.prototype.mapPatternToLine = function(pattern) {
   switch (pattern) {
     case 0x18 /*0b00011000*/:
       return 0;
