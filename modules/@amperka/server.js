@@ -34,7 +34,6 @@ Server.prototype._event = function(eventName, req, res) {
     }
     res.write(content);
   };
-  
   if (this._events[eventName]) {
     this._events[eventName](req, res);
   } else {
