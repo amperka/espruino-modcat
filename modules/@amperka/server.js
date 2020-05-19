@@ -10,7 +10,6 @@ Server.prototype.on = function(types, callback) {
     types = [types];
   }
   for (var t in types) {
-    console.log(t);
     if (!this._events[types[t]]) {
       this._events[types[t]] = callback;
     }
@@ -23,22 +22,25 @@ Server.prototype.listen = function(port) {
 
 Server.prototype._onPageRequest = function(req, res) {
   var request = url.parse(req.url, true);
-  this._event(request.pathname, request, res);
+  this._event(request.pathname, req, res);
 };
 
 Server.prototype._event = function(eventName, req, res) {
+  res.send = function(content, headers) {
+    if (headers === undefined) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+    } else {
+      res.writeHead(200, headers);
+    }
+    res.write(content);
+  };
   if (this._events[eventName]) {
-    res.send = function(content, headers) {
-      if (headers === undefined) {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-      } else {
-        res.writeHead(200, headers);
-      }
-      res.write(content);
-    };
     this._events[eventName](req, res);
-    res.end();
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/html' });
+    res.write('<h1>404 - Not found</h1>');
   }
+  res.end();
 };
 
 exports.create = function() {
