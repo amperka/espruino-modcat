@@ -87,7 +87,7 @@ Led.prototype.blink = function(onTime, offTime) {
 };
 
 Led.prototype.brightness = function(value) {
-  if (arguments.length === 0) {
+  if (typeof value === 'undefined') {
     return this._brightness;
   }
 
