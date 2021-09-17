@@ -1,4 +1,4 @@
-// Инициализация класса
+// Class initialization
 var LIS3MDL = function(i2c, address) {
   this._i2c = i2c;
   this._sensitivity = 1 / 6842;
@@ -22,17 +22,17 @@ LIS3MDL.prototype.read = function(reg, count) {
 // Module start
 LIS3MDL.prototype.init = function(opts) {
   // Temp compensation ON, X-axis, Y-axis in High perfomance
-  var config20 = 0xcc; /* 11001100 */
+  var config20 = 0xcc; // 11001100
 
   if (opts !== undefined && opts.frequency !== undefined) {
     if (opts.frequency === 10) {
-      config20 = 0xd0; /* 11010000 */
+      config20 = 0xd0; // 11010000
     } else if (opts.frequency === 20) {
-      config20 = 0xd4; /* 11010100 */
+      config20 = 0xd4; // 11010100
     } else if (opts.frequency === 40) {
-      config20 = 0xd8; /* 11011000 */
+      config20 = 0xd8; // 11011000
     } else if (opts.frequency === 80) {
-      config20 = 0xdc; /* 11011100 */
+      config20 = 0xdc; // 11011100
     }
   }
   this.write(0x20, config20);
@@ -42,13 +42,13 @@ LIS3MDL.prototype.init = function(opts) {
 
   if (opts !== undefined && opts.sensitivity !== undefined) {
     if (opts.sensitivity === 8) {
-      config21 = 0x20; /* 00100000 */
+      config21 = 0x20; // 00100000
       this._sensitivity = 1 / 3421;
     } else if (opts.sensitivity === 12) {
-      config21 = 0x40; /* 01000000 */
+      config21 = 0x40; // 01000000
       this._sensitivity = 1 / 2281;
     } else if (opts.sensitivity === 16) {
-      config21 = 0x60; /* 01100000 */
+      config21 = 0x60; // 01100000
       this._sensitivity = 1 / 1711;
     }
   }
@@ -58,7 +58,7 @@ LIS3MDL.prototype.init = function(opts) {
   this.write(0x22, 0x0);
 
   // Z-axis in High perfomance
-  this.write(0x23, 0x8 /* 00001000 */);
+  this.write(0x23, 0x8);
 };
 
 // The method returns data from the magnetometer

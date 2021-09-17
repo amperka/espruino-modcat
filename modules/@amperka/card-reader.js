@@ -20,11 +20,7 @@ CardReader.prototype.appendFile = function(fileName, data) {
 };
 
 CardReader.prototype.pipe = function(source, destination, options) {
-  return this._fs.pipe(
-    source,
-    destination,
-    options
-  );
+  return this._fs.pipe(source, destination, options);
 };
 
 CardReader.prototype.readRandomFile = function(path) {

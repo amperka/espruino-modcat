@@ -26,11 +26,7 @@ function convertUnits(s, units) {
   }
 }
 
-/*
- *
- * Class Ultrasonic
- *
- */
+// Class Ultrasonic
 var Ultrasonic = function(pins) {
   this._trigPin = pins.trigPin;
   this._echoPin = pins.echoPin;
@@ -99,11 +95,7 @@ Ultrasonic.prototype.ping = function(cb, units) {
   return this;
 };
 
-/*
- *
- * module exports
- *
- */
+// module exports
 exports.connect = function(pins) {
   return new Ultrasonic(pins);
 };

@@ -42,13 +42,13 @@ LIS331DLH.prototype.init = function(opts) {
 
   if (opts !== undefined && opts.highPassFilter !== undefined) {
     if (opts.highPassFilter === 8) {
-      config21 = 0x10; /* 00010000 */
+      config21 = 0x10; // 00010000
     } else if (opts.highPassFilter === 16) {
-      config21 = 0x11; /* 00010001 */
+      config21 = 0x11; // 00010001
     } else if (opts.highPassFilter === 32) {
-      config21 = 0x12; /* 00010010 */
+      config21 = 0x12; // 00010010
     } else if (opts.highPassFilter === 64) {
-      config21 = 0x13; /* 00010011 */
+      config21 = 0x13; // 00010011
     }
   }
   this.writeI2C(0x21, config21);
@@ -58,11 +58,11 @@ LIS331DLH.prototype.init = function(opts) {
   this._sensitivity = 2 / 32767;
   if (opts !== undefined && opts.maxAccel !== undefined) {
     if (opts.maxAccel === 4) {
-      config23 = 0x11; /* 00010001 */
+      config23 = 0x11; // 00010001
       this._sensitivity = 4 / 32767;
     }
     if (opts.maxAccel === 8) {
-      config23 = 0x31; /* 00110001 */
+      config23 = 0x31; // 00110001
       this._sensitivity = 8 / 32767;
     }
   }

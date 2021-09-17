@@ -1,9 +1,7 @@
-/**
- * Stepper object constructor
- * @constructor
- * @param {object} pins - an object with properties step, direction, enable of type Pin
- * @param {Object} opts - an object with pps (speed) and holdPower (pwm) properties
- */
+// Stepper object constructor
+// @constructor
+// @param {object} pins - an object with properties step, direction, enable of type Pin
+// @param {Object} opts - an object with pps (speed) and holdPower (pwm) properties
 var Stepper = function(pins, opts) {
   this._pins = pins;
   opts = opts || {};
@@ -20,10 +18,8 @@ var Stepper = function(pins, opts) {
   this._intervalId = null;
 };
 
-/**
- * Adjusts the PWM power supply to the motor
- * @param {float} power - PWM duty cycle from 0 to 1
- */
+// Adjusts the PWM power supply to the motor
+// @param {float} power - PWM duty cycle from 0 to 1
 Stepper.prototype.hold = function(power) {
   if (this._intervalId !== null) {
     clearInterval(this._intervalId);
@@ -36,11 +32,10 @@ Stepper.prototype.hold = function(power) {
 
   analogWrite(this._pins.enable, power);
 };
-/**
- * Turns the shaft step by step, and then executes a callback.
- * @param {number} steps - number of steps. If the value is negative, it moves backwards.
- * @param {function} callback - function performed after turning the shaft
- */
+
+// Turns the shaft step by step, and then executes a callback.
+// @param {number} steps - number of steps. If the value is negative, it moves backwards.
+// @param {function} callback - function performed after turning the shaft
 Stepper.prototype.rotate = function(steps, callback) {
   this.hold(1);
 
@@ -69,29 +64,23 @@ Stepper.prototype.rotate = function(steps, callback) {
   }, 1000 / this._pps);
 };
 
-/**
- * Adjusts the number of steps per second
- */
+// Adjusts the number of steps per second
 Stepper.prototype.pps = function(pps) {
   if (pps === undefined) return this._pps;
   this._pps = pps;
   return this;
 };
 
-/**
- * Resets the shaft holding value set during initialization
- */
+// Resets the shaft holding value set during initialization
 Stepper.prototype.holdPower = function(holdPower) {
   if (holdPower === undefined) return this._holdPower;
   this._holdPower = holdPower;
   return this;
 };
 
-/**
- * Exporting the Stepper Object Creation Function
- * @param {object} pins - an object with properties step, direction, enable of type Pin
- * @param {Object} opts - an object with pps (speed) and holdPower (pwm) properties
- */
+// Exporting the Stepper Object Creation Function
+// @param {object} pins - an object with properties step, direction, enable of type Pin
+// @param {Object} opts - an object with pps (speed) and holdPower (pwm) properties
 exports.connect = function(pins, opts) {
   return new Stepper(pins, opts);
 };
