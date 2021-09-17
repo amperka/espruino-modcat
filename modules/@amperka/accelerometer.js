@@ -1,19 +1,19 @@
-// Инициализация класса
+// Class initialization
 var LIS331DLH = function(i2c, address) {
   this._i2c = i2c;
   address === undefined ? (this._address = 0x18) : (this._address = address);
   this._sensitivity = 2 / 32767;
 };
 
-// Значение ускорения свободного падения
+// The value of the acceleration of gravity
 LIS331DLH.prototype.G = 9.81;
 
-// Метод записывает данные data в регистр reg
+// The method writes data to the reg register
 LIS331DLH.prototype.writeI2C = function(reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
-// Метод производит чтение из регистра reg количестов байт count
+// The method reads from the reg register the number of bytes count
 LIS331DLH.prototype.readI2C = function(reg, count) {
   if (count === undefined) {
     count = 1;
@@ -22,7 +22,7 @@ LIS331DLH.prototype.readI2C = function(reg, count) {
   return this._i2c.readFrom(this._address, count);
 };
 
-// Метод включает акселерометр
+// Method includes accelerometer
 LIS331DLH.prototype.init = function(opts) {
   // Normal power, 50Hz, enable X, Y, Z;
   var config20 = 0x27; /* 00100111 */
@@ -69,7 +69,7 @@ LIS331DLH.prototype.init = function(opts) {
   this.writeI2C(0x23, config23);
 };
 
-// Метод возвращает массив показаний акселерометра
+// The method returns an array of accelerometer readings
 LIS331DLH.prototype.read = function(units) {
   var d = this.readI2C(0x28, 6);
   // reconstruct 16 bit data
@@ -105,12 +105,12 @@ LIS331DLH.prototype.read = function(units) {
   return res;
 };
 
-// Метод возвращает идентификатор устройства
+// The method returns the device identifier
 LIS331DLH.prototype.whoAmI = function() {
   return this.readI2C(0x0f)[0];
 };
 
-// Экспортируем класс
+// Exporting the class
 exports.connect = function(i2c, address) {
   return new LIS331DLH(i2c, address);
 };

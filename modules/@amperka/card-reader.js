@@ -6,9 +6,8 @@ var CardReader = function(opts) {
   } else {
     E.connectSDCard(opts.spi, opts.cs);
   }
-  // Некоторые модели SD-карт начинают рагировать только со
-  // второго запроса. Делаем холостой перебор корневой директории,
-  // чтобы “прогреть” карту в таких случаях
+  // Some models of SD cards start responding only from the second request.
+  // We do an idle search of the root directory to “warm up” the map in such cases
   this._fs.readdirSync();
 };
 

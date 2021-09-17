@@ -3,7 +3,7 @@ var defaultOpts = {
   spi: SPI2,
   qtyMod: 1
 };
-//
+
 var X_fet = function(opts) {
   if (typeof opts === 'number') {
     defaultOpts.cs = opts;

@@ -1,8 +1,8 @@
 /**
- * Конструктор объекта stepper
+ * Stepper object constructor
  * @constructor
- * @param {object} pins - объект со свойствами step, direction, enable типа Pin
- * @param {Object} opts - объект со свойствами pps (скорость) и holdPower (pwm)
+ * @param {object} pins - an object with properties step, direction, enable of type Pin
+ * @param {Object} opts - an object with pps (speed) and holdPower (pwm) properties
  */
 var Stepper = function(pins, opts) {
   this._pins = pins;
@@ -21,8 +21,8 @@ var Stepper = function(pins, opts) {
 };
 
 /**
- * Регулирует ШИМ подачи питания на двигатель
- * @param {float} power - Скважность ШИМ от 0 до 1
+ * Adjusts the PWM power supply to the motor
+ * @param {float} power - PWM duty cycle from 0 to 1
  */
 Stepper.prototype.hold = function(power) {
   if (this._intervalId !== null) {
@@ -37,9 +37,9 @@ Stepper.prototype.hold = function(power) {
   analogWrite(this._pins.enable, power);
 };
 /**
- * Проворачивает вал на step шагов, после чего выполняет callback.
- * @param {number} steps - количество шагов. При отрицательном значении происходит движение назад
- * @param {function} callback - функция, выполняемая после проворота вала
+ * Turns the shaft step by step, and then executes a callback.
+ * @param {number} steps - number of steps. If the value is negative, it moves backwards.
+ * @param {function} callback - function performed after turning the shaft
  */
 Stepper.prototype.rotate = function(steps, callback) {
   this.hold(1);
@@ -70,7 +70,7 @@ Stepper.prototype.rotate = function(steps, callback) {
 };
 
 /**
- * Регулирует количество шагов в секунду
+ * Adjusts the number of steps per second
  */
 Stepper.prototype.pps = function(pps) {
   if (pps === undefined) return this._pps;
@@ -79,7 +79,7 @@ Stepper.prototype.pps = function(pps) {
 };
 
 /**
- * Переустанавливает значение удержания вала заданное при инициализации
+ * Resets the shaft holding value set during initialization
  */
 Stepper.prototype.holdPower = function(holdPower) {
   if (holdPower === undefined) return this._holdPower;
@@ -88,9 +88,9 @@ Stepper.prototype.holdPower = function(holdPower) {
 };
 
 /**
- * Экспорт функции создания объекта Stepper
- * @param {object} pins - объект со свойствами step, direction, enable типа Pin
- * @param {Object} opts - объект со свойствами pps (скорость) и holdPower (pwm)
+ * Exporting the Stepper Object Creation Function
+ * @param {object} pins - an object with properties step, direction, enable of type Pin
+ * @param {Object} opts - an object with pps (speed) and holdPower (pwm) properties
  */
 exports.connect = function(pins, opts) {
   return new Stepper(pins, opts);
