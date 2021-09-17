@@ -6,8 +6,8 @@ var ENCR_FLAGS = ['open', 'wep', 'wpa_psk', 'wpa2_psk', 'wpa_wpa2_psk'];
 
 var netCallbacks = {
   create: function(host, port) {
-    /* Create a socket and return its index, host is a string, port is an integer.
-    If host isn't defined, create a server socket */
+    // Create a socket and return its index, host is a string, port is an integer.
+    // If host isn't defined, create a server socket
     var sckt;
     var self = this;
     if (host === undefined) {
@@ -69,7 +69,7 @@ var netCallbacks = {
     }
     return sckt;
   },
-  /* Close the socket. returns nothing */
+  // Close the socket. returns nothing
   close: function(sckt) {
     if (socks[sckt] === 'Wait') {
       socks[sckt] = 'WaitClose';
@@ -86,7 +86,7 @@ var netCallbacks = {
       );
     }
   },
-  /* Accept the connection on the server socket. Returns socket number or -1 if no connection */
+  // Accept the connection on the server socket. Returns socket number or -1 if no connection
   accept: function() {
     for (var i = 0; i < MAXSOCKETS; i++) {
       if (sockData[i] && socks[i] === undefined) {
@@ -96,8 +96,8 @@ var netCallbacks = {
     }
     return -1;
   },
-  /* Receive data. Returns a string (even if empty).
-  If non-string returned, socket is then closed */
+  // Receive data. Returns a string (even if empty).
+  // If non-string returned, socket is then closed
   recv: function(sckt, maxLen) {
     if (at.isBusy() || socks[sckt] === 'Wait') {
       return '';
@@ -118,8 +118,8 @@ var netCallbacks = {
     }
     return '';
   },
-  /* Send data. Returns the number of bytes sent - 0 is ok.
-  Less than 0  */
+  // Send data. Returns the number of bytes sent - 0 is ok.
+  // Less than 0
   send: function(sckt, data) {
     if (at.isBusy() || socks[sckt] === 'Wait') {
       return 0;

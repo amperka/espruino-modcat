@@ -7,7 +7,7 @@ var Relay = function(pin) {
   this._pin.mode('output');
 };
 
-// Переключает реле на противоположное значение и значение val
+// Switches the relay to the opposite value and val value
 Relay.prototype.toggle = function(val) {
   if (val === undefined) {
     this._blinkStop();
@@ -19,24 +19,24 @@ Relay.prototype.toggle = function(val) {
   return this;
 };
 
-// Включает реле
+// Turns on the relay
 Relay.prototype.turnOn = function() {
   this._blinkStop();
   this.toggle(true);
 };
 
-// Отключает реле
+// Disables the relay
 Relay.prototype.turnOff = function() {
   this._blinkStop();
   this.toggle(false);
 };
 
-// Возвращает текущее состояние реле
+// Returns the current state of the relay
 Relay.prototype.isOn = function() {
   return this._on;
 };
 
-// Останавливает действия по таймауту
+// Stops actions by timeout
 Relay.prototype._blinkStop = function() {
   if (this._blinkTimeoutID) {
     clearTimeout(this._blinkTimeoutID);
@@ -44,7 +44,7 @@ Relay.prototype._blinkStop = function() {
   }
 };
 
-// Включает реле на onTime секунд раз в period секунд
+// Turns on relay on onTime seconds once in period seconds
 Relay.prototype.blink = function(onTime, period) {
   if (onTime < 0.2) {
     return new Error('onTime must be > 0.2s');

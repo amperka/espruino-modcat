@@ -71,7 +71,7 @@ HC05.prototype.command = function(cmd, callback) {
   this._buffer = '';
   var timeout = 0;
   var self = this;
-  // Запускать выполнение команды можно только через секунду после старта
+  // You can run the command only a second after the start
   if (getTime() - this._lastDataTime < 1) {
     timeout = this._commandDelay + 1 - (getTime() - this._lastDataTime) * 1000;
   }

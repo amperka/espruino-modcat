@@ -3,62 +3,62 @@ var Sensors = {
     rLoad: 5000,
     rClear: 9.83,
     gas: {
-      LPG: { coef: [-0.45, 2.95], ppm: 1 }, // Сжиженный газ
-      CH4: { coef: [-0.38, 3.21], ppm: 1 }, // Метан
-      H2: { coef: [-0.48, 3.32], ppm: 1 }, // Водород
-      SMOKE: { coef: [-0.42, 3.54], ppm: 1 } // Дым
+      LPG: { coef: [-0.45, 2.95], ppm: 1 }, // Liquefied gas
+      CH4: { coef: [-0.38, 3.21], ppm: 1 }, // Methane
+      H2: { coef: [-0.48, 3.32], ppm: 1 }, // Hydrogen
+      SMOKE: { coef: [-0.42, 3.54], ppm: 1 } // Smoke
     }
   },
   MQ3: {
     rLoad: 200000,
     rClear: 60,
     gas: {
-      C2H5OH: { coef: [-0.66, -0.62], ppm: 1 } // Пары спирта
+      C2H5OH: { coef: [-0.66, -0.62], ppm: 1 } // Alcohol vapors
     }
   },
   MQ4: {
     rLoad: 20000,
     rClear: 4.4,
     gas: {
-      CH4: { coef: [-0.36, 2.54], ppm: 1 } // Метан
+      CH4: { coef: [-0.36, 2.54], ppm: 1 } // Methane
     }
   },
   MQ5: {
     rLoad: 20000,
     rClear: 6.5,
     gas: {
-      LPG: { coef: [-0.39, 1.73], ppm: 1 }, // Сжиженный газ
-      CH4: { coef: [-0.42, 2.91], ppm: 1 } // Метан
+      LPG: { coef: [-0.39, 1.73], ppm: 1 }, // Liquefied gas
+      CH4: { coef: [-0.42, 2.91], ppm: 1 } // Methane
     }
   },
   MQ6: {
     rLoad: 20000,
     rClear: 10,
     gas: {
-      LPG: { coef: [-0.42, 2.91], ppm: 1 } // Сжиженный газ
+      LPG: { coef: [-0.42, 2.91], ppm: 1 } // Liquefied gas
     }
   },
   MQ7: {
     rLoad: 10000,
     rClear: 27,
     gas: {
-      CO: { coef: [-0.77, 3.38], ppm: 1 } // Угарный газ;
+      CO: { coef: [-0.77, 3.38], ppm: 1 } // Carbon monoxide
     }
   },
   MQ8: {
     rLoad: 10000,
     rClear: 70,
     gas: {
-      H2: { coef: [-1.52, 10.49], ppm: 1 } // Водород
+      H2: { coef: [-1.52, 10.49], ppm: 1 } // Hydrogen
     }
   },
   MQ9: {
     rLoad: 10000,
     rClear: 9.8,
     gas: {
-      LPG: { coef: [-0.48, 3.33], ppm: 1 }, // Сжиженный газ
-      CH4: { coef: [-0.38, 3.21], ppm: 1 }, // Метан
-      CO: { coef: [-0.48, 3.1], ppm: 1 } // Угарный газ;
+      LPG: { coef: [-0.48, 3.33], ppm: 1 }, // Liquefied gas
+      CH4: { coef: [-0.38, 3.21], ppm: 1 }, // Methane
+      CO: { coef: [-0.48, 3.1], ppm: 1 } // Carbon monoxide
     }
   },
   MQ135: {
@@ -91,13 +91,13 @@ var GasSensor = function(opts) {
   this._model = Sensors[opts.model];
   this._intId = null;
 
-  this._coef = 1; // Соотношение текущих показаний к показаниям по даташиту
-  this._times = 5; // Количество считываний для фильтрации
-  this._preheat = 30; // Время в секундах для разогрева
+  this._coef = 1; // The ratio of current readings to readings by datasheet
+  this._times = 5; // Number of reads to filter
+  this._preheat = 30; // Warm-up time in seconds
 };
 
-// Функция калибрует датчик, если значение coef не передано
-// Возвращается соотношение текущего сопротивления к сопротивлению по даташиту
+// The function calibrates the sensor if no coef value is passed
+// Returns the ratio of the current resistance to the resistance according to the datasheet
 GasSensor.prototype.calibrate = function(coef) {
   if (coef) {
     this._coef = coef;
@@ -108,7 +108,7 @@ GasSensor.prototype.calibrate = function(coef) {
   return this._coef;
 };
 
-// Метод возвращает возвращает отфильтрованное сопротивление датчика
+// The method returns the filtered resistance of the sensor
 GasSensor.prototype.calculateResistance = function() {
   var r = 0;
   for (var i = 0; i < this._times; i++) {
@@ -118,7 +118,7 @@ GasSensor.prototype.calculateResistance = function() {
   return r;
 };
 
-// Метод возвращает сопротивление датчика
+// The method returns the resistance of the sensor
 GasSensor.prototype.getResistance = function() {
   var vTemp = E.getAnalogVRef();
   var v = vTemp * analogRead(this._dataPin);
@@ -126,7 +126,7 @@ GasSensor.prototype.getResistance = function() {
   return r;
 };
 
-// Возвращает значение в PPM для газа gas
+// Returns the PPM value for gas
 GasSensor.prototype.read = function(gas) {
   if (gas && this._model.gas[gas] === undefined) {
     return Error('Gas is undefined');
@@ -142,12 +142,12 @@ GasSensor.prototype.read = function(gas) {
   return res * this._model.gas[gas].ppm;
 };
 
-// Принудительно управляет нагревом c использованием PWM
+// Forcibly controls heating using PWM
 GasSensor.prototype.heat = function(pwr) {
   analogWrite(this._heatPin, pwr);
 };
 
-// Включает предварительный разогрев датчика, после чего выполняет callback
+// Turns on the preliminary heating of the sensor, after which it executes a callback
 GasSensor.prototype.preheat = function(callback) {
   this.heat(1);
   if (callback) {
@@ -157,28 +157,28 @@ GasSensor.prototype.preheat = function(callback) {
   }
 };
 
-// Функция циклического разогрева для MQ-7 и MQ-9
-// Реализована через setTimeout для того, чтобы не ждать 150 секунд до запуска
+// Warm-up function for MQ-7 and MQ-9
+// Implemented via setTimeout to avoid waiting 150 seconds before starting
 GasSensor.prototype.cycleHeat = function(callback) {
   if (!callback) {
     try {
       clearTimeout(this._intId);
       this.heat(0);
     } catch (e) {
-      // Нет у нас запущенного таймаута
+      // We have no running timeout
     }
     return;
   }
 
-  // Запускаем нагрев от 5 вольт
+  // We start heating from 5 volts
   this.heat(1);
   this._intId = setTimeout(function() {
-    // Через 60 секунд запускаем нагрев от 1.5 вольт
+    // After 60 seconds, we start heating from 1.5 volts
     this.heat(0.294);
     this._intId = setTimeout(function() {
-      // Через 90 секунд выполняем
+      // After 90 seconds, we execute
       callback();
-      // И запускаем цикл повторно
+      // And we start the cycle again
       this.cycleHeat(callback);
     }, 90000);
   }, 60000);

@@ -38,9 +38,9 @@ ACS712.prototype.readEffective = function(period, units) {
     sqrSum += value * value;
   }
 
-  // Исходная формула — действующее значение переменного тока в интегральном виде.
-  // Преобразована для дискретного вида, и упрощена по свойству дистрибутивности
-  // умножения.
+  // The initial formula is the rms value of the alternating current in integral form.
+  // Transformed for discrete form, and simplified by the property of
+  // distributiveness of multiplication
   var I = Math.sqrt(
     (sqrSum * this._dividerSQR + this._sumKoef * sum) / numberOfMeasurements +
       this._constSQR

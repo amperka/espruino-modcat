@@ -1,6 +1,5 @@
-/**
- * Pressure sensor class
- */
+// Pressure sensor class
+
 // Class initialization
 var Barometer = function(opts) {
   opts = opts || {};

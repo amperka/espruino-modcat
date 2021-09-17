@@ -21,9 +21,7 @@ var Sim900r = function(options) {
 
   var self = this;
 
-  /**
-   * Настройка триггера пина статуса
-   */
+  // Configuring a status pin trigger
   pinMode(this._statusPin, 'input_pulldown');
   setWatch(
     function(e) {
@@ -41,11 +39,9 @@ var Sim900r = function(options) {
     }
   );
 
-  /**
-   * При поступлении данные на порт, суммируем их в буффер
-   * и разделяем по переходу на новую строку, после чего
-   * обрабатываем их построчно.
-   */
+  // When the data arrives at the port,
+  // we sum them up in a buffer and divide them by line break,
+  // after which we process them line by line.
   var dataBuffer = '';
   this._serial.on('data', function(data) {
     dataBuffer += data;
@@ -93,17 +89,17 @@ Sim900r.prototype._onDataLine = function(line) {
     case 'Call Ready':
       this.emit('simNetwork');
       break;
-    // Если строка равна строке запроса команды,
-    // то дальше будут передаваться данные
+    // If the string is equal to the command query string,
+    // then data will be transmitted further
     case this._currentCommand:
       this._currentCommandResponse = true;
       break;
-    // Конец ответа на команду
+    // End of command response
     case 'OK':
       this._currentCommandResponse = false;
       this._currentCommandCallback(undefined, this._currentCommandData);
       break;
-    // Ошибка при выполнении команды
+    // Error while executing command
     case 'ERROR':
       this._currentCommandResponse = false;
       this._currentCommandCallback(new Error('CMD Error'));
@@ -117,43 +113,33 @@ Sim900r.prototype._onDataLine = function(line) {
   }
 };
 
-/*
- * Стук к пину включения/выключения
- */
+// Knock on the on/off pin
 Sim900r.prototype.power = function() {
   digitalPulse(this._powerPin, 1, 1000);
 };
 
-/**
- * Включение модуля
- */
+// Enabling the module
 Sim900r.prototype.powerOn = function() {
   if (!this.isReady()) {
     this.power();
   }
 };
 
-/**
- * Выключение модуля
- */
+// Выключение модуля
 Sim900r.prototype.powerOff = function() {
   if (this.isReady()) {
     this.power();
   }
 };
 
-/**
- * Состояние готовности к взаимодейтвию
- */
+// Interoperability state
 Sim900r.prototype.isReady = function() {
   return !!digitalRead(this._statusPin);
 };
 
-/**
- * Вызов команды
- */
+// Command call
 Sim900r.prototype.cmd = function(command, callback) {
-  // Нельзя отправлять новую команду, пока данные от предыдущей не получены
+  // You can not send a new command until data from the previous one has not been received
   if (!this.isReady()) {
     callback(new Error('powerOff'));
   } else if (!this._currentCommandResponse) {
@@ -171,9 +157,7 @@ Sim900r.prototype.cmd = function(command, callback) {
   }
 };
 
-/**
- * Отправка СМС на номер
- */
+// Sending SMS to the number
 Sim900r.prototype.smsSend = function(phone, text, callback) {
   var serial = this._serial;
   this.cmd('AT+CMGS="' + phone + '"', callback);
@@ -182,9 +166,7 @@ Sim900r.prototype.smsSend = function(phone, text, callback) {
   }, 500);
 };
 
-/**
- * Получение списка SMS
- */
+// Retrieving SMS List
 Sim900r.prototype.smsList = function(callback) {
   var self = this;
   this.cmd('AT+CMGF=1', function(error) {
@@ -207,9 +189,7 @@ Sim900r.prototype.smsList = function(callback) {
   });
 };
 
-/**
- * Чтение СМС с SIM-карты
- */
+// Reading SMS from a SIM card
 Sim900r.prototype.smsRead = function(index, callback) {
   var self = this;
   this.cmd('AT+CMGR=' + index, function(error, result) {
@@ -221,9 +201,7 @@ Sim900r.prototype.smsRead = function(index, callback) {
   });
 };
 
-/**
- * Удаление СМС с SIM-карты
- */
+// Removing SMS from SIM-card
 Sim900r.prototype.smsDelete = function(index) {
   var command = 'AT+CMGD=' + index;
   if (index === 'all') {
@@ -234,58 +212,42 @@ Sim900r.prototype.smsDelete = function(index) {
   });
 };
 
-/**
- * Набор номера
- */
+// Dialing a number
 Sim900r.prototype.call = function(phone, callback) {
   this.cmd('ATD' + phone + ';', callback);
 };
 
-/**
- * Ответ на входящий звонок
- */
+// Answering an incoming call
 Sim900r.prototype.answer = function(callback) {
   this.cmd('ATA', callback);
 };
 
-/**
- * Разрыв соединения
- */
+// Break the connection
 Sim900r.prototype.cancel = function(callback) {
   this.cmd('ATH0', callback);
 };
 
-/**
- * Отправка USSD команды
- */
+// Sending a USSD command
 Sim900r.prototype.ussd = function(phone, callback) {
   this.cmd('AT+CUSD=1,"' + phone + '"', callback);
 };
 
-/**
- * Оператор SIM-карты
- */
+// SIM card operator
 Sim900r.prototype.netProvider = function(callback) {
   this.cmd('AT+CSPN?', callback);
 };
 
-/**
- * Оператор, в сети которого зарегистрирована SIM-карта
- */
+// Operator in whose network the SIM card is registered
 Sim900r.prototype.netCurrent = function(callback) {
   this.cmd('AT+COPS?', callback);
 };
 
-/**
- * Статус регистрации в сети
- */
+// Online registration status
 Sim900r.prototype.netStatus = function(callback) {
   this.cmd('AT+CREG?', callback);
 };
 
-/**
- * Качество приема сигнала
- */
+// Signal reception quality
 Sim900r.prototype.netQuality = function(callback) {
   this.cmd('AT+CSQ', callback);
 };
@@ -332,9 +294,7 @@ Sim900r.prototype.getCallerID = function(callback) {
   this.cmd('AT+CLIP?', callback);
 };
 
-/**
- * Методы обработки ответов
- */
+// Response processing methods
 
 Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
   var data = fLine.split('"');

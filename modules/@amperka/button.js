@@ -16,7 +16,7 @@ var Button = function(pin, opts) {
   });
 };
 
-/* Deprecated: use `isPressed` intead */
+// Deprecated: use `isPressed` intead
 Button.prototype.read = function() {
   return this.isPressed() ? 'down' : 'up';
 };

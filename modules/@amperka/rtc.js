@@ -1,4 +1,4 @@
-// Инициализация класса
+// Class initialization
 var Rtc = function(i2c) {
   this._time = undefined;
   if (i2c) {
@@ -11,12 +11,12 @@ var Rtc = function(i2c) {
   this.start();
 };
 
-// Метод записывает данные data в регистр reg
+// The method writes data to the reg register
 Rtc.prototype.write = function(reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
-// Метод производит чтение из регистра reg количестов байт count
+// The method reads from the reg register the number of bytes count
 Rtc.prototype.read = function(reg, count) {
   if (count === undefined) {
     count = 1;
@@ -123,7 +123,7 @@ Rtc.prototype.stop = function() {
   }
 };
 
-// Экспортируем класс
+// Exporting the class
 exports.connect = function(i2c) {
   return new Rtc(i2c);
 };

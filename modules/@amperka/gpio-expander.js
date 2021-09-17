@@ -1,18 +1,18 @@
 var IOcommand = {
-  WHO_AM_I: 0, // Отдали UID
-  RESET: 1, // сброс
-  CHANGE_I2C_ADDR: 2, // сменить I2C-адрес вручную
-  SAVE_I2C_ADDR: 3, // Сохранить текущий адрес во флэш, чтобы стартовать при последующих включениях с него
-  PORT_MODE_INPUT: 4, // настроили пины на вход
-  PORT_MODE_PULLUP: 5, // .. вход с поддтяжкой вверх
+  WHO_AM_I: 0, // Gave the UID
+  RESET: 1, // Discharge
+  CHANGE_I2C_ADDR: 2, // Change I2C address manually
+  SAVE_I2C_ADDR: 3, // Save the current address to flash to start on subsequent power-ups from it
+  PORT_MODE_INPUT: 4, // Set up pins to enter
+  PORT_MODE_PULLUP: 5, // .. entrance with pull up
   PORT_MODE_PULLDOWN: 6,
-  PORT_MODE_OUTPUT: 7, // .. на выход
-  DIGITAL_READ: 8, // считали состояние виртуального порта
-  DIGITAL_WRITE_HIGH: 9, // Выставили пины виртуального порта в высокий уровень
-  DIGITAL_WRITE_LOW: 10, // .. в низкий уровень
-  ANALOG_WRITE: 11, // Запустить ШИМ
-  ANALOG_READ: 12, // Считать значениие с АЦП
-  PWM_FREQ: 13, // установка частоты ШИМ (общая для всех PWM-пинов)
+  PORT_MODE_OUTPUT: 7, // .. to the exit
+  DIGITAL_READ: 8, // Read the state of the virtual port
+  DIGITAL_WRITE_HIGH: 9, // Set the pins of the virtual port to a high level
+  DIGITAL_WRITE_LOW: 10, // .. to a low level
+  ANALOG_WRITE: 11, // Start PWM
+  ANALOG_READ: 12, // Read value from ADC
+  PWM_FREQ: 13, // Setting the PWM frequency (common to all PWM pins)
   ADC_SPEED: 14
 };
 

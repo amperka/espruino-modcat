@@ -1,6 +1,4 @@
-/* Copyright (c) 2015 Gordon Williams, Pur3 Ltd. See the file LICENSE for copying permission. */
-/*
- */
+// Copyright (c) 2015 Gordon Williams, Pur3 Ltd. See the file LICENSE for copying permission.
 E.setUSBHID({
   // prettier-ignore
   reportDescriptor: [

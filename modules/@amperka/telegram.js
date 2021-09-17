@@ -75,7 +75,7 @@ Telegram.prototype.keyboard = function(arrayOfButtons, opts) {
 };
 
 Telegram.prototype.inlineButton = function(text, opt) {
-  /* eslint-disable camelcase */
+  // eslint-disable camelcase
   opt = opt || {};
   var markup = { text: text };
   if (opt.url) {
@@ -88,7 +88,7 @@ Telegram.prototype.inlineButton = function(text, opt) {
     markup.callback_data = String(opt.callback);
   }
   return markup;
-  /* eslint-enable camelcase */
+  // eslint-enable camelcase
 };
 
 Telegram.prototype.inlineKeyboard = function(arrayOfButtons) {
@@ -115,7 +115,7 @@ Telegram.prototype._event = function(eventName, params, eventType) {
 };
 
 Telegram.prototype._addPreparedPayload = function(payload, dest) {
-  /* eslint-disable camelcase */
+  // eslint-disable camelcase
   if (payload) {
     if (payload.reply) {
       dest.reply_to_message_id = payload.reply;
@@ -134,7 +134,7 @@ Telegram.prototype._addPreparedPayload = function(payload, dest) {
     }
   }
   return dest;
-  /* eslint-enable camelcase */
+  // eslint-enable camelcase
 };
 
 Telegram.prototype.sendMessage = function(chatId, text, payload) {

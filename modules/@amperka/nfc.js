@@ -147,7 +147,7 @@ PN532.prototype.writePage = function(page, data, callback) {
   }
 
   this._packetBuffer[0] = this._COMMAND_INDATAEXCHANGE;
-  this._packetBuffer[1] = 1; /* Card number */
+  this._packetBuffer[1] = 1; // Card number
   this._packetBuffer[2] = this._MIFARE_ULTRALIGHT_CMD_WRITE;
   this._packetBuffer[3] = page;
   this._packetBuffer[4] = data[0];
