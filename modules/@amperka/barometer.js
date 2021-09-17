@@ -1,19 +1,19 @@
 /**
- * Класс для работы с датчиком давления
+ * Pressure sensor class
  */
-// Инициализация класса
+// Class initialization
 var Barometer = function(opts) {
   opts = opts || {};
   this._i2c = opts.i2c || I2C1;
   this._address = opts.address || 0x5c;
 };
 
-// Метод записывает данные data в регистр reg
+// The method writes data to the reg register
 Barometer.prototype.writeI2C = function(reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
-// Метод производит чтение из регистра reg количестов байт count
+// The method reads from the reg register the number of bytes count
 Barometer.prototype.readI2C = function(reg, count) {
   if (count === undefined) {
     count = 1;
@@ -22,7 +22,7 @@ Barometer.prototype.readI2C = function(reg, count) {
   return this._i2c.readFrom(this._address, count);
 };
 
-// Старт модуля
+// Module start
 Barometer.prototype.init = function() {
   if (this.whoAmI() === 0xbd) {
     this.writeI2C(0x20, 0xc0);
@@ -33,7 +33,7 @@ Barometer.prototype.init = function() {
   this.writeI2C(0x20, 0xe0);
 };
 
-// Температура
+// Temperature
 Barometer.prototype.temperature = function(units) {
   var data = this.readI2C(0x2b, 2);
   var temp = data[0] | (data[1] << 8);
@@ -46,7 +46,7 @@ Barometer.prototype.temperature = function(units) {
   return temp;
 };
 
-// Давление
+// Pressure
 Barometer.prototype.read = function(units) {
   var data = this.readI2C(0x28, 3);
   var baro = (data[1] << 8) | (data[2] << 16) || data[0];
@@ -64,12 +64,12 @@ Barometer.prototype.read = function(units) {
   return baro;
 };
 
-// Метод возвращает идентификатор устройства
+// The method returns the device identifier
 Barometer.prototype.whoAmI = function() {
   return this.readI2C(0x0f)[0];
 };
 
-// Экспортируем класс
+// Exporting the class
 exports.connect = function(opts) {
   return new Barometer(opts);
 };
