@@ -1,20 +1,20 @@
 /**
- * Класс для работы с датчиком давления
+ * Pressure sensor class
  */
-// Инициализация класса
-var LPS331 = function(opts) {
+// Class initialization
+var Barometer = function(opts) {
   opts = opts || {};
   this._i2c = opts.i2c || I2C1;
   this._address = opts.address || 0x5c;
 };
 
-// Метод записывает данные data в регистр reg
-LPS331.prototype.writeI2C = function(reg, data) {
+// The method writes data to the reg register
+Barometer.prototype.writeI2C = function(reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
-// Метод производит чтение из регистра reg количестов байт count
-LPS331.prototype.readI2C = function(reg, count) {
+// The method reads from the reg register the number of bytes count
+Barometer.prototype.readI2C = function(reg, count) {
   if (count === undefined) {
     count = 1;
   }
@@ -22,13 +22,19 @@ LPS331.prototype.readI2C = function(reg, count) {
   return this._i2c.readFrom(this._address, count);
 };
 
-// Старт модуля
-LPS331.prototype.init = function() {
+// Module start
+Barometer.prototype.init = function() {
+  if (this.whoAmI() === 0xbd) {
+    this.writeI2C(0x20, 0xc0);
+    var t = getTime() + 0.1;
+    while (getTime() < t);
+    return;
+  }
   this.writeI2C(0x20, 0xe0);
 };
 
-// Температура
-LPS331.prototype.temperature = function(units) {
+// Temperature
+Barometer.prototype.temperature = function(units) {
   var data = this.readI2C(0x2b, 2);
   var temp = data[0] | (data[1] << 8);
   if (temp >= 32767) {
@@ -40,8 +46,8 @@ LPS331.prototype.temperature = function(units) {
   return temp;
 };
 
-// Давление
-LPS331.prototype.read = function(units) {
+// Pressure
+Barometer.prototype.read = function(units) {
   var data = this.readI2C(0x28, 3);
   var baro = (data[1] << 8) | (data[2] << 16) || data[0];
   if (baro > 2147483647) {
@@ -58,12 +64,12 @@ LPS331.prototype.read = function(units) {
   return baro;
 };
 
-// Метод возвращает идентификатор устройства
-LPS331.prototype.whoAmI = function() {
+// The method returns the device identifier
+Barometer.prototype.whoAmI = function() {
   return this.readI2C(0x0f)[0];
 };
 
-// Экспортируем класс
+// Exporting the class
 exports.connect = function(opts) {
-  return new LPS331(opts);
+  return new Barometer(opts);
 };
