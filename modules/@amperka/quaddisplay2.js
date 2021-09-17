@@ -97,7 +97,7 @@ QuadDisplay.prototype.display = function(str, alignRight) {
       this._data[d] = SYMBOLS[s[i]];
     } else {
       // prevent dot-dot and space-dot collapsing
-      if (d !== -1 && this._data[d] !== 0xfe && this._data[d] !== 0xff) {
+      if (d !== -1 && (this._data[d] !== 0xfe && this._data[d] !== 0xff)) {
         this._data[d] &= 0xfe;
       } else {
         d++;
