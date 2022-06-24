@@ -1,6 +1,6 @@
 var Dweetio = function(name) {
   this._name = name || 'amperka';
-  this._url = ['http://dweet.io/dweet/for/', this._name].join('');
+  this._url = ['http://dweetpro.io/dweet/for/', this._name].join('');
   this._http = require('http');
 };
 
@@ -26,7 +26,7 @@ Dweetio.prototype.send = function(data, callback) {
 };
 
 Dweetio.prototype.follow = function() {
-  return 'https://dweet.io/follow/' + this._name;
+  return 'https://dweetpro.io/follow/' + this._name;
 };
 
 exports.connect = function(name) {
