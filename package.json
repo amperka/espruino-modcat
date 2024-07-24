@@ -12,7 +12,7 @@
   "author": "Amperka LLC",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.13.3",
+    "express": "^4.17.3",
     "object-assign": "^4.1.0",
     "request-json": "^0.5.6"
   },
