@@ -59,6 +59,7 @@ Animation.prototype.play = function() {
 
 Animation.prototype.reverse = function() {
   this._reversed = !this._reversed;
+  this._phase = 1 - this._phase;
   return this;
 };
 
