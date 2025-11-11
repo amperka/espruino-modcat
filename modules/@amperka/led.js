@@ -100,7 +100,7 @@ Led.prototype.brightness = function(value) {
 
 Led.prototype._update = function() {
   var b = this._brightness;
-  if (b > 0 && b <= 1.0) {
+  if (b >= 0 && b <= 1.0) {
     analogWrite(this._pin, b * b * b * this._on, { freq: 100 });
   } else {
     digitalWrite(this._pin, this._on);
