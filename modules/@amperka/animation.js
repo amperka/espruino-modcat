@@ -59,7 +59,6 @@ Animation.prototype.play = function() {
 
 Animation.prototype.reverse = function() {
   this._reversed = !this._reversed;
-  this._phase = 1 - this._phase;
   return this;
 };
 
@@ -142,7 +141,7 @@ Animation.prototype._update = function() {
   var val = lerp(this._phase, trans.from, trans.to);
   this.emit('update', val);
   if (animationCompleted) {
-    this._phase = this._reversed ? 1 : 0;
+    this._phase = this._reversed ? 0 : 1;
     this._qi = this._reversed ? this._queue.length - 1 : 0;
   }
 };
