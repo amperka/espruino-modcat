@@ -1,0 +1,29 @@
+name: Deploy
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      RCLONE_CONFIG_STORAGE_TYPE: s3
+      RCLONE_CONFIG_STORAGE_PROVIDER: Other
+      RCLONE_CONFIG_STORAGE_ACL: public-read
+      RCLONE_CONFIG_STORAGE_ENDPOINT: "${{ secrets.RCLONE_CONFIG_STORAGE_ENDPOINT }}"
+      RCLONE_CONFIG_STORAGE_ACCESS_KEY_ID: "${{ secrets.RCLONE_CONFIG_STORAGE_ACCESS_KEY_ID }}"
+      RCLONE_CONFIG_STORAGE_SECRET_ACCESS_KEY: "${{ secrets.RCLONE_CONFIG_STORAGE_SECRET_ACCESS_KEY }}"
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: yarn install --non-interactive
+      - run: yarn build
+      - run: |
+          curl https://rclone.org/install.sh | sudo bash
+          rclone sync dist/ storage:js-amperka-ru/ --verbose
