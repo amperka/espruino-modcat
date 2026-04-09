@@ -3,36 +3,35 @@
 var fs = require('fs');
 var express = require('express');
 var requestJson = require('request-json');
-var objectAssign = require('object-assign');
 
 var app = express();
 
 app.use('/modules', express.static(__dirname + '/modules'));
 app.use('/binaries', express.static(__dirname + '/binaries'));
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
-app.get('/json/boards.json', function(req, res) {
+app.get('/json/boards.json', function (req, res) {
   var client = requestJson.createClient('http://espruino.com/');
-  client.get('json/boards.json', function(err, _, originalJson) {
+  client.get('json/boards.json', function (err, _, originalJson) {
     if (err) {
       originalJson = {};
     }
 
-    fs.readFile(__dirname + '/json/boards.json', function(err, data) {
+    fs.readFile(__dirname + '/json/boards.json', function (err, data) {
       var localJson = JSON.parse(data);
-      var resultJson = objectAssign(originalJson, localJson);
+      var resultJson = Object.assign(originalJson, localJson);
       res.send(resultJson);
     });
   });
 });
 
-app.get('/json/{*path}', function(req, res) {
+app.get('/json/{*path}', function (req, res) {
   var root = __dirname + '/json';
   var filename = req.params.path;
-  fs.access(root + '/' + filename, fs.F_OK, function(err) {
+  fs.access(root + '/' + filename, fs.F_OK, function (err) {
     if (err) {
       res.redirect('http://espruino.com/json/' + filename);
     } else {
@@ -42,7 +41,7 @@ app.get('/json/{*path}', function(req, res) {
 });
 
 // The 404 Route
-app.get('{*path}', function(req, res) {
+app.get('{*path}', function (req, res) {
   if (req.url.indexOf('amperka') > -1 || req.url.indexOf('@') > -1) {
     console.log('Not found:', req.url);
     res.status(404).send('Not found');
@@ -53,7 +52,7 @@ app.get('{*path}', function(req, res) {
   }
 });
 
-var server = app.listen(3001, function() {
+var server = app.listen(3001, function () {
   var host = server.address().address;
   var port = server.address().port;
 
