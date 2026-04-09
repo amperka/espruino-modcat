@@ -13,8 +13,7 @@
   "author": "Amperka LLC",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.2.1",
-    "request-json": "^0.5.6"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

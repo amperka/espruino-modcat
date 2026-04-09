@@ -1,8 +1,8 @@
 // Do not remove! This file needed for uses library offline.
 
 const fs = require('node:fs');
+const https = require('node:https');
 const express = require('express');
-const requestJson = require('request-json');
 
 const app = express();
 
@@ -14,18 +14,31 @@ app.get('/', (_req, res) => {
 });
 
 app.get('/json/boards.json', (_req, res) => {
-  const client = requestJson.createClient('https://espruino.com/');
-  client.get('json/boards.json', (err, _, originalJson) => {
-    if (err) {
-      originalJson = {};
-    }
+  https
+    .get('https://www.espruino.com/json/boards.json', (remote) => {
+      var body = '';
+      remote.on('data', (chunk) => {
+        body += chunk;
+      });
+      remote.on('end', () => {
+        console.log(body);
+        let originalJson = {};
+        try {
+          originalJson = JSON.parse(body);
+        } catch (_) {}
 
-    fs.readFile(`${__dirname}/json/boards.json`, (_err, data) => {
-      var localJson = JSON.parse(data);
-      var resultJson = Object.assign(originalJson, localJson);
-      res.send(resultJson);
+        fs.readFile(`${__dirname}/json/boards.json`, (_err, data) => {
+          const localJson = JSON.parse(data);
+          const resultJson = Object.assign(originalJson, localJson);
+          res.send(resultJson);
+        });
+      });
+    })
+    .on('error', () => {
+      fs.readFile(`${__dirname}/json/boards.json`, (_err, data) => {
+        res.send(JSON.parse(data));
+      });
     });
-  });
 });
 
 app.get('/json/{*path}', (req, res) => {
@@ -54,8 +67,8 @@ app.get('{*path}', (req, res) => {
 });
 
 var server = app.listen(3001, () => {
-  var host = server.address().address;
-  var port = server.address().port;
+  const host = server.address().address;
+  const port = server.address().port;
 
   console.log('App listening at http://%s:%s', host, port);
 });
