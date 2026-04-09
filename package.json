@@ -1,5 +1,6 @@
 {
   "name": "modcat",
+  "type": "module",
   "version": "0.0.1",
   "description": "",
   "scripts": {
@@ -17,7 +18,8 @@
     "request-json": "^0.5.6"
   },
   "devDependencies": {
-    "eslint": "^6.1.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
     "prettier": "^3.8.1",
     "prettylint": "^2.0.0",
     "uglify-es": "^3.3.9"
