@@ -26,7 +26,7 @@ var KEY_CODES = {
   Z: 378105999
 };
 
-var Receiver = function(pin, opts) {
+var Receiver = function (pin, opts) {
   this._pin = pin;
   this._currentCode = 0;
   this._lastCode = 0;
@@ -45,7 +45,7 @@ var Receiver = function(pin, opts) {
   this._watch();
 };
 
-Receiver.prototype._watch = function() {
+Receiver.prototype._watch = function () {
   setWatch(this._onPulse.bind(this), this._pin, {
     repeat: true,
     edge: 'falling'
@@ -54,7 +54,7 @@ Receiver.prototype._watch = function() {
   return this;
 };
 
-Receiver.prototype._onPulse = function(e) {
+Receiver.prototype._onPulse = function (e) {
   var self = this;
   var dt = e.time - e.lastTime;
 
@@ -67,14 +67,14 @@ Receiver.prototype._onPulse = function(e) {
     this._complete();
   } else {
     this._currentCode = (this._currentCode << 1) | +(dt > 0.0008);
-    this._timeoutID = setTimeout(function() {
+    this._timeoutID = setTimeout(function () {
       self._timeoutID = null;
       self._complete();
     }, 50);
   }
 };
 
-Receiver.prototype._complete = function() {
+Receiver.prototype._complete = function () {
   if (!this._currentCode) {
     return;
   }
@@ -89,6 +89,6 @@ Receiver.prototype._complete = function() {
   this._currentCode = 0;
 };
 
-exports.connect = function(pin, opts) {
+exports.connect = function (pin, opts) {
   return new Receiver(pin, opts);
 };

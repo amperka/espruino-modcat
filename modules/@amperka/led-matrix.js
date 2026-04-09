@@ -1,4 +1,4 @@
-var Matrix = function(i2c, opts) {
+var Matrix = function (i2c, opts) {
   opts = opts || {};
   this._i2c = i2c || PrimaryI2C; //
   this._address = opts.address || 96;
@@ -14,28 +14,28 @@ var Matrix = function(i2c, opts) {
   return this;
 };
 
-Matrix.prototype.writeReg = function(reg, data) {
+Matrix.prototype.writeReg = function (reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
-Matrix.prototype.power = function(state) {
+Matrix.prototype.power = function (state) {
   this._off = !state;
   this.writeReg(0x00, (this._off << 7) | (this._analogInput << 2));
   return this;
 };
 
-Matrix.prototype.analogInput = function(state) {
+Matrix.prototype.analogInput = function (state) {
   this._analogInput = !!state;
   this.writeReg(0x00, (this._off << 7) | (this._analogInput << 2));
   return this;
 };
 
-Matrix.prototype.equalizer = function(state) {
+Matrix.prototype.equalizer = function (state) {
   this.writeReg(0x0f, !!state << 6);
   return this;
 };
 
-Matrix.prototype.audioGain = function(value) {
+Matrix.prototype.audioGain = function (value) {
   value = (E.clip(value, 0, 1) * 7).toFixed(0); // map [0.0 … 1.0] to [0 … 7]
   if (this._gain === value) {
     return this;
@@ -54,7 +54,7 @@ Matrix.prototype.audioGain = function(value) {
   return this;
 };
 
-Matrix.prototype.brightness = function(value) {
+Matrix.prototype.brightness = function (value) {
   value = (E.clip(value, 0, 1) * 15).toFixed(0); // map [0.0 … 1.0] to [0 … 15]
   if (this._brightness === value) {
     return this;
@@ -83,7 +83,7 @@ Matrix.prototype.brightness = function(value) {
   return this;
 };
 
-Matrix.prototype.clear = function() {
+Matrix.prototype.clear = function () {
   for (var x = 0; x < 8; ++x) {
     this.pixels[x] = 0x00;
     this.writeReg(0x01 + x, this.pixels[x]);
@@ -92,11 +92,11 @@ Matrix.prototype.clear = function() {
   return this;
 };
 
-Matrix.prototype.read = function() {
+Matrix.prototype.read = function () {
   return this.pixels;
 };
 
-Matrix.prototype.print = function(byteArray) {
+Matrix.prototype.print = function (byteArray) {
   for (var x = 0; x < 8; ++x) {
     this.pixels[x] = E.reverseByte(byteArray[x]);
     this.writeReg(0x01 + x, this.pixels[x]);
@@ -105,7 +105,7 @@ Matrix.prototype.print = function(byteArray) {
   return this;
 };
 
-Matrix.prototype.write = function(x, y, state) {
+Matrix.prototype.write = function (x, y, state) {
   if (state) {
     this.pixels[x] |= 1 << y;
   } else {
@@ -116,11 +116,11 @@ Matrix.prototype.write = function(x, y, state) {
   return this;
 };
 
-Matrix.prototype.update = function() {
+Matrix.prototype.update = function () {
   this.writeReg(0x0c, 0x00);
   return this;
 };
 
-exports.connect = function(i2c, opts) {
+exports.connect = function (i2c, opts) {
   return new Matrix(i2c, opts);
 };

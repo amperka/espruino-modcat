@@ -2,7 +2,7 @@ function lerp(k, from, to) {
   return from + k * (to - from);
 }
 
-var Animation = function(opts) {
+var Animation = function (opts) {
   opts = opts || {};
   this._from = opts.from || 0;
   this._to = opts.to === undefined ? 1 : opts.to;
@@ -12,7 +12,7 @@ var Animation = function(opts) {
   this._startTime = null;
 };
 
-Animation.prototype.toggle = function() {
+Animation.prototype.toggle = function () {
   if (!arguments.length) {
     return this.toggle(!this._playing);
   }
@@ -28,21 +28,21 @@ Animation.prototype.toggle = function() {
   return this;
 };
 
-Animation.prototype.play = function() {
+Animation.prototype.play = function () {
   return this.toggle(true);
 };
 
-Animation.prototype.stop = function() {
+Animation.prototype.stop = function () {
   return this.toggle(false);
 };
 
-Animation.prototype.setup = function(opts) {
+Animation.prototype.setup = function (opts) {
   this._high = opts.high || 0;
   this._low = opts.low || 0;
   return this;
 };
 
-Animation.prototype._setInterval = function() {
+Animation.prototype._setInterval = function () {
   this._startTime = getTime();
   this._update();
   this._intervalID = setInterval(
@@ -51,7 +51,7 @@ Animation.prototype._setInterval = function() {
   );
 };
 
-Animation.prototype._update = function() {
+Animation.prototype._update = function () {
   var dt = getTime() - this._startTime;
   var mod = Math.wrap(dt, this._period);
   var k = mod / this._period;
@@ -59,6 +59,6 @@ Animation.prototype._update = function() {
   this.emit('update', val);
 };
 
-exports.create = function(opts) {
+exports.create = function (opts) {
   return new Animation(opts);
 };

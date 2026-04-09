@@ -1,4 +1,4 @@
-var Maker = function(token, action) {
+var Maker = function (token, action) {
   this._token = token;
   this._action = action || 'amperka';
   this._url = [
@@ -10,18 +10,18 @@ var Maker = function(token, action) {
   this._http = require('http');
 };
 
-Maker.prototype.send = function(data, callback) {
+Maker.prototype.send = function (data, callback) {
   var a = [];
   for (var prop in data) {
     a.push(prop + '=' + encodeURIComponent(data[prop]));
   }
 
-  this._http.get([this._url, a.join('&')].join('?'), function(res) {
+  this._http.get([this._url, a.join('&')].join('?'), function (res) {
     var r = '';
-    res.on('data', function(d) {
+    res.on('data', function (d) {
       r += d;
     });
-    res.on('close', function() {
+    res.on('close', function () {
       if (callback) {
         callback(r);
       }
@@ -29,7 +29,7 @@ Maker.prototype.send = function(data, callback) {
   });
 };
 
-exports.create = function(opts) {
+exports.create = function (opts) {
   var token = opts.token;
   var action = opts.action;
   return new Maker(token, action);

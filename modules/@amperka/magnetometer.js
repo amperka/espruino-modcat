@@ -1,17 +1,17 @@
 // Class initialization
-var LIS3MDL = function(i2c, address) {
+var LIS3MDL = function (i2c, address) {
   this._i2c = i2c;
   this._sensitivity = 1 / 6842;
   address === undefined ? (this._address = 0x1c) : (this._address = address);
 };
 
 // The method writes data to the reg register
-LIS3MDL.prototype.write = function(reg, data) {
+LIS3MDL.prototype.write = function (reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // The method reads from the reg register the number of bytes count
-LIS3MDL.prototype.read = function(reg, count) {
+LIS3MDL.prototype.read = function (reg, count) {
   if (count === undefined) {
     count = 1;
   }
@@ -20,7 +20,7 @@ LIS3MDL.prototype.read = function(reg, count) {
 };
 
 // Module start
-LIS3MDL.prototype.init = function(opts) {
+LIS3MDL.prototype.init = function (opts) {
   // Temp compensation ON, X-axis, Y-axis in High perfomance
   var config20 = 0xcc; // 11001100
 
@@ -62,7 +62,7 @@ LIS3MDL.prototype.init = function(opts) {
 };
 
 // The method returns data from the magnetometer
-LIS3MDL.prototype._getRaw = function() {
+LIS3MDL.prototype._getRaw = function () {
   var data = this.read(0x28, 6);
   var result = {
     x: data[0] | (data[1] << 8),
@@ -82,7 +82,7 @@ LIS3MDL.prototype._getRaw = function() {
 };
 
 // The method returns the magnetometer data in gauss
-LIS3MDL.prototype.get = function(units) {
+LIS3MDL.prototype.get = function (units) {
   var m = this._getRaw();
   if (units !== undefined && units === 'G') {
     m.x = m.x * this._sensitivity;
@@ -94,11 +94,11 @@ LIS3MDL.prototype.get = function(units) {
 };
 
 // The method returns the device identifier
-LIS3MDL.prototype.whoAmI = function() {
+LIS3MDL.prototype.whoAmI = function () {
   return this.read(0x0f)[0];
 };
 
 // Exporting the class
-exports.connect = function(i2c, address) {
+exports.connect = function (i2c, address) {
   return new LIS3MDL(i2c, address);
 };

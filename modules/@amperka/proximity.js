@@ -71,7 +71,7 @@ var regAddr = {
   INTERLEAVED_MODE__ENABLE: 0x2a3
 };
 
-var VL6180X = function(opts) {
+var VL6180X = function (opts) {
   opts = opts || {};
   if (opts.irqPin) {
     this._irqPin = opts.irqPin;
@@ -106,7 +106,7 @@ var VL6180X = function(opts) {
   this._waitForALSCallback = null;
 };
 
-VL6180X.prototype._handleIrq = function() {
+VL6180X.prototype._handleIrq = function () {
   if (this._waitForRange) {
     this._waitForRange = false;
     var range = this._read8bit(regAddr.RESULT__RANGE_VAL);
@@ -134,7 +134,7 @@ VL6180X.prototype._handleIrq = function() {
   }
 };
 
-VL6180X.prototype._init = function() {
+VL6180X.prototype._init = function () {
   // Store part-to-part range offset so it can be adjusted if scaling is changed
   this._ptpOffset = this._read8bit(regAddr.SYSRANGE__PART_TO_PART_RANGE_OFFSET);
 
@@ -190,11 +190,11 @@ VL6180X.prototype._init = function() {
   }
 };
 
-VL6180X.prototype._write8bit = function(reg, val8bit) {
+VL6180X.prototype._write8bit = function (reg, val8bit) {
   this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff, val8bit);
 };
 
-VL6180X.prototype._write16bit = function(reg, val16bit) {
+VL6180X.prototype._write16bit = function (reg, val16bit) {
   this._i2c.writeTo(
     this._address,
     (reg >> 8) & 0xff,
@@ -204,7 +204,7 @@ VL6180X.prototype._write16bit = function(reg, val16bit) {
   );
 };
 
-VL6180X.prototype._write32bit = function(reg, val32bit) {
+VL6180X.prototype._write32bit = function (reg, val32bit) {
   this._i2c.writeTo(
     this._address,
     (reg >> 8) & 0xff,
@@ -216,25 +216,25 @@ VL6180X.prototype._write32bit = function(reg, val32bit) {
   );
 };
 
-VL6180X.prototype._read8bit = function(reg) {
+VL6180X.prototype._read8bit = function (reg) {
   this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff);
   var data = this._i2c.readFrom(this._address, 1);
   return data[0];
 };
 
-VL6180X.prototype._read16bit = function(reg) {
+VL6180X.prototype._read16bit = function (reg) {
   this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff);
   var data = this._i2c.readFrom(this._address, 2);
   return (data[0] << 8) + data[1];
 };
 
-VL6180X.prototype._read32bit = function(reg) {
+VL6180X.prototype._read32bit = function (reg) {
   this._i2c.writeTo(this._address, (reg >> 8) & 0xff, reg & 0xff);
   var data = this._i2c.readFrom(this._address, 4);
   return (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
 };
 
-VL6180X.prototype.setAddress = function(newAddr) {
+VL6180X.prototype.setAddress = function (newAddr) {
   this._write8bit(regAddr.I2C_SLAVE__DEVICE_ADDRESS, newAddr & 0x7f);
   this._address = newAddr;
 };
@@ -242,7 +242,7 @@ VL6180X.prototype.setAddress = function(newAddr) {
 // Note that this function does not set up GPIO1 as an interrupt output as
 // suggested, though you can do so by calling:
 // this._write8bit(regAddr.SYSTEM__MODE_GPIO1, 0x10);
-VL6180X.prototype._configureDefault = function() {
+VL6180X.prototype._configureDefault = function () {
   // устанавливаем пин прерывания
   this._write8bit(regAddr.SYSTEM__MODE_GPIO1, 0x30);
   // "Recommended : Public registers"
@@ -279,7 +279,7 @@ VL6180X.prototype._configureDefault = function() {
   this.setScaling(1);
 };
 
-VL6180X.prototype.setScaling = function(newScaling) {
+VL6180X.prototype.setScaling = function (newScaling) {
   var DefaultCrosstalkValidHeight = 20; // default value of SYSRANGE__CROSSTALK_VALID_HEIGHT
 
   // do nothing if scaling value is invalid
@@ -309,7 +309,7 @@ VL6180X.prototype.setScaling = function(newScaling) {
 };
 
 // Performs a single-shot ranging measurement
-VL6180X.prototype.range = function(callback) {
+VL6180X.prototype.range = function (callback) {
   this._write8bit(regAddr.SYSRANGE__START, 0x01);
   this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x01);
   this._waitForRange = true;
@@ -317,18 +317,18 @@ VL6180X.prototype.range = function(callback) {
 };
 
 // Performs a single-shot ambient light measurement
-VL6180X.prototype.ambient = function(callback) {
+VL6180X.prototype.ambient = function (callback) {
   this._write8bit(regAddr.SYSTEM__INTERRUPT_CLEAR, 0x02);
   this._write8bit(regAddr.SYSALS__START, 0x01);
   this._waitForALS = true;
   this._waitForALSCallback = callback;
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new VL6180X(opts);
 };
 
-exports.registers = function() {
+exports.registers = function () {
   return regAddr;
 };
 

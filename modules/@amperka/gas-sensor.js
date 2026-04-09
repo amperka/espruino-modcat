@@ -70,7 +70,7 @@ var Sensors = {
   }
 };
 
-var GasSensor = function(opts) {
+var GasSensor = function (opts) {
   opts = opts || {};
   if (opts.dataPin === undefined) {
     return new Error('Data pin is undefined');
@@ -98,7 +98,7 @@ var GasSensor = function(opts) {
 
 // The function calibrates the sensor if no coef value is passed
 // Returns the ratio of the current resistance to the resistance according to the datasheet
-GasSensor.prototype.calibrate = function(coef) {
+GasSensor.prototype.calibrate = function (coef) {
   if (coef) {
     this._coef = coef;
   } else {
@@ -109,7 +109,7 @@ GasSensor.prototype.calibrate = function(coef) {
 };
 
 // The method returns the filtered resistance of the sensor
-GasSensor.prototype.calculateResistance = function() {
+GasSensor.prototype.calculateResistance = function () {
   var r = 0;
   for (var i = 0; i < this._times; i++) {
     r += this.getResistance();
@@ -119,7 +119,7 @@ GasSensor.prototype.calculateResistance = function() {
 };
 
 // The method returns the resistance of the sensor
-GasSensor.prototype.getResistance = function() {
+GasSensor.prototype.getResistance = function () {
   var vTemp = E.getAnalogVRef();
   var v = vTemp * analogRead(this._dataPin);
   var r = ((vTemp - v) / v) * this._model.rLoad;
@@ -127,7 +127,7 @@ GasSensor.prototype.getResistance = function() {
 };
 
 // Returns the PPM value for gas
-GasSensor.prototype.read = function(gas) {
+GasSensor.prototype.read = function (gas) {
   if (gas && this._model.gas[gas] === undefined) {
     return Error('Gas is undefined');
   } else if (!gas) {
@@ -143,15 +143,15 @@ GasSensor.prototype.read = function(gas) {
 };
 
 // Forcibly controls heating using PWM
-GasSensor.prototype.heat = function(pwr) {
+GasSensor.prototype.heat = function (pwr) {
   analogWrite(this._heatPin, pwr);
 };
 
 // Turns on the preliminary heating of the sensor, after which it executes a callback
-GasSensor.prototype.preheat = function(callback) {
+GasSensor.prototype.preheat = function (callback) {
   this.heat(1);
   if (callback) {
-    setTimeout(function() {
+    setTimeout(function () {
       callback();
     }, this._preheat * 1000);
   }
@@ -159,7 +159,7 @@ GasSensor.prototype.preheat = function(callback) {
 
 // Warm-up function for MQ-7 and MQ-9
 // Implemented via setTimeout to avoid waiting 150 seconds before starting
-GasSensor.prototype.cycleHeat = function(callback) {
+GasSensor.prototype.cycleHeat = function (callback) {
   if (!callback) {
     try {
       clearTimeout(this._intId);
@@ -172,10 +172,10 @@ GasSensor.prototype.cycleHeat = function(callback) {
 
   // We start heating from 5 volts
   this.heat(1);
-  this._intId = setTimeout(function() {
+  this._intId = setTimeout(function () {
     // After 60 seconds, we start heating from 1.5 volts
     this.heat(0.294);
-    this._intId = setTimeout(function() {
+    this._intId = setTimeout(function () {
       // After 90 seconds, we execute
       callback();
       // And we start the cycle again
@@ -184,6 +184,6 @@ GasSensor.prototype.cycleHeat = function(callback) {
   }, 60000);
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new GasSensor(opts);
 };
