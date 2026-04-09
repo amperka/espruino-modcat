@@ -29,9 +29,9 @@ app.get('/json/boards.json', function(req, res) {
   });
 });
 
-app.get('/json/*', function(req, res) {
+app.get('/json/{*path}', function(req, res) {
   var root = __dirname + '/json';
-  var filename = req.params[0];
+  var filename = req.params.path;
   fs.access(root + '/' + filename, fs.F_OK, function(err) {
     if (err) {
       res.redirect('http://espruino.com/json/' + filename);
@@ -42,7 +42,7 @@ app.get('/json/*', function(req, res) {
 });
 
 // The 404 Route
-app.get('*', function(req, res) {
+app.get('{*path}', function(req, res) {
   if (req.url.indexOf('amperka') > -1 || req.url.indexOf('@') > -1) {
     console.log('Not found:', req.url);
     res.status(404).send('Not found');
