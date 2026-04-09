@@ -1,13 +1,15 @@
 // Do not remove! This file needed for uses library offline.
 
-const fs = require('node:fs');
-const https = require('node:https');
-const express = require('express');
+import fs from 'node:fs';
+import https from 'node:https';
+import path from 'node:path';
+import express from 'express';
+
+const __dirname = import.meta.dirname;
 
 const app = express();
-
-app.use('/modules', express.static(`${__dirname}/modules`));
-app.use('/binaries', express.static(`${__dirname}/binaries`));
+app.use('/modules', express.static(path.join(__dirname, 'modules')));
+app.use('/binaries', express.static(path.join(__dirname, 'binaries')));
 
 app.get('/', (_req, res) => {
   res.send('Hello World!');
@@ -16,35 +18,36 @@ app.get('/', (_req, res) => {
 app.get('/json/boards.json', (_req, res) => {
   https
     .get('https://www.espruino.com/json/boards.json', (remote) => {
-      var body = '';
+      let body = '';
       remote.on('data', (chunk) => {
         body += chunk;
       });
       remote.on('end', () => {
-        console.log(body);
         let originalJson = {};
         try {
           originalJson = JSON.parse(body);
         } catch (_) {}
-
-        fs.readFile(`${__dirname}/json/boards.json`, (_err, data) => {
-          const localJson = JSON.parse(data);
-          const resultJson = Object.assign(originalJson, localJson);
-          res.send(resultJson);
-        });
+        fs.readFile(
+          path.join(__dirname, 'json', 'boards.json'),
+          (_err, data) => {
+            const localJson = JSON.parse(data);
+            const resultJson = Object.assign(originalJson, localJson);
+            res.send(resultJson);
+          }
+        );
       });
     })
     .on('error', () => {
-      fs.readFile(`${__dirname}/json/boards.json`, (_err, data) => {
+      fs.readFile(path.join(__dirname, 'json', 'boards.json'), (_err, data) => {
         res.send(JSON.parse(data));
       });
     });
 });
 
 app.get('/json/{*path}', (req, res) => {
-  const root = `${__dirname}/json`;
+  const root = path.join(__dirname, 'json');
   const filename = req.params.path?.join('/');
-  fs.access(`${root}/${filename}`, fs.F_OK, (err) => {
+  fs.access(path.join(root, filename), fs.F_OK, (err) => {
     if (err) {
       res.redirect(`https://espruino.com/json/${filename}`);
     } else {
@@ -66,7 +69,7 @@ app.get('{*path}', (req, res) => {
   }
 });
 
-var server = app.listen(3001, () => {
+const server = app.listen(3001, () => {
   const host = server.address().address;
   const port = server.address().port;
 
