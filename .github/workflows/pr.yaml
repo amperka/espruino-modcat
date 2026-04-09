@@ -1,0 +1,19 @@
+name: PR
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: yarn install --non-interactive
+      - run: yarn verify
+      - run: yarn build
