@@ -18,8 +18,8 @@
   },
   "devDependencies": {
     "eslint": "^6.1.0",
-    "prettier": "^1.18.2",
-    "prettylint": "^1.0.0",
+    "prettier": "^3.8.1",
+    "prettylint": "^2.0.0",
     "uglify-es": "^3.3.9"
   }
 }
