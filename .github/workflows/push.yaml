@@ -26,6 +26,6 @@ jobs:
       - run: yarn build
       - run: |
           curl https://rclone.org/install.sh | sudo bash
-          rclone sync binaries/ storage:js-amperka-ru/binaries --verbose
-          rclone sync json/ storage:js-amperka-ru/json --verbose
-          rclone sync modules/ storage:js-amperka-ru/modules --verbose
+          rclone sync binaries/ storage:js-amperka-ru/binaries --verbose --no-update-modtime
+          rclone sync json/ storage:js-amperka-ru/json --verbose --no-update-modtime
+          rclone sync modules/ storage:js-amperka-ru/modules --verbose --no-update-modtime
