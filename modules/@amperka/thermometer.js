@@ -1,9 +1,9 @@
-var Thermometer = function(pin) {
+var Thermometer = function (pin) {
   this._pin = pin;
   this._pin.mode('analog');
 };
 
-Thermometer.prototype.read = function(units) {
+Thermometer.prototype.read = function (units) {
   var val = analogRead(this._pin);
   if (typeof units === 'undefined') {
     return val;
@@ -21,6 +21,6 @@ Thermometer.prototype.read = function(units) {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new Thermometer(pin);
 };

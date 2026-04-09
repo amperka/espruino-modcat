@@ -1,4 +1,4 @@
-var Motor = function(opts) {
+var Motor = function (opts) {
   this._pwmPin = opts.pwmPin;
   this._pwmPin.mode('output');
   this._phasePin = opts.phasePin;
@@ -8,7 +8,7 @@ var Motor = function(opts) {
   }
 };
 
-Motor.prototype.write = function(u) {
+Motor.prototype.write = function (u) {
   this._phasePin.write(u > 0);
   analogWrite(this._pwmPin, E.clip(Math.abs(u), 0, 1));
 };
@@ -26,6 +26,6 @@ exports.MotorShield = {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new Motor(pin);
 };

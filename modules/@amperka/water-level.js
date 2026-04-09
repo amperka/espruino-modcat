@@ -1,4 +1,4 @@
-var WaterLevel = function(pin, opts) {
+var WaterLevel = function (pin, opts) {
   this._pin = pin;
 
   this._pin.mode('input_pullup');
@@ -12,7 +12,7 @@ var WaterLevel = function(pin, opts) {
   this._watch();
 };
 
-WaterLevel.prototype.read = function() {
+WaterLevel.prototype.read = function () {
   if (this._mountedOnTop) {
     return this._pin.read() ? 'up' : 'down';
   } else {
@@ -20,18 +20,18 @@ WaterLevel.prototype.read = function() {
   }
 };
 
-WaterLevel.prototype._watch = function() {
+WaterLevel.prototype._watch = function () {
   setWatch(this._onChange.bind(this), this._pin, {
     repeat: true,
     edge: 'both'
   });
 };
 
-WaterLevel.prototype._onChange = function(e) {
+WaterLevel.prototype._onChange = function (e) {
   if (this._toggleTimerID == null) {
     var prevState = e.state;
     var self = this;
-    this._toggleTimerID = setTimeout(function() {
+    this._toggleTimerID = setTimeout(function () {
       if (self._pin.read() === prevState) {
         if (self._mountedOnTop) {
           self.emit(prevState ? 'up' : 'down');
@@ -45,6 +45,6 @@ WaterLevel.prototype._onChange = function(e) {
   }
 };
 
-exports.connect = function(pin, opts) {
+exports.connect = function (pin, opts) {
   return new WaterLevel(pin, opts);
 };

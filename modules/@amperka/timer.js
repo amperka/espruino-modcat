@@ -1,13 +1,13 @@
-var Timer = function(interval) {
+var Timer = function (interval) {
   this._interval = interval;
   this._intervalID = null;
 };
 
-Timer.prototype.isRunning = function() {
+Timer.prototype.isRunning = function () {
   return !!this._intervalID;
 };
 
-Timer.prototype.run = function() {
+Timer.prototype.run = function () {
   if (this.isRunning()) {
     return this;
   }
@@ -20,7 +20,7 @@ Timer.prototype.run = function() {
   return this;
 };
 
-Timer.prototype.stop = function() {
+Timer.prototype.stop = function () {
   if (this.isRunning()) {
     clearInterval(this._intervalID);
     this._intervalID = null;
@@ -29,12 +29,12 @@ Timer.prototype.stop = function() {
   return this;
 };
 
-Timer.prototype.tick = function() {
+Timer.prototype.tick = function () {
   this.reset().emit('tick');
   return this;
 };
 
-Timer.prototype.reset = function() {
+Timer.prototype.reset = function () {
   if (this.isRunning()) {
     this.stop().run();
   }
@@ -42,7 +42,7 @@ Timer.prototype.reset = function() {
   return this;
 };
 
-Timer.prototype.interval = function(val, units) {
+Timer.prototype.interval = function (val, units) {
   if (!val) {
     return this._interval;
   }
@@ -61,6 +61,6 @@ Timer.prototype.interval = function(val, units) {
   }
 };
 
-exports.create = function(interval) {
+exports.create = function (interval) {
   return new Timer(interval);
 };

@@ -4,7 +4,7 @@ var C = {
   LOW: -1
 };
 
-var Hysteresis = function(opts) {
+var Hysteresis = function (opts) {
   this._low = opts.low !== undefined ? opts.low : opts.high;
   this._high = opts.high !== undefined ? opts.high : opts.low;
   this._lowLag = opts.lowLag || 0;
@@ -14,7 +14,7 @@ var Hysteresis = function(opts) {
   this._stable = false;
 };
 
-Hysteresis.prototype.push = function(val) {
+Hysteresis.prototype.push = function (val) {
   var newState =
     val > this._high ? C.HIGH : val < this._low ? C.LOW : C.BETWEEN;
 
@@ -39,12 +39,12 @@ Hysteresis.prototype.push = function(val) {
   return this;
 };
 
-Hysteresis.prototype._stabilize = function(val) {
+Hysteresis.prototype._stabilize = function (val) {
   this.emit(val);
   this.emit('change', val);
   this._stable = true;
 };
 
-exports.create = function(opts) {
+exports.create = function (opts) {
   return new Hysteresis(opts);
 };

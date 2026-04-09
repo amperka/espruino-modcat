@@ -5,7 +5,7 @@ function TroykaI2CHub(opts) {
   var _i2c = opts.i2c || PrimaryI2C;
   var _enableMask = 0x08;
 
-  this.setBusChannel = function(channel) {
+  this.setBusChannel = function (channel) {
     if (channel < 0 || channel >= 8) {
       return;
     }
@@ -13,12 +13,12 @@ function TroykaI2CHub(opts) {
     _i2c.writeTo(_address, _channel | _enableMask);
   };
 
-  this.getBusChannel = function() {
+  this.getBusChannel = function () {
     return _channel;
   };
   this.setBusChannel(0);
 }
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new TroykaI2CHub(opts);
 };

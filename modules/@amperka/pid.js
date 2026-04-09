@@ -2,7 +2,7 @@
 // Integration in _ti last tacts
 // Differentiation - last tact only
 
-var Pid = function(opts) {
+var Pid = function (opts) {
   opts = opts || {};
   this._target = opts.target || 0;
   this._kp = opts.kp || 0;
@@ -16,12 +16,12 @@ var Pid = function(opts) {
   this._lastError = 0;
 };
 
-Pid.prototype._clearErrors = function() {
+Pid.prototype._clearErrors = function () {
   this._sumError = 0;
   this._lastError = 0;
 };
 
-Pid.prototype.setup = function(opts) {
+Pid.prototype.setup = function (opts) {
   this._target = opts.target === undefined ? this._target : opts.target;
   this._kp = opts.kp === undefined ? this._kp : opts.kp;
   this._ki = opts.ki === undefined ? this._ki : opts.ki;
@@ -34,7 +34,7 @@ Pid.prototype.setup = function(opts) {
   this._clearErrors();
 };
 
-Pid.prototype.tune = function(opts) {
+Pid.prototype.tune = function (opts) {
   this._kp = opts.kp || 0;
   this._ki = opts.ki || 0;
   this._kd = opts.kd || 0;
@@ -42,7 +42,7 @@ Pid.prototype.tune = function(opts) {
   this._clearErrors();
 };
 
-Pid.prototype.update = function(input) {
+Pid.prototype.update = function (input) {
   var error = this._target - input;
 
   var P = error;
@@ -59,20 +59,20 @@ Pid.prototype.update = function(input) {
   );
 };
 
-Pid.prototype.run = function(repeat, interval) {
+Pid.prototype.run = function (repeat, interval) {
   if (!this._intervalID) {
     this._intervalID = setInterval(repeat, interval * 1000);
     this._clearErrors();
   }
 };
 
-Pid.prototype.stop = function() {
+Pid.prototype.stop = function () {
   if (this._intervalID) {
     clearInterval(this._intervalID);
   }
   this._intervalID = null;
 };
 
-exports.create = function(opts) {
+exports.create = function (opts) {
   return new Pid(opts);
 };
