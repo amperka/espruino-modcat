@@ -1,4 +1,4 @@
-var Button = function(pin, opts) {
+var Button = function (pin, opts) {
   opts = opts || {};
   this._pin = pin;
 
@@ -17,21 +17,21 @@ var Button = function(pin, opts) {
 };
 
 // Deprecated: use `isPressed` intead
-Button.prototype.read = function() {
+Button.prototype.read = function () {
   return this.isPressed() ? 'down' : 'up';
 };
 
-Button.prototype.isPressed = function() {
+Button.prototype.isPressed = function () {
   return this._pin.read() !== !!this._normalSignal;
 };
 
-Button.prototype._onChange = function(e) {
+Button.prototype._onChange = function (e) {
   var pressed = this._normalSignal === 0 ? e.state : !e.state;
   var self = this;
 
   if (this._holdTime && pressed) {
     // emit hold event after timeout specified in options
-    this._holdTimeoutID = setTimeout(function() {
+    this._holdTimeoutID = setTimeout(function () {
       self.emit('hold');
       self._holdTimeoutID = null;
     }, this._holdTime * 1000);
@@ -47,6 +47,6 @@ Button.prototype._onChange = function(e) {
   this.emit(pressed ? 'press' : 'release');
 };
 
-exports.connect = function(pin, opts) {
+exports.connect = function (pin, opts) {
   return new Button(pin, opts);
 };

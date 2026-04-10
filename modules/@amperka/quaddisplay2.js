@@ -4,16 +4,16 @@ var SYMBOLS = {
   '^': 253,
   _: 239,
   '*': 57,
-  '0': 129,
-  '1': 243,
-  '2': 73,
-  '3': 97,
-  '4': 51,
-  '5': 37,
-  '6': 5,
-  '7': 241,
-  '8': 1,
-  '9': 33,
+  0: 129,
+  1: 243,
+  2: 73,
+  3: 97,
+  4: 51,
+  5: 37,
+  6: 5,
+  7: 241,
+  8: 1,
+  9: 33,
   A: 17,
   a: 65,
   B: 1,
@@ -69,7 +69,7 @@ var SYMBOLS = {
   '.': 254
 };
 
-var QuadDisplay = function(opts) {
+var QuadDisplay = function (opts) {
   if (typeof opts === 'number') {
     SPI2.setup({ mosi: B15, miso: B14, sck: B13 });
     this._spi = SPI2;
@@ -86,7 +86,7 @@ var QuadDisplay = function(opts) {
   this.display('    ');
 };
 
-QuadDisplay.prototype.display = function(str, alignRight) {
+QuadDisplay.prototype.display = function (str, alignRight) {
   alignRight = alignRight || false;
   var s = str.toString();
   this._data = [];
@@ -97,7 +97,7 @@ QuadDisplay.prototype.display = function(str, alignRight) {
       this._data[d] = SYMBOLS[s[i]];
     } else {
       // prevent dot-dot and space-dot collapsing
-      if (d !== -1 && (this._data[d] !== 0xfe && this._data[d] !== 0xff)) {
+      if (d !== -1 && this._data[d] !== 0xfe && this._data[d] !== 0xff) {
         this._data[d] &= 0xfe;
       } else {
         d++;
@@ -123,7 +123,7 @@ QuadDisplay.prototype.display = function(str, alignRight) {
   }
 };
 
-QuadDisplay.prototype.marquee = function(str, period) {
+QuadDisplay.prototype.marquee = function (str, period) {
   period = period || 300;
   if (this._intervalID) {
     this._intervalID = clearInterval(this._intervalID);
@@ -131,7 +131,7 @@ QuadDisplay.prototype.marquee = function(str, period) {
   }
   this.display('   ' + str + '   ', false);
   var self = this;
-  this._intervalID = setInterval(function() {
+  this._intervalID = setInterval(function () {
     self._shift++;
     if (self._shift > self._data.length - 4) {
       self._shift = 0;
@@ -141,7 +141,7 @@ QuadDisplay.prototype.marquee = function(str, period) {
   }, period);
 };
 
-QuadDisplay.prototype.frame = function(shift) {
+QuadDisplay.prototype.frame = function (shift) {
   this._shift = shift;
   if (this._shift < 0) {
     this._shift = 0;
@@ -153,6 +153,6 @@ QuadDisplay.prototype.frame = function(shift) {
   digitalWrite(this._cs, 0);
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new QuadDisplay(opts);
 };

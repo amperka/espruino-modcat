@@ -1,4 +1,4 @@
-var Sim900r = function(options) {
+var Sim900r = function (options) {
   if (!options) {
     options = {};
   }
@@ -24,7 +24,7 @@ var Sim900r = function(options) {
   // Configuring a status pin trigger
   pinMode(this._statusPin, 'input_pulldown');
   setWatch(
-    function(e) {
+    function (e) {
       if (e.state === true) {
         self.emit('powerOn');
       } else {
@@ -43,7 +43,7 @@ var Sim900r = function(options) {
   // we sum them up in a buffer and divide them by line break,
   // after which we process them line by line.
   var dataBuffer = '';
-  this._serial.on('data', function(data) {
+  this._serial.on('data', function (data) {
     dataBuffer += data;
     var lines = dataBuffer.split('\r\n');
     for (var i = 0; i < lines.length - 1; i++) {
@@ -55,7 +55,7 @@ var Sim900r = function(options) {
   });
 };
 
-Sim900r.prototype._onDataLine = function(line) {
+Sim900r.prototype._onDataLine = function (line) {
   var data = line.split(': ');
   switch (data[0]) {
     case 'RING':
@@ -114,37 +114,37 @@ Sim900r.prototype._onDataLine = function(line) {
 };
 
 // Knock on the on/off pin
-Sim900r.prototype.power = function() {
+Sim900r.prototype.power = function () {
   digitalPulse(this._powerPin, 1, 1000);
 };
 
 // Enabling the module
-Sim900r.prototype.powerOn = function() {
+Sim900r.prototype.powerOn = function () {
   if (!this.isReady()) {
     this.power();
   }
 };
 
 // Выключение модуля
-Sim900r.prototype.powerOff = function() {
+Sim900r.prototype.powerOff = function () {
   if (this.isReady()) {
     this.power();
   }
 };
 
 // Interoperability state
-Sim900r.prototype.isReady = function() {
+Sim900r.prototype.isReady = function () {
   return !!digitalRead(this._statusPin);
 };
 
 // Command call
-Sim900r.prototype.cmd = function(command, callback) {
+Sim900r.prototype.cmd = function (command, callback) {
   // You can not send a new command until data from the previous one has not been received
   if (!this.isReady()) {
     callback(new Error('powerOff'));
   } else if (!this._currentCommandResponse) {
     if (!callback) {
-      callback = function() {};
+      callback = function () {};
     }
     this._currentCommand = command.toUpperCase();
     this._currentCommandData = [];
@@ -158,20 +158,20 @@ Sim900r.prototype.cmd = function(command, callback) {
 };
 
 // Sending SMS to the number
-Sim900r.prototype.smsSend = function(phone, text, callback) {
+Sim900r.prototype.smsSend = function (phone, text, callback) {
   var serial = this._serial;
   this.cmd('AT+CMGS="' + phone + '"', callback);
-  setTimeout(function() {
+  setTimeout(function () {
     serial.println(text + '\u001a');
   }, 500);
 };
 
 // Retrieving SMS List
-Sim900r.prototype.smsList = function(callback) {
+Sim900r.prototype.smsList = function (callback) {
   var self = this;
-  this.cmd('AT+CMGF=1', function(error) {
+  this.cmd('AT+CMGF=1', function (error) {
     if (!error) {
-      this.cmd('AT+CMGL="ALL",1', function(error, data) {
+      this.cmd('AT+CMGL="ALL",1', function (error, data) {
         if (!error) {
           var smsList = [];
           for (var s = 0; s < data.length; s = s + 2) {
@@ -190,9 +190,9 @@ Sim900r.prototype.smsList = function(callback) {
 };
 
 // Reading SMS from a SIM card
-Sim900r.prototype.smsRead = function(index, callback) {
+Sim900r.prototype.smsRead = function (index, callback) {
   var self = this;
-  this.cmd('AT+CMGR=' + index, function(error, result) {
+  this.cmd('AT+CMGR=' + index, function (error, result) {
     if (result.length === 0) {
       callback(new Error('SMS is not found'));
     } else {
@@ -202,58 +202,58 @@ Sim900r.prototype.smsRead = function(index, callback) {
 };
 
 // Removing SMS from SIM-card
-Sim900r.prototype.smsDelete = function(index) {
+Sim900r.prototype.smsDelete = function (index) {
   var command = 'AT+CMGD=' + index;
   if (index === 'all') {
     command = 'AT+CMGD=0,4';
   }
-  this.cmd(command, function(err, result) {
+  this.cmd(command, function (err, result) {
     print(err, result);
   });
 };
 
 // Dialing a number
-Sim900r.prototype.call = function(phone, callback) {
+Sim900r.prototype.call = function (phone, callback) {
   this.cmd('ATD' + phone + ';', callback);
 };
 
 // Answering an incoming call
-Sim900r.prototype.answer = function(callback) {
+Sim900r.prototype.answer = function (callback) {
   this.cmd('ATA', callback);
 };
 
 // Break the connection
-Sim900r.prototype.cancel = function(callback) {
+Sim900r.prototype.cancel = function (callback) {
   this.cmd('ATH0', callback);
 };
 
 // Sending a USSD command
-Sim900r.prototype.ussd = function(phone, callback) {
+Sim900r.prototype.ussd = function (phone, callback) {
   this.cmd('AT+CUSD=1,"' + phone + '"', callback);
 };
 
 // SIM card operator
-Sim900r.prototype.netProvider = function(callback) {
+Sim900r.prototype.netProvider = function (callback) {
   this.cmd('AT+CSPN?', callback);
 };
 
 // Operator in whose network the SIM card is registered
-Sim900r.prototype.netCurrent = function(callback) {
+Sim900r.prototype.netCurrent = function (callback) {
   this.cmd('AT+COPS?', callback);
 };
 
 // Online registration status
-Sim900r.prototype.netStatus = function(callback) {
+Sim900r.prototype.netStatus = function (callback) {
   this.cmd('AT+CREG?', callback);
 };
 
 // Signal reception quality
-Sim900r.prototype.netQuality = function(callback) {
+Sim900r.prototype.netQuality = function (callback) {
   this.cmd('AT+CSQ', callback);
 };
 
-Sim900r.prototype.getImei = function(callback) {
-  this.cmd('AT+GSN', function(data) {
+Sim900r.prototype.getImei = function (callback) {
+  this.cmd('AT+GSN', function (data) {
     var imei = Sim900r.prototype.parse.first(data);
     if (callback) {
       callback(imei);
@@ -261,8 +261,8 @@ Sim900r.prototype.getImei = function(callback) {
   });
 };
 
-Sim900r.prototype.getFirmware = function(callback) {
-  this.cmd('AT+GMR', function(error, data) {
+Sim900r.prototype.getFirmware = function (callback) {
+  this.cmd('AT+GMR', function (error, data) {
     if (!error) {
       data = data[0];
     }
@@ -270,8 +270,8 @@ Sim900r.prototype.getFirmware = function(callback) {
   });
 };
 
-Sim900r.prototype.getTime = function(callback) {
-  this.cmd('AT+CCLK?', function(error, data) {
+Sim900r.prototype.getTime = function (callback) {
+  this.cmd('AT+CCLK?', function (error, data) {
     if (!error) {
       var date = this.parseSimDateToDate(data[0].split('"')[1]);
       callback(undefined, date);
@@ -281,22 +281,22 @@ Sim900r.prototype.getTime = function(callback) {
   });
 };
 
-Sim900r.prototype.setTime = function(dt, callback) {
+Sim900r.prototype.setTime = function (dt, callback) {
   var date = this.parseDateToSimDate(dt);
   this.cmd('AT+CCLK="' + date + '"', callback);
 };
 
-Sim900r.prototype.setCallerID = function(val, callback) {
+Sim900r.prototype.setCallerID = function (val, callback) {
   this.cmd('AT+CLIP=' + val, callback);
 };
 
-Sim900r.prototype.getCallerID = function(callback) {
+Sim900r.prototype.getCallerID = function (callback) {
   this.cmd('AT+CLIP?', callback);
 };
 
 // Response processing methods
 
-Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
+Sim900r.prototype.parseSMS = function (fLine, lLine, index) {
   var data = fLine.split('"');
   var indexData = data[0].split(': ');
   var message = {
@@ -308,7 +308,7 @@ Sim900r.prototype.parseSMS = function(fLine, lLine, index) {
   return message;
 };
 
-Sim900r.prototype.parsePhone = function(phone) {
+Sim900r.prototype.parsePhone = function (phone) {
   phone = phone.split('"');
   if (phone[1]) {
     phone = phone[1];
@@ -318,7 +318,7 @@ Sim900r.prototype.parsePhone = function(phone) {
   return phone;
 };
 
-Sim900r.prototype.parseDateToSimDate = function(dt) {
+Sim900r.prototype.parseDateToSimDate = function (dt) {
   var year = (dt.getFullYear() + '').substr(-2);
   var month = ('0' + dt.getMonth()).substr(-2, 2);
   var day = ('0' + dt.getDate()).substr(-2, 2);
@@ -330,7 +330,7 @@ Sim900r.prototype.parseDateToSimDate = function(dt) {
   return date;
 };
 
-Sim900r.prototype.parseSimDateToDate = function(dt) {
+Sim900r.prototype.parseSimDateToDate = function (dt) {
   // 00/01/01,07:51:29+00
   var date =
     '20' +
@@ -344,7 +344,7 @@ Sim900r.prototype.parseSimDateToDate = function(dt) {
   return new Date(Date.parse(date));
 };
 
-Sim900r.prototype.parsePhoneToPDU = function(phone) {
+Sim900r.prototype.parsePhoneToPDU = function (phone) {
   phone = phone.split('');
 
   if (phone[0] === '+') {
@@ -366,6 +366,6 @@ Sim900r.prototype.parsePhoneToPDU = function(phone) {
   return phone;
 };
 
-exports.connect = function(_uart, _powerPin, _statusPin) {
+exports.connect = function (_uart, _powerPin, _statusPin) {
   return new Sim900r(_uart, _powerPin, _statusPin);
 };

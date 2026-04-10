@@ -1,4 +1,4 @@
-var Strip = function(spi, length, order) {
+var Strip = function (spi, length, order) {
   this._spi = spi;
   this._length = length || 0;
   this._arrayLength = this._length * 3;
@@ -25,7 +25,7 @@ var Strip = function(spi, length, order) {
   }
 };
 
-Strip.prototype.putColor = function(index, color) {
+Strip.prototype.putColor = function (index, color) {
   var i = index * 3;
 
   if (color instanceof Array) {
@@ -46,7 +46,7 @@ Strip.prototype.putColor = function(index, color) {
   return this;
 };
 
-Strip.prototype.brightness = function(brightness) {
+Strip.prototype.brightness = function (brightness) {
   if (brightness !== undefined) {
     if (brightness >= 0 && brightness <= 1) {
       brightness *= 255;
@@ -60,18 +60,18 @@ Strip.prototype.brightness = function(brightness) {
   }
 };
 
-Strip.prototype.clear = function() {
+Strip.prototype.clear = function () {
   for (var i = 0; i < this._arrayLength; ++i) {
     this._result[i] = this._color[i] = 0;
   }
   this.apply();
 };
 
-Strip.prototype.apply = function() {
+Strip.prototype.apply = function () {
   this._spi.send4bit(this._result, 0x01, 0x03);
 };
 
-Strip.prototype.getColor = function(index, type) {
+Strip.prototype.getColor = function (index, type) {
   var i = index * 3;
 
   type = type || 'object';
@@ -91,6 +91,6 @@ Strip.prototype.getColor = function(index, type) {
   }
 };
 
-exports.connect = function(spi, length, order) {
+exports.connect = function (spi, length, order) {
   return new Strip(spi, length, order);
 };

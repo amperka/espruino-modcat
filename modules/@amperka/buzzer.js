@@ -1,4 +1,4 @@
-var Buzzer = function(pin) {
+var Buzzer = function (pin) {
   this._pin = pin;
   this._on = false;
   this._frequency = 2000;
@@ -10,7 +10,7 @@ var Buzzer = function(pin) {
   this._pin.mode('output');
 };
 
-Buzzer.prototype.toggle = function() {
+Buzzer.prototype.toggle = function () {
   if (arguments.length === 0) {
     return this.toggle(!this._on);
   }
@@ -24,26 +24,26 @@ Buzzer.prototype.toggle = function() {
   return this;
 };
 
-Buzzer.prototype.turnOn = function() {
+Buzzer.prototype.turnOn = function () {
   return this.toggle(true);
 };
 
-Buzzer.prototype.turnOff = function() {
+Buzzer.prototype.turnOff = function () {
   return this.toggle(false);
 };
 
-Buzzer.prototype.isOn = function() {
+Buzzer.prototype.isOn = function () {
   return this._on;
 };
 
-Buzzer.prototype._clearBeep = function() {
+Buzzer.prototype._clearBeep = function () {
   if (this._beepTimeoutID) {
     clearTimeout(this._beepTimeoutID);
     this._beepTimeoutID = null;
   }
 };
 
-Buzzer.prototype._beepOn = function() {
+Buzzer.prototype._beepOn = function () {
   this._on = true;
   this._update();
   this._beepTimeoutID = setTimeout(
@@ -52,7 +52,7 @@ Buzzer.prototype._beepOn = function() {
   );
 };
 
-Buzzer.prototype._beepOff = function() {
+Buzzer.prototype._beepOff = function () {
   this._on = false;
   this._update();
 
@@ -66,7 +66,7 @@ Buzzer.prototype._beepOff = function() {
   }
 };
 
-Buzzer.prototype.beep = function(onTime, offTime) {
+Buzzer.prototype.beep = function (onTime, offTime) {
   if (
     this._beepOnTime === onTime &&
     this._beepOffTime &&
@@ -86,7 +86,7 @@ Buzzer.prototype.beep = function(onTime, offTime) {
   }
 };
 
-Buzzer.prototype.frequency = function() {
+Buzzer.prototype.frequency = function () {
   if (arguments.length === 0) {
     return this._frequency;
   }
@@ -97,10 +97,10 @@ Buzzer.prototype.frequency = function() {
   return this;
 };
 
-Buzzer.prototype._update = function() {
+Buzzer.prototype._update = function () {
   analogWrite(this._pin, 0.5 * this._on, { freq: this._frequency });
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new Buzzer(pin);
 };

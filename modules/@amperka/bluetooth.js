@@ -1,4 +1,4 @@
-var HC05 = function(opts) {
+var HC05 = function (opts) {
   if (!opts) {
     opts = {};
   }
@@ -14,7 +14,7 @@ var HC05 = function(opts) {
   this._commandDelay = 1000;
   this._buffer = '';
   var self = this;
-  this._serial.on('data', function(data) {
+  this._serial.on('data', function (data) {
     self._lastDataTime = getTime();
     if (!self._lineEnding && !self._commandCallback) {
       self.emit('data', data);
@@ -43,19 +43,19 @@ var HC05 = function(opts) {
       }
     }
   });
-  this._serial.on('parity', function() {
+  this._serial.on('parity', function () {
     self.emit('error', 'parity');
   });
-  this._serial.on('framing', function() {
+  this._serial.on('framing', function () {
     self.emit('error', 'speed');
   });
 };
 
-HC05.prototype.print = function(data) {
+HC05.prototype.print = function (data) {
   this._serial.print(data);
 };
 
-HC05.prototype.println = function(data) {
+HC05.prototype.println = function (data) {
   if (this._lineEnding) {
     this._serial.print(data + this._lineEnding);
   } else {
@@ -63,7 +63,7 @@ HC05.prototype.println = function(data) {
   }
 };
 
-HC05.prototype.command = function(cmd, callback) {
+HC05.prototype.command = function (cmd, callback) {
   if (!this._kPin) {
     callback(new Error('kPin is not selected'));
   }
@@ -80,8 +80,8 @@ HC05.prototype.command = function(cmd, callback) {
     clearTimeout(this._commandTimeout);
   }
 
-  this._commandTimeout = setTimeout(function() {
-    var commandsInterval = setInterval(function() {
+  this._commandTimeout = setTimeout(function () {
+    var commandsInterval = setInterval(function () {
       var currentCommand = self._commandList.shift();
       if (currentCommand === undefined) {
         clearInterval(commandsInterval);
@@ -95,7 +95,7 @@ HC05.prototype.command = function(cmd, callback) {
   }, timeout);
 };
 
-HC05.prototype.read = function(param, callback) {
+HC05.prototype.read = function (param, callback) {
   param = (param || '').toUpperCase();
   var cmd = 'AT+';
   switch (param) {
@@ -112,16 +112,16 @@ HC05.prototype.read = function(param, callback) {
       callback(new Error('ERROR IN COMMAND'));
       return null;
   }
-  this.command(cmd, function(data) {
+  this.command(cmd, function (data) {
     callback(data);
   });
 };
 
-HC05.prototype.firmware = function(callback) {
+HC05.prototype.firmware = function (callback) {
   this.read('VERSION', callback);
 };
 
-HC05.prototype.speed = function(baud, callback) {
+HC05.prototype.speed = function (baud, callback) {
   switch (baud) {
     case 4800:
     case 9600:
@@ -138,7 +138,7 @@ HC05.prototype.speed = function(baud, callback) {
   this.command('AT+UART=' + baud + ',0,0', callback);
 };
 
-HC05.prototype.name = function(name, callback) {
+HC05.prototype.name = function (name, callback) {
   if (name && name !== '') {
     this.command('AT+NAME=' + name, callback);
   } else {
@@ -146,7 +146,7 @@ HC05.prototype.name = function(name, callback) {
   }
 };
 
-HC05.prototype.password = function(pinCode, callback) {
+HC05.prototype.password = function (pinCode, callback) {
   if (pinCode && pinCode !== '') {
     this.command('AT+PSWD=' + pinCode, callback);
   } else {
@@ -154,7 +154,7 @@ HC05.prototype.password = function(pinCode, callback) {
   }
 };
 
-HC05.prototype.mode = function(role, callback) {
+HC05.prototype.mode = function (role, callback) {
   var roleVal;
   switch (role) {
     case 'slave':
@@ -173,7 +173,7 @@ HC05.prototype.mode = function(role, callback) {
   this.command('AT+ROLE=' + roleVal, callback);
 };
 
-HC05.prototype.connect = function(address, pinCode, callback) {
+HC05.prototype.connect = function (address, pinCode, callback) {
   if (address) {
     this.command('AT+RMAAD'); // delete all address from memory
     this.mode('master'); // now we can connect to remote device
@@ -185,10 +185,10 @@ HC05.prototype.connect = function(address, pinCode, callback) {
   }
 };
 
-HC05.prototype.disconnect = function(callback) {
+HC05.prototype.disconnect = function (callback) {
   this.command('AT+DISC', callback);
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new HC05(opts);
 };

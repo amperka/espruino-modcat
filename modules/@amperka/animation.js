@@ -4,7 +4,7 @@ function lerp(k, from, to) {
 }
 
 // TODO: extract to library
-var extend = function(obj) {
+var extend = function (obj) {
   var length = arguments.length;
   if (length < 2 || obj == null) {
     return obj;
@@ -30,7 +30,7 @@ var defaultTransition = {
   loop: false
 };
 
-var Animation = function(transition) {
+var Animation = function (transition) {
   var trans = extend({}, defaultTransition, transition || {});
   this._queue = [trans];
   this._qi = 0;
@@ -40,7 +40,7 @@ var Animation = function(transition) {
   this._reversed = false;
 };
 
-Animation.prototype.queue = function(transition) {
+Animation.prototype.queue = function (transition) {
   if (transition.from === undefined) {
     transition.from = this._queue[this._queue.length - 1].to || 0;
   }
@@ -49,7 +49,7 @@ Animation.prototype.queue = function(transition) {
   return this;
 };
 
-Animation.prototype.play = function() {
+Animation.prototype.play = function () {
   if (!this._intervalID) {
     this._setInterval();
   }
@@ -57,12 +57,12 @@ Animation.prototype.play = function() {
   return this;
 };
 
-Animation.prototype.reverse = function() {
+Animation.prototype.reverse = function () {
   this._reversed = !this._reversed;
   return this;
 };
 
-Animation.prototype.stop = function(skip) {
+Animation.prototype.stop = function (skip) {
   if (this._reversed) {
     this._phase = 0;
     this._qi = 0;
@@ -81,7 +81,7 @@ Animation.prototype.stop = function(skip) {
   return this;
 };
 
-Animation.prototype._setInterval = function() {
+Animation.prototype._setInterval = function () {
   this._lastUpdate = getTime();
   this._update();
   this._intervalID = setInterval(
@@ -90,14 +90,14 @@ Animation.prototype._setInterval = function() {
   );
 };
 
-Animation.prototype._clearInterval = function() {
+Animation.prototype._clearInterval = function () {
   if (this._intervalID) {
     clearInterval(this._intervalID);
     this._intervalID = null;
   }
 };
 
-Animation.prototype._update = function() {
+Animation.prototype._update = function () {
   var t = getTime();
   var dt = t - this._lastUpdate;
   this._lastUpdate = t;
@@ -146,6 +146,6 @@ Animation.prototype._update = function() {
   }
 };
 
-exports.create = function(transition) {
+exports.create = function (transition) {
   return new Animation(transition);
 };

@@ -1,4 +1,4 @@
-var ServoHW = function(pin, options) {
+var ServoHW = function (pin, options) {
   this._pin = pin;
   this._freq = 50;
   this._pulseMin = 0.675;
@@ -28,7 +28,7 @@ var ServoHW = function(pin, options) {
   this._valueStep = pulsDiff / (this._valueMax - this._valueMin) / this._period;
 };
 
-ServoHW.prototype.write = function(value, units) {
+ServoHW.prototype.write = function (value, units) {
   if (value === false) {
     digitalWrite(this._pin, 0);
     return this;
@@ -57,6 +57,6 @@ ServoHW.prototype.write = function(value, units) {
   return this;
 };
 
-exports.connect = function(pin, options) {
+exports.connect = function (pin, options) {
   return new ServoHW(pin, options);
 };

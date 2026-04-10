@@ -1,4 +1,4 @@
-var ACS712 = function(pin) {
+var ACS712 = function (pin) {
   this._pin = pin;
   this._pin.mode('analog');
 
@@ -9,7 +9,7 @@ var ACS712 = function(pin) {
   this._constSQR = this._value2currentConst * this._value2currentConst;
 };
 
-ACS712.prototype.read = function(units) {
+ACS712.prototype.read = function (units) {
   var value =
     analogRead(this._pin) * this._value2currentDivider +
     this._value2currentConst;
@@ -22,7 +22,7 @@ ACS712.prototype.read = function(units) {
   }
 };
 
-ACS712.prototype.readEffective = function(period, units) {
+ACS712.prototype.readEffective = function (period, units) {
   period = period || 0.04;
 
   var startTime = getTime();
@@ -54,6 +54,6 @@ ACS712.prototype.readEffective = function(period, units) {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new ACS712(pin);
 };

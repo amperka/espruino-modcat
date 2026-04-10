@@ -1,4 +1,4 @@
-var Robot = function(opts) {
+var Robot = function (opts) {
   opts = opts || {};
   var MotorShield = require('@amperka/motor').MotorShield;
   this._leftMotor = opts.leftMotor || MotorShield.M1;
@@ -12,7 +12,7 @@ var Robot = function(opts) {
   this._init();
 };
 
-Robot.prototype._init = function() {
+Robot.prototype._init = function () {
   var Motor = require('@amperka/motor');
   this.leftMotor = Motor.connect(this._leftMotor);
   this.rightMotor = Motor.connect(this._rightMotor);
@@ -20,7 +20,7 @@ Robot.prototype._init = function() {
   this.stop();
 };
 
-Robot.prototype.stop = function() {
+Robot.prototype.stop = function () {
   this._lCurrentSpeed = 0;
   this._rCurrentSpeed = 0;
   if (this._speedIntervalID) {
@@ -31,7 +31,7 @@ Robot.prototype.stop = function() {
   this.rightMotor.write(-this._rCurrentSpeed);
 };
 
-Robot.prototype.go = function(opts) {
+Robot.prototype.go = function (opts) {
   opts = opts || {};
   this._lSpeed = opts.l === undefined ? 0 : E.clip(opts.l, -1, 1);
   this._rSpeed = opts.r === undefined ? 0 : E.clip(opts.r, -1, 1);
@@ -40,7 +40,7 @@ Robot.prototype.go = function(opts) {
   }
 };
 
-Robot.prototype.acceleration = function(acceleration) {
+Robot.prototype.acceleration = function (acceleration) {
   if (acceleration === undefined) {
     return this._acceleration;
   } else {
@@ -48,7 +48,7 @@ Robot.prototype.acceleration = function(acceleration) {
   }
 };
 
-Robot.prototype._updateSpeed = function() {
+Robot.prototype._updateSpeed = function () {
   var accel = this.acceleration();
   this._lCurrentSpeed =
     accel * this._lSpeed + (1 - accel) * this._lCurrentSpeed;
@@ -58,6 +58,6 @@ Robot.prototype._updateSpeed = function() {
   this.rightMotor.write(-this._rCurrentSpeed);
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new Robot(opts);
 };
