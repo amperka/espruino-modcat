@@ -1,4 +1,4 @@
-var Animation = function(opts) {
+var Animation = function (opts) {
   opts = opts || {};
   this._high = opts.high || 0;
   this._low = opts.low || 0;
@@ -7,7 +7,7 @@ var Animation = function(opts) {
   this._timeoutID = null;
 };
 
-Animation.prototype.toggle = function() {
+Animation.prototype.toggle = function () {
   if (!arguments.length) {
     return this.toggle(!this._playing);
   }
@@ -23,28 +23,28 @@ Animation.prototype.toggle = function() {
   return this;
 };
 
-Animation.prototype.play = function() {
+Animation.prototype.play = function () {
   return this.toggle(true);
 };
 
-Animation.prototype.stop = function() {
+Animation.prototype.stop = function () {
   return this.toggle(false);
 };
 
-Animation.prototype.setup = function(opts) {
+Animation.prototype.setup = function (opts) {
   this._high = opts.high || 0;
   this._low = opts.low || 0;
   return this;
 };
 
-Animation.prototype._setTimeout = function() {
+Animation.prototype._setTimeout = function () {
   if (!this._high && !this._low) {
     return;
   }
 
   var t = this._inLowState ? this._low : this._high;
   var self = this;
-  this._timeoutID = setTimeout(function() {
+  this._timeoutID = setTimeout(function () {
     self._inLowState = !self._inLowState;
     self.emit('change', self._inLowState ? 'low' : 'high');
     self._timeoutID = null;
@@ -52,6 +52,6 @@ Animation.prototype._setTimeout = function() {
   }, t * 1000);
 };
 
-exports.create = function(opts) {
+exports.create = function (opts) {
   return new Animation(opts);
 };

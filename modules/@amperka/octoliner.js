@@ -1,4 +1,4 @@
-var Octoliner = function(opts) {
+var Octoliner = function (opts) {
   opts = opts || {};
   if (opts.i2c === undefined) {
     I2C1.setup({
@@ -18,18 +18,18 @@ var Octoliner = function(opts) {
   this.setSensitivity(0.91);
 };
 
-Octoliner.prototype.setSensitivity = function(sense) {
+Octoliner.prototype.setSensitivity = function (sense) {
   this.expander.analogWrite(this._sensePin, sense);
 };
 
 // deprecated
-Octoliner.prototype.setBrightness = function() {};
+Octoliner.prototype.setBrightness = function () {};
 
-Octoliner.prototype.analogRead = function(sensor) {
+Octoliner.prototype.analogRead = function (sensor) {
   return this.expander.analogRead(this._sensorPinMap[sensor & 0x07]);
 };
 
-Octoliner.prototype.analogReadAll = function() {
+Octoliner.prototype.analogReadAll = function () {
   var result = [0, 0, 0, 0, 0, 0, 0, 0];
   for (var i = 0; i < 8; i++) {
     result[i] = this.analogRead(i);
@@ -37,28 +37,28 @@ Octoliner.prototype.analogReadAll = function() {
   return result;
 };
 
-Octoliner.prototype.digitalReadAll = function() {
+Octoliner.prototype.digitalReadAll = function () {
   return this.mapAnalogToPattern(this.analogReadAll());
 };
 
-Octoliner.prototype.changeAddr = function(nAddr) {
+Octoliner.prototype.changeAddr = function (nAddr) {
   this.expander.changeAddr(nAddr);
 };
 
-Octoliner.prototype.saveAddr = function() {
+Octoliner.prototype.saveAddr = function () {
   this.expander.saveAddr();
 };
 
 // deprecated
-Octoliner.prototype.mapLine = function(analogArray) {
+Octoliner.prototype.mapLine = function (analogArray) {
   return this.trackLine(analogArray);
 };
 
-Octoliner.prototype.reset = function() {
+Octoliner.prototype.reset = function () {
   this.expander.reset();
 };
 
-Octoliner.prototype.mapAnalogToPattern = function(analogArray) {
+Octoliner.prototype.mapAnalogToPattern = function (analogArray) {
   var pattern = 0;
   // search min and max values
   var min = 32767;
@@ -77,7 +77,7 @@ Octoliner.prototype.mapAnalogToPattern = function(analogArray) {
   return pattern;
 };
 
-Octoliner.prototype.mapPatternToLine = function(pattern) {
+Octoliner.prototype.mapPatternToLine = function (pattern) {
   switch (pattern) {
     case 0x18: // 0b00011000
       return 0;
@@ -130,7 +130,7 @@ Octoliner.prototype.mapPatternToLine = function(pattern) {
   }
 };
 
-Octoliner.prototype.trackLine = function(argument) {
+Octoliner.prototype.trackLine = function (argument) {
   if (typeof argument === 'undefined') {
     // no argument
     return this.mapPatternToLine(this.digitalReadAll());
@@ -145,6 +145,6 @@ Octoliner.prototype.trackLine = function(argument) {
   }
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new Octoliner(opts);
 };

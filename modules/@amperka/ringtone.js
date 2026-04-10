@@ -1,53 +1,8 @@
 var NOTES = [
-  0,
-  262,
-  277,
-  294,
-  311,
-  330,
-  349,
-  370,
-  392,
-  415,
-  440,
-  466,
-  494,
-  523,
-  554,
-  587,
-  622,
-  659,
-  698,
-  740,
-  784,
-  831,
-  880,
-  932,
-  988,
-  1047,
-  1109,
-  1175,
-  1245,
-  1319,
-  1397,
-  1480,
-  1568,
-  1661,
-  1760,
-  1865,
-  1976,
-  2093,
-  2217,
-  2349,
-  2489,
-  2637,
-  2794,
-  2960,
-  3136,
-  3322,
-  3520,
-  3729,
-  3951
+  0, 262, 277, 294, 311, 330, 349, 370, 392, 415, 440, 466, 494, 523, 554, 587,
+  622, 659, 698, 740, 784, 831, 880, 932, 988, 1047, 1109, 1175, 1245, 1319,
+  1397, 1480, 1568, 1661, 1760, 1865, 1976, 2093, 2217, 2349, 2489, 2637, 2794,
+  2960, 3136, 3322, 3520, 3729, 3951
 ];
 
 var PITCHES = {
@@ -61,12 +16,12 @@ var PITCHES = {
   p: 0
 };
 
-var Lexer = function(rtttl) {
+var Lexer = function (rtttl) {
   this._rtttl = rtttl;
   this._p = 0;
 };
 
-Lexer.prototype.next = function() {
+Lexer.prototype.next = function () {
   var charCodeAt = this._rtttl.charCodeAt.bind(this._rtttl);
   var charAt = this._rtttl.charAt.bind(this._rtttl);
   var c;
@@ -106,7 +61,7 @@ Lexer.prototype.next = function() {
   return c;
 };
 
-Lexer.prototype._skipToSignificant = function() {
+Lexer.prototype._skipToSignificant = function () {
   var charCodeAt = this._rtttl.charCodeAt.bind(this._rtttl);
   var len = this._rtttl.length;
 
@@ -120,19 +75,19 @@ Lexer.prototype._skipToSignificant = function() {
   return true;
 };
 
-var XPromise = function() {
+var XPromise = function () {
   this._fn = null;
 };
 
-XPromise.prototype.then = function(fn) {
+XPromise.prototype.then = function (fn) {
   this._fn = fn;
 };
 
-XPromise.prototype.resolve = function() {
+XPromise.prototype.resolve = function () {
   this._fn && this._fn();
 };
 
-var Player = function(opts) {
+var Player = function (opts) {
   if (opts instanceof Pin) {
     this._pin = opts;
   } else if (typeof opts === 'object') {
@@ -143,19 +98,19 @@ var Player = function(opts) {
   this._timeoutID = null;
 };
 
-Player.prototype.play = function(melody, noteCallback) {
+Player.prototype.play = function (melody, noteCallback) {
   if (typeof melody === 'function') {
     // single noteCallback argument
     noteCallback = melody;
     melody = this._melody;
   } else {
     melody = melody || this._melody;
-    noteCallback = noteCallback || function() {};
+    noteCallback = noteCallback || function () {};
   }
 
   var self = this;
   if (this._pin) {
-    this._noteFunc = function(freq, duration) {
+    this._noteFunc = function (freq, duration) {
       if (freq) {
         analogWrite(self._pin, 0.5, { freq: freq });
       } else {
@@ -179,7 +134,7 @@ Player.prototype.play = function(melody, noteCallback) {
   return this._promise;
 };
 
-Player.prototype._skipTitle = function() {
+Player.prototype._skipTitle = function () {
   var lexer = this._lexer;
   var token = lexer.next();
   while (token && token !== ':') {
@@ -187,7 +142,7 @@ Player.prototype._skipTitle = function() {
   }
 };
 
-Player.prototype._parseSettings = function() {
+Player.prototype._parseSettings = function () {
   this._settings = {
     bpm: 63,
     noteValue: 4,
@@ -228,7 +183,7 @@ Player.prototype._parseSettings = function() {
   }
 };
 
-Player.prototype._parseNote = function() {
+Player.prototype._parseNote = function () {
   var lexer = this._lexer;
   var token = lexer.next();
 
@@ -276,7 +231,7 @@ Player.prototype._parseNote = function() {
   return note;
 };
 
-Player.prototype._parseAndPlay = function() {
+Player.prototype._parseAndPlay = function () {
   this._timeoutID = null;
   var note = this._parseNote();
 
@@ -304,7 +259,7 @@ Player.prototype._parseAndPlay = function() {
   );
 };
 
-Player.prototype.stop = function() {
+Player.prototype.stop = function () {
   if (this._timeoutID) {
     clearTimeout(this._timeoutID);
     this._timeoutID = null;
@@ -314,6 +269,6 @@ Player.prototype.stop = function() {
   return this;
 };
 
-exports.create = function(opts) {
+exports.create = function (opts) {
   return new Player(opts);
 };

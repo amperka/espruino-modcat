@@ -1,5 +1,5 @@
 // Class initialization
-var Rtc = function(i2c) {
+var Rtc = function (i2c) {
   this._time = undefined;
   if (i2c) {
     this._i2c = i2c;
@@ -12,12 +12,12 @@ var Rtc = function(i2c) {
 };
 
 // The method writes data to the reg register
-Rtc.prototype.write = function(reg, data) {
+Rtc.prototype.write = function (reg, data) {
   this._i2c.writeTo(this._address, [reg, data]);
 };
 
 // The method reads from the reg register the number of bytes count
-Rtc.prototype.read = function(reg, count) {
+Rtc.prototype.read = function (reg, count) {
   if (count === undefined) {
     count = 1;
   }
@@ -25,15 +25,15 @@ Rtc.prototype.read = function(reg, count) {
   return this._i2c.readFrom(this._address, count);
 };
 
-Rtc.prototype._decToBcd = function(val) {
+Rtc.prototype._decToBcd = function (val) {
   return Math.floor(val / 10) * 16 + (val % 10);
 };
 
-Rtc.prototype._bcdToDec = function(val) {
+Rtc.prototype._bcdToDec = function (val) {
   return Math.floor(val / 16) * 10 + (val % 16);
 };
 
-Rtc.prototype._leadZero = function(val) {
+Rtc.prototype._leadZero = function (val) {
   if (val < 10) {
     return '0' + val;
   } else {
@@ -41,7 +41,7 @@ Rtc.prototype._leadZero = function(val) {
   }
 };
 
-Rtc.prototype.setTime = function(time) {
+Rtc.prototype.setTime = function (time) {
   if (time instanceof Date) {
     this._time = time;
   } else if (time instanceof Object) {
@@ -73,7 +73,7 @@ Rtc.prototype.setTime = function(time) {
   ]);
 };
 
-Rtc.prototype.getTime = function(unit) {
+Rtc.prototype.getTime = function (unit) {
   var time = this.read(0x00, 7);
   this._time = new Date(
     this._bcdToDec(time[6]) + 2000,
@@ -109,14 +109,14 @@ Rtc.prototype.getTime = function(unit) {
   return res;
 };
 
-Rtc.prototype.start = function() {
+Rtc.prototype.start = function () {
   var byte = this.read(0x00, 1)[0];
   if (byte >> 7) {
     this.write(0x00, byte ^ 0x80);
   }
 };
 
-Rtc.prototype.stop = function() {
+Rtc.prototype.stop = function () {
   var byte = this.read(0x00, 1)[0];
   if (byte >> 7 === 0) {
     this.write(0x00, byte ^ 0x80);
@@ -124,6 +124,6 @@ Rtc.prototype.stop = function() {
 };
 
 // Exporting the class
-exports.connect = function(i2c) {
+exports.connect = function (i2c) {
   return new Rtc(i2c);
 };

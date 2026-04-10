@@ -1,11 +1,11 @@
-var AnalogLineSensor = function(pin) {
+var AnalogLineSensor = function (pin) {
   this._pin = pin;
   this._pin.mode('analog');
   this._min = 0;
   this._max = 1;
 };
 
-AnalogLineSensor.prototype.read = function(units) {
+AnalogLineSensor.prototype.read = function (units) {
   if (units === 'mV') {
     return analogRead(this._pin) * E.getAnalogVRef() * 1000;
   } else if (units === 'V') {
@@ -25,7 +25,7 @@ AnalogLineSensor.prototype.read = function(units) {
   }
 };
 
-AnalogLineSensor.prototype.calibrate = function(opts) {
+AnalogLineSensor.prototype.calibrate = function (opts) {
   if (opts && opts.white !== undefined) {
     this._min = opts.white === true ? analogRead(this._pin) : opts.white;
   }
@@ -34,6 +34,6 @@ AnalogLineSensor.prototype.calibrate = function(opts) {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new AnalogLineSensor(pin);
 };

@@ -183,7 +183,7 @@ var SHIFT_KEYS = {
   '|': 'BACKSLASH'
 };
 
-var tap = function(key, callback) {
+var tap = function (key, callback) {
   var modifiers = 0;
 
   if (Array.isArray(key)) {
@@ -196,13 +196,13 @@ var tap = function(key, callback) {
   key = key || 0;
 
   E.sendUSBHID([modifiers, 0, key, 0, 0, 0, 0, 0]);
-  setTimeout(function() {
+  setTimeout(function () {
     E.sendUSBHID([0, 0, 0, 0, 0, 0, 0, 0]);
     if (callback) setTimeout(callback, 10);
   }, 10);
 };
 
-var type = function(txt, sendSpeed, callback) {
+var type = function (txt, sendSpeed, callback) {
   var chr;
   var code;
   var timeForWait;
@@ -214,7 +214,7 @@ var type = function(txt, sendSpeed, callback) {
   } else {
     timeForWait = 20;
   }
-  var intr = setInterval(function() {
+  var intr = setInterval(function () {
     if (!txt.length) {
       clearInterval(intr);
       if (callback) callback();
@@ -241,7 +241,7 @@ var type = function(txt, sendSpeed, callback) {
 
 var pressedKeys = [0, 0, 0, 0, 0, 0, 0, 0];
 
-var chooseKey = function(keyChanger, opts) {
+var chooseKey = function (keyChanger, opts) {
   var chrCode;
   if (opts in MODIFY) {
     keyChanger([MODIFY[opts], 0]);
@@ -263,20 +263,20 @@ var chooseKey = function(keyChanger, opts) {
   }
 };
 
-var press = function(opts) {
+var press = function (opts) {
   chooseKey(changePressedKeys, opts);
 };
 
-var release = function(opts) {
+var release = function (opts) {
   chooseKey(changeReleasedKeys, opts);
 };
 
-var releaseAll = function() {
+var releaseAll = function () {
   pressedKeys = [0, 0, 0, 0, 0, 0, 0, 0];
   E.sendUSBHID(pressedKeys);
 };
 
-var changePressedKeys = function(opts) {
+var changePressedKeys = function (opts) {
   var modifiers = pressedKeys[0];
   var changeFlag = false;
   var i;
@@ -316,7 +316,7 @@ var changePressedKeys = function(opts) {
     E.sendUSBHID(pressedKeys);
   }
 };
-var changeReleasedKeys = function(opts) {
+var changeReleasedKeys = function (opts) {
   var changeFlag = false;
   var modifiers = pressedKeys[0];
   if (Array.isArray(opts)) {

@@ -16,19 +16,19 @@ var IOcommand = {
   ADC_SPEED: 14
 };
 
-var Expander = function(connect) {
+var Expander = function (connect) {
   connect = connect || {};
 
   this._i2c = connect.i2c;
   this._ADDRESS = connect.address || 42;
 };
 
-Expander.prototype._writeCmdPin = function(command, pin) {
+Expander.prototype._writeCmdPin = function (command, pin) {
   var send = new Uint8Array([command, pin], 0, 2);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
-Expander.prototype._writeCmdPin16Val = function(command, pin, value) {
+Expander.prototype._writeCmdPin16Val = function (command, pin, value) {
   var send = new Uint8Array(
     [command, pin, (value >> 8) & 0xff, value & 0xff],
     0,
@@ -37,22 +37,22 @@ Expander.prototype._writeCmdPin16Val = function(command, pin, value) {
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
-Expander.prototype._writeCmd16BitData = function(command, data) {
+Expander.prototype._writeCmd16BitData = function (command, data) {
   var send = new Uint8Array([command, (data >> 8) & 0xff, data & 0xff], 0, 3);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
-Expander.prototype._writeCmd8BitData = function(command, data) {
+Expander.prototype._writeCmd8BitData = function (command, data) {
   var send = new Uint8Array([command, data], 0, 2);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
-Expander.prototype._writeCmd = function(command) {
+Expander.prototype._writeCmd = function (command) {
   var send = new Uint8Array([command], 0, 1);
   this._i2c.writeTo(this._ADDRESS, send);
 };
 
-Expander.prototype._read16Bit = function() {
+Expander.prototype._read16Bit = function () {
   var result = 0;
   var data = new Uint8Array(2);
   data = this._i2c.readFrom(this._ADDRESS, 2);
@@ -62,12 +62,12 @@ Expander.prototype._read16Bit = function() {
   return result;
 };
 
-Expander.prototype.digitalWritePort = function(value) {
+Expander.prototype.digitalWritePort = function (value) {
   this._writeCmd16BitData(IOcommand.DIGITAL_WRITE_HIGH, value);
   this._writeCmd16BitData(IOcommand.DIGITAL_WRITE_LOW, ~value);
 };
 
-Expander.prototype.digitalWrite = function(pin, value) {
+Expander.prototype.digitalWrite = function (pin, value) {
   var sendData = 1 << pin;
   if (value) {
     this._writeCmd16BitData(IOcommand.DIGITAL_WRITE_HIGH, sendData);
@@ -76,12 +76,12 @@ Expander.prototype.digitalWrite = function(pin, value) {
   }
 };
 
-Expander.prototype.digitalReadPort = function() {
+Expander.prototype.digitalReadPort = function () {
   this._writeCmd(IOcommand.DIGITAL_READ);
   return this._read16Bit();
 };
 
-Expander.prototype.digitalRead = function(pin) {
+Expander.prototype.digitalRead = function (pin) {
   var result = this.digitalReadPort();
   if (result >= 0) {
     result = result & (1 << pin) ? 1 : 0;
@@ -89,7 +89,7 @@ Expander.prototype.digitalRead = function(pin) {
   return result;
 };
 
-Expander.prototype.pinMode = function(pin, mode) {
+Expander.prototype.pinMode = function (pin, mode) {
   var sendData = 1 << pin;
   if (mode === 'input') {
     this._writeCmd16BitData(IOcommand.PORT_MODE_INPUT, sendData);
@@ -102,44 +102,44 @@ Expander.prototype.pinMode = function(pin, mode) {
   }
 };
 
-Expander.prototype.analogWrite = function(pin, pulseWidth) {
+Expander.prototype.analogWrite = function (pin, pulseWidth) {
   var val = Math.floor(pulseWidth * 65535);
   this._writeCmdPin16Val(IOcommand.ANALOG_WRITE, pin, val);
 };
 
-Expander.prototype.servoWrite = function(pin, angle) {
+Expander.prototype.servoWrite = function (pin, angle) {
   var val = Math.floor(angle * 43.69); // === angle / 1500 * 65535
   this._writeCmdPin16Val(IOcommand.ANALOG_WRITE, pin, val);
 };
 
-Expander.prototype.analogRead = function(pin) {
+Expander.prototype.analogRead = function (pin) {
   this._writeCmdPin(IOcommand.ANALOG_READ, pin);
   return this._read16Bit() / 4092;
 };
 
-Expander.prototype.pwmFreq = function(freq) {
+Expander.prototype.pwmFreq = function (freq) {
   this._writeCmd16BitData(IOcommand.PWM_FREQ, freq);
 };
 
-Expander.prototype.adcSpeed = function(speed) {
+Expander.prototype.adcSpeed = function (speed) {
   // speed must be < 8. Smaller is faster, but dirty
   this._writeCmd8BitData(IOcommand.ADC_SPEED, speed);
 };
 
-Expander.prototype.changeAddr = function(newAddr) {
+Expander.prototype.changeAddr = function (newAddr) {
   this._writeCmd8BitData(IOcommand.CHANGE_I2C_ADDR, newAddr);
   this._ADDRESS = newAddr;
 };
 
-Expander.prototype.saveAddr = function() {
+Expander.prototype.saveAddr = function () {
   this._writeCmd(IOcommand.SAVE_I2C_ADDR);
 };
 
-Expander.prototype.reset = function() {
+Expander.prototype.reset = function () {
   this._writeCmd(IOcommand.RESET);
 };
 
-Expander.prototype.getUID = function() {
+Expander.prototype.getUID = function () {
   this._writeCmd(IOcommand.WHO_AM_I);
   var result = 0;
   var data = new Uint8Array(4);
@@ -152,6 +152,6 @@ Expander.prototype.getUID = function() {
   return result;
 };
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new Expander(opts);
 };

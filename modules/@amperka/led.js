@@ -1,4 +1,4 @@
-var Led = function(pin) {
+var Led = function (pin) {
   this._pin = pin;
   this._on = false;
   this._brightness = 1.0;
@@ -10,7 +10,7 @@ var Led = function(pin) {
   this._pin.mode('output');
 };
 
-Led.prototype.toggle = function() {
+Led.prototype.toggle = function () {
   if (arguments.length === 0) {
     return this.toggle(!this._on);
   }
@@ -24,26 +24,26 @@ Led.prototype.toggle = function() {
   return this;
 };
 
-Led.prototype.turnOn = function() {
+Led.prototype.turnOn = function () {
   return this.toggle(true);
 };
 
-Led.prototype.turnOff = function() {
+Led.prototype.turnOff = function () {
   return this.toggle(false);
 };
 
-Led.prototype.isOn = function() {
+Led.prototype.isOn = function () {
   return this._on;
 };
 
-Led.prototype._clearBlink = function() {
+Led.prototype._clearBlink = function () {
   if (this._blinkTimeoutID) {
     clearTimeout(this._blinkTimeoutID);
     this._blinkTimeoutID = null;
   }
 };
 
-Led.prototype._blinkOn = function() {
+Led.prototype._blinkOn = function () {
   this._on = true;
   this._update();
   this._blinkTimeoutID = setTimeout(
@@ -52,7 +52,7 @@ Led.prototype._blinkOn = function() {
   );
 };
 
-Led.prototype._blinkOff = function() {
+Led.prototype._blinkOff = function () {
   this._on = false;
   this._update();
 
@@ -66,7 +66,7 @@ Led.prototype._blinkOff = function() {
   }
 };
 
-Led.prototype.blink = function(onTime, offTime) {
+Led.prototype.blink = function (onTime, offTime) {
   if (
     this._blinkOnTime === onTime &&
     this._blinkOffTime &&
@@ -86,7 +86,7 @@ Led.prototype.blink = function(onTime, offTime) {
   }
 };
 
-Led.prototype.brightness = function(value) {
+Led.prototype.brightness = function (value) {
   if (typeof value === 'undefined') {
     return this._brightness;
   }
@@ -98,7 +98,7 @@ Led.prototype.brightness = function(value) {
   return this;
 };
 
-Led.prototype._update = function() {
+Led.prototype._update = function () {
   var b = this._brightness;
   if (b >= 0 && b <= 1.0) {
     analogWrite(this._pin, b * b * b * this._on, { freq: 100 });
@@ -107,6 +107,6 @@ Led.prototype._update = function() {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new Led(pin);
 };
