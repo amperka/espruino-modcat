@@ -47,7 +47,7 @@ MultiServoDevice.prototype.write = function(value, units) {
   this._i2c.writeTo(this._address, [this._pin, us >> 8, us & 0xff]);
 };
 
-MultiServoDevice.prototype.disconnect = function() {
+MultiServoDevice.prototype.release = function() {
   this._i2c.writeTo(this._address, [this._pin, 0, 0]);
 };
 
@@ -56,7 +56,7 @@ var MultiServo = function(i2c, address) {
   this._address = address || 0x47;
 };
 
-MultiServo.prototype.release = function(pin, options) {
+MultiServo.prototype.connect = function(pin, options) {
   return new MultiServoDevice(this._i2c, this._address, pin, options);
 };
 
