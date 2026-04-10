@@ -1,9 +1,9 @@
-var DigitalLineSensor = function(pin) {
+var DigitalLineSensor = function (pin) {
   this._pin = pin;
   this._pin.mode('input');
   var self = this;
   setWatch(
-    function(e) {
+    function (e) {
       self.emit(e.state ? 'black' : 'white');
     },
     this._pin,
@@ -15,10 +15,10 @@ var DigitalLineSensor = function(pin) {
   );
 };
 
-DigitalLineSensor.prototype.read = function() {
+DigitalLineSensor.prototype.read = function () {
   return this._pin.read() ? 'black' : 'white';
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new DigitalLineSensor(pin);
 };

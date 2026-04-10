@@ -1,4 +1,4 @@
-var MultiServoDevice = function(i2c, address, pin, options) {
+var MultiServoDevice = function (i2c, address, pin, options) {
   this._i2c = i2c;
   this._address = address;
   this._pin = pin;
@@ -28,7 +28,7 @@ var MultiServoDevice = function(i2c, address, pin, options) {
   this._valueStep = (pulsDiff / (this._valueMax - this._valueMin)) * 1000;
 };
 
-MultiServoDevice.prototype.write = function(value, units) {
+MultiServoDevice.prototype.write = function (value, units) {
   var us = 1500;
   switch (units) {
     case 'us':
@@ -47,15 +47,15 @@ MultiServoDevice.prototype.write = function(value, units) {
   this._i2c.writeTo(this._address, [this._pin, us >> 8, us & 0xff]);
 };
 
-var MultiServo = function(i2c, address) {
+var MultiServo = function (i2c, address) {
   this._i2c = i2c || PrimaryI2C;
   this._address = address || 0x47;
 };
 
-MultiServo.prototype.connect = function(pin, options) {
+MultiServo.prototype.connect = function (pin, options) {
   return new MultiServoDevice(this._i2c, this._address, pin, options);
 };
 
-exports.connect = function(i2c, address) {
+exports.connect = function (i2c, address) {
   return new MultiServo(i2c, address);
 };

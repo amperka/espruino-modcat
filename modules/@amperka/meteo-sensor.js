@@ -4,23 +4,23 @@ function TroykaMeteoSensor(opts) {
   var _address = opts.address || 0x44;
   var _repeatability = opts.repeatability || 'HIGH';
 
-  this.setRepeatability = function(value) {
+  this.setRepeatability = function (value) {
     _repeatability = value;
   };
 
-  this.reset = function() {
+  this.reset = function () {
     _i2c.writeTo(_address, [0x30, 0xa2]);
   };
 
-  this.heaterOn = function() {
+  this.heaterOn = function () {
     _i2c.writeTo(_address, [0x30, 0x6d]);
   };
 
-  this.heaterOff = function() {
+  this.heaterOff = function () {
     _i2c.writeTo(_address, [0x30, 0x66]);
   };
 
-  this.read = function(callback) {
+  this.read = function (callback) {
     switch (_repeatability) {
       case 'HIGH':
         try {
@@ -75,7 +75,7 @@ function TroykaMeteoSensor(opts) {
     }
   };
 
-  var _checkCRC8 = function(data, num, len) {
+  var _checkCRC8 = function (data, num, len) {
     var crc = 0xff;
     // prettier-ignore
     var table = [
@@ -104,6 +104,6 @@ function TroykaMeteoSensor(opts) {
   };
 }
 
-exports.connect = function(opts) {
+exports.connect = function (opts) {
   return new TroykaMeteoSensor(opts);
 };

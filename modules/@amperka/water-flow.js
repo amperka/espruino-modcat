@@ -1,4 +1,4 @@
-var WaterFlow = function(pin, opts) {
+var WaterFlow = function (pin, opts) {
   this._pin = pin;
 
   this._pin.mode('input_pulldown');
@@ -29,7 +29,7 @@ var WaterFlow = function(pin, opts) {
   this._watch();
 };
 
-WaterFlow.prototype._watch = function() {
+WaterFlow.prototype._watch = function () {
   setWatch(this._onChange.bind(this), this._pin, {
     repeat: true,
     edge: 'rising',
@@ -37,7 +37,7 @@ WaterFlow.prototype._watch = function() {
   });
 };
 
-WaterFlow.prototype._average = function() {
+WaterFlow.prototype._average = function () {
   this._avgArray[this._avgIterator] = getTime();
 
   var last;
@@ -56,7 +56,7 @@ WaterFlow.prototype._average = function() {
   return speed;
 };
 
-WaterFlow.prototype._onChange = function() {
+WaterFlow.prototype._onChange = function () {
   this._pulses++;
   this._litres += this._litresPerPulse;
 
@@ -67,7 +67,7 @@ WaterFlow.prototype._onChange = function() {
   }
 
   var self = this;
-  this._pulseTimerID = setTimeout(function() {
+  this._pulseTimerID = setTimeout(function () {
     self._pulseTimerID = null;
     self._speed = 0;
     self.emit('drain');
@@ -76,7 +76,7 @@ WaterFlow.prototype._onChange = function() {
   this.emit('pulse');
 };
 
-WaterFlow.prototype.volume = function(units) {
+WaterFlow.prototype.volume = function (units) {
   switch (units) {
     case 'l':
       return this._litres;
@@ -89,7 +89,7 @@ WaterFlow.prototype.volume = function(units) {
   }
 };
 
-WaterFlow.prototype.reset = function() {
+WaterFlow.prototype.reset = function () {
   var time = getTime();
   for (var i = 0; i < this._avg; ++i) {
     this._avgArray[i] = time;
@@ -98,7 +98,7 @@ WaterFlow.prototype.reset = function() {
   this._pulses = 0;
 };
 
-WaterFlow.prototype.speed = function(units) {
+WaterFlow.prototype.speed = function (units) {
   switch (units) {
     case 'l/min':
       return this._speed * 60;
@@ -111,6 +111,6 @@ WaterFlow.prototype.speed = function(units) {
   }
 };
 
-exports.connect = function(pin, opts) {
+exports.connect = function (pin, opts) {
   return new WaterFlow(pin, opts);
 };

@@ -27,7 +27,7 @@ function convertUnits(s, units) {
 }
 
 // Class Ultrasonic
-var Ultrasonic = function(pins) {
+var Ultrasonic = function (pins) {
   this._trigPin = pins.trigPin;
   this._echoPin = pins.echoPin;
 
@@ -40,7 +40,7 @@ var Ultrasonic = function(pins) {
   this._echoPin.mode('input');
 };
 
-Ultrasonic.prototype.ping = function(cb, units) {
+Ultrasonic.prototype.ping = function (cb, units) {
   var self = this;
 
   if (self._timeoutID) {
@@ -49,14 +49,14 @@ Ultrasonic.prototype.ping = function(cb, units) {
   }
 
   this._riseWatchID = setWatch(
-    function(e) {
+    function (e) {
       self._riseWatchID = null;
       // Roundtrip is measured between the moment
       // when echo line is set high and the moment
       // when it is returned to low state
       self._startTime = e.time;
       self._fallWatchID = setWatch(
-        function(e) {
+        function (e) {
           self._fallWatchID = null;
           clearTimeout(self._timeoutID); // cancel error handling
           self._timeoutID = null;
@@ -73,7 +73,7 @@ Ultrasonic.prototype.ping = function(cb, units) {
   );
 
   // Timeout for the cases when we're not getting echo back
-  self._timeoutID = setTimeout(function() {
+  self._timeoutID = setTimeout(function () {
     self._timeoutID = null;
     if (self._riseWatchID) {
       // Sensor not even rised echo line
@@ -96,6 +96,6 @@ Ultrasonic.prototype.ping = function(cb, units) {
 };
 
 // module exports
-exports.connect = function(pins) {
+exports.connect = function (pins) {
   return new Ultrasonic(pins);
 };

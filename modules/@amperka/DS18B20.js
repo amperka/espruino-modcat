@@ -1,8 +1,8 @@
-var DS18B20 = function(oneWire) {
+var DS18B20 = function (oneWire) {
   this._oneWire = oneWire;
 };
 
-DS18B20.prototype.getC = function(device) {
+DS18B20.prototype.getC = function (device) {
   // Get temp
   this._oneWire.reset();
   this._oneWire.select(device);
@@ -23,6 +23,6 @@ DS18B20.prototype.getC = function(device) {
   return temp;
 };
 
-exports.connect = function(oW) {
+exports.connect = function (oW) {
   return new DS18B20(oW);
 };

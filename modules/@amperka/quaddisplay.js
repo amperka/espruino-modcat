@@ -1,10 +1,10 @@
-var QuadDisplay = function(pin) {
+var QuadDisplay = function (pin) {
     this.pin = pin;
     this.buffer = Array(67);
   },
   SYMBOLS;
 
-QuadDisplay.prototype.display = function(str, align) {
+QuadDisplay.prototype.display = function (str, align) {
   var s = str.toString(),
     chr = 0,
     index = 0,
@@ -49,7 +49,7 @@ QuadDisplay.prototype.display = function(str, align) {
   digitalPulse(this.pin, 0, this.buffer);
 };
 
-QuadDisplay.prototype.marquee = function(_str, _opts) {
+QuadDisplay.prototype.marquee = function (_str, _opts) {
   var opts = _opts || {},
     callback = opts.callback || null,
     speed = opts.speed || 500,
@@ -60,7 +60,7 @@ QuadDisplay.prototype.marquee = function(_str, _opts) {
     chunk;
 
   var interval = setInterval(
-    function() {
+    function () {
       _x = -1;
       while (x !== _x) {
         _x = x;
@@ -101,16 +101,16 @@ SYMBOLS = {
   '^': 127,
   _: 239,
   '*': 57,
-  '0': 3,
-  '1': 159,
-  '2': 37,
-  '3': 13,
-  '4': 153,
-  '5': 73,
-  '6': 65,
-  '7': 31,
-  '8': 1,
-  '9': 9,
+  0: 3,
+  1: 159,
+  2: 37,
+  3: 13,
+  4: 153,
+  5: 73,
+  6: 65,
+  7: 31,
+  8: 1,
+  9: 9,
   A: 17,
   a: 5,
   B: 1,
@@ -260,6 +260,6 @@ function _pad(s, pad) {
   return Array(sl < 0 ? 0 : sl).join(' ');
 }
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new QuadDisplay(pin);
 };

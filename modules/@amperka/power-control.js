@@ -1,4 +1,4 @@
-var Power = function(pin) {
+var Power = function (pin) {
   this._pin = pin;
   this._on = false;
   this._duty = 1.0;
@@ -10,7 +10,7 @@ var Power = function(pin) {
   this._pin.mode('output');
 };
 
-Power.prototype.toggle = function() {
+Power.prototype.toggle = function () {
   if (arguments.length === 0) {
     return this.toggle(!this._on);
   }
@@ -24,26 +24,26 @@ Power.prototype.toggle = function() {
   return this;
 };
 
-Power.prototype.turnOn = function() {
+Power.prototype.turnOn = function () {
   return this.toggle(true);
 };
 
-Power.prototype.turnOff = function() {
+Power.prototype.turnOff = function () {
   return this.toggle(false);
 };
 
-Power.prototype.isOn = function() {
+Power.prototype.isOn = function () {
   return this._on;
 };
 
-Power.prototype._clearBlink = function() {
+Power.prototype._clearBlink = function () {
   if (this._blinkTimeoutID) {
     clearTimeout(this._blinkTimeoutID);
     this._blinkTimeoutID = null;
   }
 };
 
-Power.prototype._blinkOn = function() {
+Power.prototype._blinkOn = function () {
   this._on = true;
   this._update();
   this._blinkTimeoutID = setTimeout(
@@ -52,7 +52,7 @@ Power.prototype._blinkOn = function() {
   );
 };
 
-Power.prototype._blinkOff = function() {
+Power.prototype._blinkOff = function () {
   this._on = false;
   this._update();
 
@@ -66,7 +66,7 @@ Power.prototype._blinkOff = function() {
   }
 };
 
-Power.prototype.pulse = function(onTime, offTime) {
+Power.prototype.pulse = function (onTime, offTime) {
   if (
     this._blinkOnTime === onTime &&
     this._blinkOffTime &&
@@ -86,7 +86,7 @@ Power.prototype.pulse = function(onTime, offTime) {
   }
 };
 
-Power.prototype.power = function(value) {
+Power.prototype.power = function (value) {
   if (arguments.length === 0) {
     return this._duty;
   }
@@ -98,7 +98,7 @@ Power.prototype.power = function(value) {
   return this;
 };
 
-Power.prototype._update = function() {
+Power.prototype._update = function () {
   var b = this._duty;
   if (b > 0 && b < 1.0) {
     analogWrite(this._pin, b * b * b * this._on, { freq: 100 });
@@ -107,6 +107,6 @@ Power.prototype._update = function() {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new Power(pin);
 };

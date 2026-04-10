@@ -1,12 +1,12 @@
-var Pot = function(pin) {
+var Pot = function (pin) {
   this._pin = pin;
   pin.mode('analog');
 };
 
-Pot.prototype.read = function() {
+Pot.prototype.read = function () {
   return analogRead(this._pin);
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new Pot(pin);
 };

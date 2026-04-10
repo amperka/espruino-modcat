@@ -1,4 +1,4 @@
-var LightSensor = function(pin) {
+var LightSensor = function (pin) {
   this._pin = pin;
   this._pin.mode('analog');
 };
@@ -9,7 +9,7 @@ LightSensor.prototype.C = {
   LDR_GAMMA: 0.6 // gamma slope (log10) K
 };
 
-LightSensor.prototype.read = function(units) {
+LightSensor.prototype.read = function (units) {
   var val = analogRead(this._pin);
   if (typeof units === 'undefined') {
     return val;
@@ -28,6 +28,6 @@ LightSensor.prototype.read = function(units) {
   }
 };
 
-exports.connect = function(pin) {
+exports.connect = function (pin) {
   return new LightSensor(pin);
 };
