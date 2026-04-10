@@ -57,7 +57,7 @@ ServoHW.prototype.write = function(value, units) {
   return this;
 };
 
-ServoHW.prototype.disconnect = function() {
+ServoHW.prototype.release = function() {
   digitalWrite(this._pin, 0);
   return this;
 };
