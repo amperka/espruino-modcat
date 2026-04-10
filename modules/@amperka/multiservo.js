@@ -56,7 +56,7 @@ var MultiServo = function(i2c, address) {
   this._address = address || 0x47;
 };
 
-MultiServo.prototype.connect = function(pin, options) {
+MultiServo.prototype.release = function(pin, options) {
   return new MultiServoDevice(this._i2c, this._address, pin, options);
 };
 
