@@ -15,7 +15,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.2.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.3",
     "prettylint": "^2.0.0",
     "uglify-js": "^3.19.3"
   }
