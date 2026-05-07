@@ -21,7 +21,7 @@ const MIME_TYPES = {
 };
 
 const send = (res, statusCode, body, headers = {}) => {
-  res.writeHead(statusCode, headers);
+  res.writeHead(statusCode, { ...CORS_HEADERS, ...headers });
   res.end(body);
 };
 
@@ -97,6 +97,7 @@ const serveFile = async (res, filePath) => {
   }
 
   res.writeHead(200, {
+    ...CORS_HEADERS,
     'Content-Length': fileInfo.size,
     'Content-Type': getContentType(filePath)
   });
@@ -183,10 +184,22 @@ const handleFallback = (req, res) => {
   send(res, 404, 'Not found', { 'Content-Type': MIME_TYPES['.txt'] });
 };
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': '*',
+  'Access-Control-Allow-Private-Network': 'true'
+};
+
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url ?? '/', 'http://localhost');
     const { pathname } = url;
+
+    if (req.method === 'OPTIONS') {
+      send(res, 204, '', CORS_HEADERS);
+      return;
+    }
 
     if (req.method !== 'GET') {
       send(res, 405, 'Method not allowed', {
