@@ -1,6 +1,6 @@
 var Dweetio = function (name) {
   this._name = name || 'amperka';
-  this._host = "iskreet.amperka.ru";
+  this._host = 'iskreet.amperka.ru';
   this._http = require('http');
 };
 
