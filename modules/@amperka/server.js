@@ -26,13 +26,15 @@ Server.prototype._onPageRequest = function (req, res) {
 };
 
 Server.prototype._event = function (eventName, req, res) {
+  var sent = false;
   res.send = function (content, headers) {
-    if (headers === undefined) {
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-    } else {
-      res.writeHead(200, headers);
-    }
-    res.write(content);
+    sent = true;
+    var hdrs = headers || {};
+    if (!hdrs['Content-Type']) hdrs['Content-Type'] = 'text/html';
+    hdrs['Content-Length'] = content.length;
+    hdrs['Connection'] = 'close';
+    res.writeHead(200, hdrs);
+    res.end(content);
   };
   if (this._events[eventName]) {
     this._events[eventName](req, res);
@@ -40,7 +42,7 @@ Server.prototype._event = function (eventName, req, res) {
     res.writeHead(404, { 'Content-Type': 'text/html' });
     res.write('<h1>404 - Not found</h1>');
   }
-  res.end();
+  if (!sent) res.end();
 };
 
 exports.create = function () {
