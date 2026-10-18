@@ -33,5 +33,6 @@ or hostnames, so something outside terminates TLS and routes the name here.
 
 ## Publishing
 
-Not wired up yet. When it is, the image will be published to the container
-registry with a `latest` tag and a build-time tag per push.
+`.github/workflows/push.yaml` builds this image on every pull request and
+publishes it to the Google Artifact Registry on every push to `master`, as
+`espruino-modcat`, tagged both `latest` and with the build time in UTC.

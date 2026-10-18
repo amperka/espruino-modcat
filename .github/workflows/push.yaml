@@ -1,31 +1,142 @@
-name: Deploy
-permissions:
-  contents: read
-  id-token: write
+# Build the production image on every pull request and publish it to the Google
+# Artifact Registry on every push to `master`.
+#
+# Lint and format checks run here on every push to `master`: pr.yaml is
+# pull-request-only, so this is the last gate before a regression reaches the
+# registry. On a pull request pr.yaml already covers them, and this workflow
+# only proves that the image builds.
+#
+# Credentials are resolved only where they are used, on the publishing path.
+# GitHub never passes repository secrets to a `pull_request` run, and a pull
+# request from a fork never gets them at all, so a job that demanded a
+# credential on every event would fail every such pull request. On a pull
+# request this job only proves the image builds; a broken credential setup
+# fails the push to `master` instead.
+#
+# Published tags, both pointing at the same image:
+#   latest                 rolling, the one the host follows
+#   <YYYYMMDDHHMMSS>       build time in UTC, unique per push to `master`, so one
+#                          release can be told from another and pinned without a
+#                          version file in the repository
+#
+# The image name is `espruino-modcat`, the name of the container on the host.
+#
+# Registry coordinates are configurable with repository variables
+# (Settings -> Secrets and variables -> Actions -> Variables); the defaults are
+# the production values:
+#   REGISTRY_HOST        default europe-west1-docker.pkg.dev
+#   REGISTRY_PROJECT     default amperka-hq
+#   REGISTRY_REPOSITORY  default docker
+#   PROD_IMAGE_NAME      default espruino-modcat
+#
+# Authentication secrets, one of two modes:
+#   GCP_WIF_PROVIDER + GCP_WIF_SERVICE_ACCOUNT  workload identity federation (preferred)
+#   GCP_SA_KEY                                  service-account JSON key (fallback)
+#
+name: Build and publish image
 
 on:
+  pull_request:
   push:
     branches: [master]
 
+# Never let two runs publish at once: they push the same tags, and the slower
+# one would overwrite the newer `latest` with an older image.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY_HOST: ${{ vars.REGISTRY_HOST || 'europe-west1-docker.pkg.dev' }}
+  REGISTRY_PROJECT: ${{ vars.REGISTRY_PROJECT || 'amperka-hq' }}
+  REGISTRY_REPOSITORY: ${{ vars.REGISTRY_REPOSITORY || 'docker' }}
+  CONTAINER_REGISTRY: ${{ vars.REGISTRY_HOST || 'europe-west1-docker.pkg.dev' }}/${{ vars.REGISTRY_PROJECT || 'amperka-hq' }}/${{ vars.REGISTRY_REPOSITORY || 'docker' }}
+  PROD_IMAGE_NAME: ${{ vars.PROD_IMAGE_NAME || 'espruino-modcat' }}
+
 jobs:
-  deploy:
+  image:
+    name: Build and publish image
     runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # OIDC token for workload identity federation
+    # The `secrets` context is not available in step-level `if` expressions, so
+    # credential presence is materialized here (job-level env CAN read secrets).
+    env:
+      PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      HAS_GCP_WIF: ${{ secrets.GCP_WIF_PROVIDER != '' && secrets.GCP_WIF_SERVICE_ACCOUNT != '' }}
+      HAS_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY != '' }}
+
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - run: yarn install --non-interactive
-      - run: yarn build
-      - uses: google-github-actions/auth@v2
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # A push to `master` never goes through pr.yaml, and no other workflow on
+      # a push runs the checks: without this step a regression could be
+      # published to the registry unchecked. Pull requests do get the full
+      # lint and format suite from pr.yaml, so the step is skipped there.
+      - name: Run checks
+        if: ${{ env.PUBLISH == 'true' }}
+        run: |
+          yarn install --frozen-lockfile --non-interactive --no-progress
+          yarn verify
+
+      - name: Authenticate to Google Cloud (workload identity)
+        id: auth_wif
+        if: ${{ env.PUBLISH == 'true' && env.HAS_GCP_WIF == 'true' }}
+        uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/setup-gcloud@v2
-      - run: |
-          gcloud storage rsync --recursive --delete-unmatched-destination-objects \
-            binaries gs://js-amperka-ru/binaries
-          gcloud storage rsync --recursive --delete-unmatched-destination-objects \
-            json gs://js-amperka-ru/json
-          gcloud storage rsync --recursive --delete-unmatched-destination-objects \
-            modules gs://js-amperka-ru/modules
+          token_format: access_token
+          # Only the access token is used (docker login). Nothing here reads a
+          # credentials file, and that file would land in the build context:
+          # the image is built with `docker image build ... .`.
+          create_credentials_file: false
+
+      - name: Authenticate to Google Cloud (service-account key)
+        id: auth_key
+        if: ${{ env.PUBLISH == 'true' && steps.auth_wif.outcome == 'skipped' && env.HAS_GCP_SA_KEY == 'true' }}
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          token_format: access_token
+          create_credentials_file: false
+
+      - name: Require GCP credentials
+        if: ${{ env.PUBLISH == 'true' && steps.auth_wif.outcome == 'skipped' && steps.auth_key.outcome == 'skipped' }}
+        run: |
+          echo "::error title=Missing GCP credentials::Set GCP_WIF_PROVIDER + GCP_WIF_SERVICE_ACCOUNT (preferred) or GCP_SA_KEY repository secrets."
+          exit 1
+
+      - name: Login to Artifact Registry
+        if: ${{ env.PUBLISH == 'true' }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: oauth2accesstoken
+          password: ${{ steps.auth_wif.outputs.access_token || steps.auth_key.outputs.access_token }}
+
+      - name: Get image tags
+        run: |
+          # Build time in UTC, not the commit date: two pushes to `master` can
+          # carry the same commit (a rebase, a revert of a revert), and each one
+          # needs its own tag. A re-run of the workflow gets a fresh one too.
+          VERSION="$(date -u +%Y%m%d%H%M%S)"
+          IMAGE_REF="${CONTAINER_REGISTRY}/${PROD_IMAGE_NAME}"
+          echo "IMAGE_TAG=${IMAGE_REF}:${VERSION}" >> "$GITHUB_ENV"
+          echo "IMAGE_LATEST=${IMAGE_REF}:latest" >> "$GITHUB_ENV"
+
+      # The build context is the repository root, and the file there is named
+      # `Containerfile`.
+      - name: Build image
+        run: |
+          docker image build -f Containerfile -t "${IMAGE_TAG}" .
+
+      - name: Publish image
+        if: ${{ env.PUBLISH == 'true' }}
+        run: |
+          docker image tag "${IMAGE_TAG}" "${IMAGE_LATEST}"
+          docker image push "${IMAGE_TAG}"
+          docker image push "${IMAGE_LATEST}"
