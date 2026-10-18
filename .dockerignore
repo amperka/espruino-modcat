@@ -1,0 +1,8 @@
+# The build context is the repository root. Nothing but the catalog sources
+# belongs there: the build stage installs its own node_modules and generates its
+# own .min.js files, and the host copies are built for the wrong platform.
+.git/
+.github/
+node_modules/
+modules/@amperka/*.min.js
+README.md
