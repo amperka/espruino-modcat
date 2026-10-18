@@ -22,9 +22,12 @@ image listens on 8080, not 80, so it runs unprivileged.
 
 - `/modules/`, `/binaries/`, `/json/` from `/srv/espruino-modcat/site`.
 - `/json/boards.json` from espruino.com, with the ISKRAJS board spliced in: the
-  IDE needs every board espruino.com knows about, not only ours.
+  IDE needs every board espruino.com knows about, not only ours. When
+  espruino.com is unreachable, the bundled ISKRAJS-only catalog answers
+  instead.
 - A catalog path the image does not carry is not ours, so it answers 302 to
-  espruino.com.
+  espruino.com - plain http for device clients, https for requests that arrive
+  through the TLS-terminating outer proxy.
 - `/` and `/yodo` redirect to the documentation on wiki.amperka.ru.
 - Every answer carries the CORS headers the Espruino Web IDE needs.
 
