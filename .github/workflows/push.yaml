@@ -70,7 +70,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # A push to `master` never goes through pr.yaml, and no other workflow on
       # a push runs the checks: without this step a regression could be
