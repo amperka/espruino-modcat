@@ -2,7 +2,7 @@
 # (.gitignore), so the image builds them the way CI does before a deploy.
 #
 # Both base images are pinned to exact tags, so Dependabot moves them.
-FROM node:24.22.3-alpine3.24 AS build
+FROM node:26.13.1-alpine3.24 AS build
 
 WORKDIR /build
 
