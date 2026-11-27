@@ -4,6 +4,17 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
+
+# The Angie registry is public, so the values are placeholders: the Dependabot
+# proxy lets a job reach a host only when its registry is declared here and
+# referenced by the update below.
+registries:
+  angie:
+    type: docker-registry
+    url: https://docker.angie.software
+    username: dependabot
+    password: public-registry
+
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -15,5 +26,7 @@ updates:
       interval: "monthly"
   - package-ecosystem: "docker"
     directory: "/"
+    registries:
+      - angie
     schedule:
       interval: "monthly"
