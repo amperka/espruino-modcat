@@ -1,4 +1,6 @@
-ARG NODE_IMAGE=node:lts-alpine
+# Node images bundle Yarn Classic only up to Node 25, and the `lts` alias now
+# points at Node 26, so the build stage names a Node 24 image.
+ARG NODE_IMAGE=node:24-alpine
 ARG ANGIE_IMAGE=docker.angie.software/angie:1.12.2-minimal
 
 # The catalog ships minified modules, and modules/@amperka/*.min.js is generated
@@ -7,8 +9,8 @@ FROM ${NODE_IMAGE} AS build
 
 WORKDIR /build
 
-# yarn.lock is a v1 lockfile, and the official node image already carries the
-# classic yarn that matches it (yarn 1.22.22 for node 24).
+# yarn.lock is a v1 lockfile, and the Node 24 image carries the classic yarn
+# that matches it (1.22.22).
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --non-interactive --no-progress
 
