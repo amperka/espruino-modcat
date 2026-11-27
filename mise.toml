@@ -1,0 +1,3 @@
+# Node for local development and for CI, where mise-action reads this file.
+[tools]
+node = "24"

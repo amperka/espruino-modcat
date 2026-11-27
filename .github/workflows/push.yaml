@@ -72,6 +72,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      # Node comes from mise.toml, the same file as in local development.
+      - name: Install Node with mise
+        if: ${{ env.PUBLISH == 'true' }}
+        uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+
       # A push to `master` never goes through pr.yaml, and no other workflow on
       # a push runs the checks: without this step a regression could be
       # published to the registry unchecked. Pull requests do get the full
@@ -79,8 +84,8 @@ jobs:
       - name: Run checks
         if: ${{ env.PUBLISH == 'true' }}
         run: |
-          yarn install --frozen-lockfile --non-interactive --no-progress
-          yarn verify
+          npm ci
+          npm run verify
 
       - name: Authenticate to Google Cloud (workload identity)
         id: auth_wif

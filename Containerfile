@@ -1,35 +1,27 @@
-# Node images bundle Yarn Classic only up to Node 25, and the `lts` alias now
-# points at Node 26, so the build stage names a Node 24 image.
-ARG NODE_IMAGE=node:24-alpine
-ARG ANGIE_IMAGE=docker.angie.software/angie:1.12.2-minimal
-
 # The catalog ships minified modules, and modules/@amperka/*.min.js is generated
 # (.gitignore), so the image builds them the way CI does before a deploy.
-FROM ${NODE_IMAGE} AS build
+#
+# Both base images are pinned to exact tags, so Dependabot moves them.
+FROM node:24.22.3-alpine3.24 AS build
 
 WORKDIR /build
 
-# yarn.lock is a v1 lockfile, and the Node 24 image carries the classic yarn
-# that matches it (1.22.22).
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --non-interactive --no-progress
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
-# `yarn build` is `yarn minify`: it rewrites every modules/**/*.js next to
-# itself as a .min.js, so the sources are all the stage needs.
+# `npm run build` is `npm run minify`: it rewrites every modules/**/*.js next
+# to itself as a .min.js, so the sources are all the stage needs.
 COPY modules/ ./modules/
-RUN yarn build
+RUN npm run build
 
-FROM ${ANGIE_IMAGE}
+FROM docker.angie.software/angie:1.12.6-minimal
 
 LABEL org.opencontainers.image.title="js.amperka.ru" \
       org.opencontainers.image.description="Espruino module catalog: modules, board json and firmware binaries" \
       org.opencontainers.image.source="https://github.com/amperka/espruino-modcat"
 
-# The stock server in the image listens on 80 and would serve its own stub
-# page, drop it. The config keeps an explicit ownership and mode: COPY otherwise
-# carries the uid/gid and the mode of the file in the build context.
-RUN rm -f /etc/angie/http.d/default.conf
-COPY --chown=root:root --chmod=0644 deploy/angie.conf /etc/angie/http.d/site.conf
+# The config replaces the stock default server instead of sitting next to it.
+COPY deploy/angie.conf /etc/angie/http.d/default.conf
 
 # The catalog root mirrors the repository: /modules/, /binaries/ and /json/ are
 # the URL space, so the three directories are copied as they are.

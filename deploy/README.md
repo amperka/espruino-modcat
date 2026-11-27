@@ -14,7 +14,7 @@ docker build --load -f Containerfile -t espruino-modcat:test .
 docker run -d --name espruino-modcat -p 8080:8080 espruino-modcat:test
 ```
 
-The build stage minifies the modules with yarn, and the result is copied into an
+The build stage minifies the modules with npm, and the result is copied into an
 angie image: the build context needs nothing but the repository itself. The
 image listens on 8080, not 80, so it runs unprivileged.
 

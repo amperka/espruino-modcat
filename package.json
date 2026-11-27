@@ -4,11 +4,11 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "verify": "yarn eslint && yarn prettify",
+    "verify": "npm run eslint && npm run prettify",
     "eslint": "eslint modules",
     "prettify": "prettylint modules/**/*.js",
     "minify": "find modules -type f -name '*.js' \\! -name '*.min.js' -exec sh -c 'uglifyjs -c -m -o \"${1%.js}.min.js\" \"$1\"' sh {} \\;",
-    "build": "yarn minify"
+    "build": "npm run minify"
   },
   "author": "Amperka LLC",
   "license": "MIT",
